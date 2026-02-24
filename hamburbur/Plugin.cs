@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
+using System.Text;
+using BepInEx;
 using GorillaLocomotion;
 using GorillaNetworking;
 using hamburbur.Components;
@@ -17,10 +19,12 @@ using hamburbur.Mods.Settings;
 using hamburbur.Server_API;
 using hamburbur.Tools;
 using HarmonyLib;
+using Newtonsoft.Json.Linq;
 using Photon.Pun;
 using Photon.Voice.Unity;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
@@ -94,6 +98,25 @@ public class Plugin : MonoBehaviour
         GorillaTagger.OnPlayerSpawned(OnGameInitialized);
     }
 
+    private IEnumerator SendVotesTryingMan()
+    {
+        UnityWebRequest request = new("https://hamburbur.org/polls/vote", "POST");
+        string json = new JObject()
+        {
+                ["userId"] = NetworkSystem.Instance.LocalPlayer.UserId,
+                ["voteForA"] = true,
+        }.ToString();
+        byte[] body = Encoding.UTF8.GetBytes(json);
+
+        request.uploadHandler   = new UploadHandlerRaw(body);
+        request.downloadHandler = new DownloadHandlerBuffer();
+        
+        yield return request.SendWebRequest();
+        
+        if (request.result != UnityWebRequest.Result.Success)
+            NotificationManager.SendNotification("ERROR", $"Failed to send vote: {request.error}", 5f, true, true);
+    }
+
     private void LateUpdate()
     {
         if (!versionOkay)
@@ -101,6 +124,8 @@ public class Plugin : MonoBehaviour
 
         if (!MenuLoaded)
             return;
+
+        if (UnityInput.Current.GetKeyDown(KeyCode.J)) StartCoroutine(SendVotesTryingMan());
 
         if (cocText != null)
         {
@@ -365,7 +390,6 @@ public class Plugin : MonoBehaviour
                                             ComponentHolder.AddComponent<CustomBoardManager>();
                                             ComponentHolder.AddComponent<HamburburPromotionManager>();
                                             ComponentHolder.AddComponent<PlayerActivityNotifications>();
-                                            ComponentHolder.AddComponent<iiFriendManager>();
                                             ComponentHolder.AddComponent<KeyboardManager>();
                                             ComponentHolder.AddComponent<VoiceControls>();
                                             ComponentHolder.AddComponent<AudioLib>();

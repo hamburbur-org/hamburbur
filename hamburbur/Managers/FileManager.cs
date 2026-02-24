@@ -1,15 +1,20 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Text;
 using BepInEx;
 using hamburbur.Components;
 using hamburbur.GUI;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Macros;
+using hamburbur.Server_API;
 using hamburbur.Tools;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace hamburbur.Managers;
 
@@ -23,6 +28,8 @@ public class FileManager : Singleton<FileManager>
     public          string MacrosFolder;
     public          string EventLoggerFolder;
     public readonly string RootHamburburFolder = Path.Combine(Paths.GameRootPath, "hamburbur");
+
+    public List<string> AnsweredPolls = [];
 
     private bool    hasLoadedSavedData;
     private float   lastTime;
@@ -95,6 +102,30 @@ public class FileManager : Singleton<FileManager>
 
 #endregion
 
+#region Check Current Poll
+
+                HamburburData.OnDataReloaded += data =>
+                                                {
+                                                    JToken currentPollData = data["pollData"];
+                                                    string currentPollName = currentPollData["name"].ToObject<string>();
+
+                                                    if (AnsweredPolls.Contains(currentPollName))
+                                                        return;
+
+                                                    ButtonHandler.Instance.Prompt(new PromptData(PromptType.AcceptAndDeny, currentPollName, () => SendVoteWrapper(true, currentPollName), () => SendVoteWrapper(false, currentPollName), currentPollData["optionA"].ToObject<string>(), currentPollData["optionB"].ToObject<string>()));
+                                                    NotificationManager.SendNotification("<color=purple>File Manager</color>", $"You have not voted for the poll {currentPollName}, open your menu to do so...", 5f, true, false);
+                                                };
+                AnsweredPolls   = SaveData["answeredPolls"].ToObject<List<string>>();
+                JToken   currentPollData = HamburburData.Data["pollData"];
+                string   currentPollName = currentPollData["name"].ToObject<string>();
+                if (!AnsweredPolls.Contains(currentPollName))
+                {
+                    ButtonHandler.Instance.Prompt(new PromptData(PromptType.AcceptAndDeny, currentPollName, () => SendVoteWrapper(true, currentPollName), () => SendVoteWrapper(false, currentPollName), currentPollData["optionA"].ToObject<string>(), currentPollData["optionB"].ToObject<string>()));
+                    NotificationManager.SendNotification("<color=purple>File Manager</color>", $"You have not voted for the poll {currentPollName}, open your menu to do so...", 5f, true, false);
+                }
+
+#endregion
+
                 hasLoadedSavedData = true;
             }
             catch (Exception e)
@@ -110,6 +141,14 @@ public class FileManager : Singleton<FileManager>
         }
 
         MacroManager.LoadAllMacros();
+        
+        return;
+
+        void SendVoteWrapper(bool voteForA, string currentPollName)
+        {
+            StartCoroutine(SendVote(voteForA));
+            AnsweredPolls.Add(currentPollName);
+        }
     }
 
     public void UpdatePreferences()
@@ -117,9 +156,30 @@ public class FileManager : Singleton<FileManager>
         SaveData = new JObject
         {
                 ["savedModData"] = GetModSaveDataJson(),
+                ["answeredPolls"] = JToken.FromObject(AnsweredPolls),
         };
 
         File.WriteAllText(Path.Combine(RootHamburburFolder, "HamburburSaveData.json"), SaveData.ToString());
+    }
+
+    private IEnumerator SendVote(bool voteForA)
+    {
+        UnityWebRequest webRequest = new("https://hamburbur.org/polls/vote", "POST");
+        string json = new JObject()
+        {
+                ["userId"] = NetworkSystem.Instance.LocalPlayer.UserId,
+                ["voteForA"] = voteForA,
+        }.ToString();
+        byte[] body = Encoding.UTF8.GetBytes(json);
+
+        webRequest.uploadHandler   = new UploadHandlerRaw(body);
+        webRequest.downloadHandler = new DownloadHandlerBuffer();
+        webRequest.SetRequestHeader("Content-Type", "application/json");
+        
+        yield return webRequest.SendWebRequest();
+        
+        if (webRequest.result != UnityWebRequest.Result.Success)
+            Debug.LogError("[FileManager] Failed to send vote: " + webRequest.error);
     }
 
     private JToken GetModSaveDataJson()
