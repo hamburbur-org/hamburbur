@@ -138,6 +138,9 @@ public class Plugin : MonoBehaviour
             cocHeadingText.lineSpacing  = LineSpacing;
             cocText.lineSpacing         = LineSpacing;
         }
+        
+        if (motdBodyText != null && motdBodyText.text != HamburburData.Data["messageOfTheDayText"].ToObject<string>())
+            motdBodyText.text = HamburburData.Data["messageOfTheDayText"].ToObject<string>();
 
         Transform realRight = Tools.Utils.RealRightController;
         Transform realLeft  = Tools.Utils.RealLeftController;
