@@ -10,6 +10,7 @@ public enum RigMode
 {
     Skellon,
     Wings,
+    Lemming,
     Head,
     RecRoom,
 }
@@ -80,6 +81,28 @@ public class PCRig : hamburburmod
 
                 GTPlayer.Instance.rightHand.controllerTransform.transform.rotation =
                         VRRig.LocalRig.bodyRenderer.transform.rotation;
+
+                break;
+            }
+
+            case RigMode.Lemming:
+            {
+                VRRig     localRig = VRRig.LocalRig;
+                Transform head     = localRig.head.rigTarget;
+
+                head.rotation = GorillaTagger.Instance.headCollider.transform.rotation;
+
+                GTPlayer.Instance.leftHand.controllerTransform.position =
+                        localRig.bodyRenderer.transform.TransformPoint(-0.2f, -0.05f, 0.6f);
+
+                GTPlayer.Instance.rightHand.controllerTransform.position =
+                        localRig.bodyRenderer.transform.TransformPoint(0.2f, -0.05f, 0.6f);
+
+                Quaternion headRot = head.rotation;
+
+                Quaternion tilt = Quaternion.Euler(-90f, 0f, 0f);
+                GTPlayer.Instance.leftHand.controllerTransform.rotation  = headRot * tilt;
+                GTPlayer.Instance.rightHand.controllerTransform.rotation = headRot * tilt;
 
                 break;
             }
