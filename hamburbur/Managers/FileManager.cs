@@ -103,27 +103,10 @@ public class FileManager : Singleton<FileManager>
 #endregion
 
 #region Check Current Poll
-
-                HamburburData.OnDataReloaded += data =>
-                                                {
-                                                    JToken currentPollData = data["pollData"];
-                                                    string currentPollName = currentPollData["name"].ToObject<string>();
-
-                                                    if (AnsweredPolls.Contains(currentPollName))
-                                                        return;
-
-                                                    ButtonHandler.Instance.Prompt(new PromptData(PromptType.AcceptAndDeny, currentPollName, () => SendVoteWrapper(true, currentPollName), () => SendVoteWrapper(false, currentPollName), currentPollData["optionA"].ToObject<string>(), currentPollData["optionB"].ToObject<string>()));
-                                                    NotificationManager.SendNotification("<color=purple>File Manager</color>", $"You have not voted for the poll {currentPollName}, open your menu to do so...", 5f, true, false);
-                                                };
+                
                 AnsweredPolls   = SaveData["answeredPolls"].ToObject<List<string>>();
-                JToken   currentPollData = HamburburData.Data["pollData"];
-                string   currentPollName = currentPollData["name"].ToObject<string>();
-                if (!AnsweredPolls.Contains(currentPollName))
-                {
-                    ButtonHandler.Instance.Prompt(new PromptData(PromptType.AcceptAndDeny, currentPollName, () => SendVoteWrapper(true, currentPollName), () => SendVoteWrapper(false, currentPollName), currentPollData["optionA"].ToObject<string>(), currentPollData["optionB"].ToObject<string>()));
-                    NotificationManager.SendNotification("<color=purple>File Manager</color>", $"You have not voted for the poll {currentPollName}, open your menu to do so...", 5f, true, false);
-                }
-
+                CheckVoteEligibility(HamburburData.Data);
+                
 #endregion
 
                 hasLoadedSavedData = true;
@@ -140,15 +123,8 @@ public class FileManager : Singleton<FileManager>
             }
         }
 
+        HamburburData.OnDataReloaded += CheckVoteEligibility;
         MacroManager.LoadAllMacros();
-        
-        return;
-
-        void SendVoteWrapper(bool voteForA, string currentPollName)
-        {
-            AnsweredPolls.Add(currentPollName);
-            StartCoroutine(SendVote(voteForA));
-        }
     }
 
     public void UpdatePreferences()
@@ -160,6 +136,19 @@ public class FileManager : Singleton<FileManager>
         };
 
         File.WriteAllText(Path.Combine(RootHamburburFolder, "HamburburSaveData.json"), SaveData.ToString());
+    }
+
+    private void CheckVoteEligibility(JObject data)
+    {
+        JToken currentPollData = data["pollData"];
+        string currentPollName = currentPollData["name"].ToObject<string>();
+
+        if (AnsweredPolls.Contains(currentPollName))
+            return;
+
+        ButtonHandler.Instance.Prompt(new PromptData(PromptType.AcceptAndDeny, currentPollName, () => StartCoroutine(SendVote(true)), () => StartCoroutine(SendVote(false)), currentPollData["optionA"].ToObject<string>(), currentPollData["optionB"].ToObject<string>()));
+        NotificationManager.SendNotification("<color=purple>File Manager</color>", $"You have not voted for the poll {currentPollName}, open your menu to do so...", 5f, true, false);
+        AnsweredPolls.Add(currentPollName);
     }
 
     private IEnumerator SendVote(bool voteForA)
