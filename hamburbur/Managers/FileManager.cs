@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using BepInEx;
@@ -23,13 +22,13 @@ public class FileManager : Singleton<FileManager>
     private const string RootSoundUrl =
             "https://files.hamburbur.org/Maniacs_of_Noise.mp3";
 
-    private const   string RootSoundFileName = "Maniacs of Noise.mp3";
-    public          string SoundsFolder;
-    public          string MacrosFolder;
-    public          string EventLoggerFolder;
-    public readonly string RootHamburburFolder = Path.Combine(Paths.GameRootPath, "hamburbur");
+    private const string RootSoundFileName = "Maniacs of Noise.mp3";
+    public        string SoundsFolder;
+    public        string MacrosFolder;
+    public        string EventLoggerFolder;
 
-    public List<string> AnsweredPolls = [];
+    public          List<string> AnsweredPolls       = [];
+    public readonly string       RootHamburburFolder = Path.Combine(Paths.GameRootPath, "hamburbur");
 
     private bool    hasLoadedSavedData;
     private float   lastTime;
@@ -103,10 +102,10 @@ public class FileManager : Singleton<FileManager>
 #endregion
 
 #region Check Current Poll
-                
-                AnsweredPolls   = SaveData["answeredPolls"].ToObject<List<string>>();
+
+                AnsweredPolls = SaveData["answeredPolls"].ToObject<List<string>>();
                 CheckVoteEligibility(HamburburData.Data);
-                
+
 #endregion
 
                 hasLoadedSavedData = true;
@@ -131,7 +130,7 @@ public class FileManager : Singleton<FileManager>
     {
         SaveData = new JObject
         {
-                ["savedModData"] = GetModSaveDataJson(),
+                ["savedModData"]  = GetModSaveDataJson(),
                 ["answeredPolls"] = JToken.FromObject(AnsweredPolls),
         };
 
@@ -146,27 +145,33 @@ public class FileManager : Singleton<FileManager>
         if (AnsweredPolls.Contains(currentPollName))
             return;
 
-        ButtonHandler.Instance.Prompt(new PromptData(PromptType.AcceptAndDeny, currentPollName, () => StartCoroutine(SendVote(true)), () => StartCoroutine(SendVote(false)), currentPollData["optionA"].ToObject<string>(), currentPollData["optionB"].ToObject<string>()));
-        NotificationManager.SendNotification("<color=purple>File Manager</color>", $"You have not voted for the poll {currentPollName}, open your menu to do so...", 5f, true, false);
+        ButtonHandler.Instance.Prompt(new PromptData(PromptType.AcceptAndDeny, currentPollName,
+                () => StartCoroutine(SendVote(true)), () => StartCoroutine(SendVote(false)),
+                currentPollData["optionA"].ToObject<string>(), currentPollData["optionB"].ToObject<string>()));
+
+        NotificationManager.SendNotification("<color=purple>File Manager</color>",
+                $"You have not voted for the poll \"{currentPollName}\", open your menu to do so...", 5f, true, false);
+
         AnsweredPolls.Add(currentPollName);
     }
 
     private IEnumerator SendVote(bool voteForA)
     {
         UnityWebRequest webRequest = new("https://hamburbur.org/polls/vote", "POST");
-        string json = new JObject()
+        string json = new JObject
         {
-                ["userId"] = NetworkSystem.Instance.LocalPlayer.UserId,
+                ["userId"]   = NetworkSystem.Instance.LocalPlayer.UserId,
                 ["voteForA"] = voteForA,
         }.ToString();
+
         byte[] body = Encoding.UTF8.GetBytes(json);
 
         webRequest.uploadHandler   = new UploadHandlerRaw(body);
         webRequest.downloadHandler = new DownloadHandlerBuffer();
         webRequest.SetRequestHeader("Content-Type", "application/json");
-        
+
         yield return webRequest.SendWebRequest();
-        
+
         if (webRequest.result != UnityWebRequest.Result.Success)
             Debug.LogError("[FileManager] Failed to send vote: " + webRequest.error);
     }

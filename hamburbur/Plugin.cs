@@ -98,25 +98,6 @@ public class Plugin : MonoBehaviour
         GorillaTagger.OnPlayerSpawned(OnGameInitialized);
     }
 
-    private IEnumerator SendVotesTryingMan()
-    {
-        UnityWebRequest request = new("https://hamburbur.org/polls/vote", "POST");
-        string json = new JObject()
-        {
-                ["userId"] = NetworkSystem.Instance.LocalPlayer.UserId,
-                ["voteForA"] = true,
-        }.ToString();
-        byte[] body = Encoding.UTF8.GetBytes(json);
-
-        request.uploadHandler   = new UploadHandlerRaw(body);
-        request.downloadHandler = new DownloadHandlerBuffer();
-        
-        yield return request.SendWebRequest();
-        
-        if (request.result != UnityWebRequest.Result.Success)
-            NotificationManager.SendNotification("ERROR", $"Failed to send vote: {request.error}", 5f, true, true);
-    }
-
     private void LateUpdate()
     {
         if (!versionOkay)
@@ -163,7 +144,7 @@ public class Plugin : MonoBehaviour
             cocHeadingText.lineSpacing  = LineSpacing;
             cocText.lineSpacing         = LineSpacing;
         }
-        
+
         if (motdBodyText != null && motdBodyText.text != HamburburData.Data["messageOfTheDayText"].ToObject<string>())
             motdBodyText.text = HamburburData.Data["messageOfTheDayText"].ToObject<string>();
 
@@ -197,6 +178,26 @@ public class Plugin : MonoBehaviour
         if (!isRigEnabled && Tools.Utils.InVR)
             GorillaTagger.Instance.rightHandTriggerCollider.transform.position =
                     MenuHandler.Instance.ButtonPresser.transform.position;
+    }
+
+    private IEnumerator SendVotesTryingMan()
+    {
+        UnityWebRequest request = new("https://hamburbur.org/polls/vote", "POST");
+        string json = new JObject
+        {
+                ["userId"]   = NetworkSystem.Instance.LocalPlayer.UserId,
+                ["voteForA"] = true,
+        }.ToString();
+
+        byte[] body = Encoding.UTF8.GetBytes(json);
+
+        request.uploadHandler   = new UploadHandlerRaw(body);
+        request.downloadHandler = new DownloadHandlerBuffer();
+
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+            NotificationManager.SendNotification("ERROR", $"Failed to send vote: {request.error}", 5f, true, true);
     }
 
     private void OnGameInitialized()
