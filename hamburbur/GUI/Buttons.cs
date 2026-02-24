@@ -223,8 +223,6 @@ public static class Buttons
             ["OP"] =
             [
                     (typeof(EmojiName), null),
-                    (typeof(iiStupidCheck), null),
-                    (typeof(iiTelemetry), null),
                     (typeof(ElevatorKickAll), null),
                     (typeof(FuckOffGroupJoining), null),
                     (typeof(TickDoesSomething), null),
