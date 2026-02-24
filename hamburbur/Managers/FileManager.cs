@@ -146,8 +146,8 @@ public class FileManager : Singleton<FileManager>
 
         void SendVoteWrapper(bool voteForA, string currentPollName)
         {
-            StartCoroutine(SendVote(voteForA));
             AnsweredPolls.Add(currentPollName);
+            StartCoroutine(SendVote(voteForA));
         }
     }
 
