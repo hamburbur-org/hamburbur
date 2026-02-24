@@ -87,23 +87,37 @@ public class FileManager : Singleton<FileManager>
 
 #region Load Mod Data
 
-                ButtonHandler.SavedModInfo = SaveData["savedModData"].ToObject<Dictionary<string, ModSaveInfo>>();
+                try
+                {
+                    ButtonHandler.SavedModInfo = SaveData["savedModData"].ToObject<Dictionary<string, ModSaveInfo>>();
 
-                foreach ((string _, (Type, hamburburmod)[] categoryContent) in Buttons.Categories)
-                    foreach ((Type _, hamburburmod modComp) in categoryContent)
-                    {
-                        if (!ButtonHandler.SavedModInfo.TryGetValue(modComp.PreferencesKey,
-                                    out ModSaveInfo modSaveInfo))
-                            continue;
+                    foreach ((string _, (Type, hamburburmod)[] categoryContent) in Buttons.Categories)
+                        foreach ((Type _, hamburburmod modComp) in categoryContent)
+                        {
+                            if (!ButtonHandler.SavedModInfo.TryGetValue(modComp.PreferencesKey,
+                                        out ModSaveInfo modSaveInfo))
+                                continue;
 
-                        modComp.LoadSavedData(modSaveInfo);
-                    }
+                            modComp.LoadSavedData(modSaveInfo);
+                        }
+                }
+                catch
+                {
+                    // ignored
+                }
 
 #endregion
 
 #region Check Current Poll
 
-                AnsweredPolls = SaveData["answeredPolls"].ToObject<List<string>>();
+                try
+                {
+                    AnsweredPolls = SaveData["answeredPolls"].ToObject<List<string>>();
+                }
+                catch
+                {
+                    // ignored
+                }
                 CheckVoteEligibility(HamburburData.Data);
 
 #endregion
