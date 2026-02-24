@@ -138,7 +138,6 @@ public static class Buttons
                     (typeof(BoxESP4D), null),
                     (typeof(Boners), null),
                     (typeof(NoNetworkTriggers), null),
-                    (typeof(CheatsDetector), null),
             ],
 
             ["Visual"] =
