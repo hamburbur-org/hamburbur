@@ -406,6 +406,6 @@
 
     <ItemGroup>
         <Compile Remove="Mods\Rig\PCHead.cs"/>
-        <Compile Remove="Managers\NetworkedMenuManager.cs" />
+        <Compile Remove="Managers\NetworkedMenuManager.cs"/>
     </ItemGroup>
 </Project>

@@ -1,15 +1,9 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using hamburbur.Components;
-using hamburbur.GUI;
 using hamburbur.Managers;
-using hamburbur.Mod_Backend;
 using hamburbur.Mods.Settings;
-using hamburbur.Tools;
 using Newtonsoft.Json.Linq;
-using Photon.Pun;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -18,7 +12,7 @@ namespace hamburbur.Server_API;
 public class HamburburData : Singleton<HamburburData>
 {
     public static Action<JObject> OnDataReloaded;
-    
+
     public static JObject Data       { get; private set; }
     public static bool    DataLoaded { get; private set; }
 

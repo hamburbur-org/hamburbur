@@ -2,12 +2,12 @@ namespace hamburbur;
 
 public static class Constants
 {
-    public const string PluginGuid             = "org.hamburbur.menu";
-    public const string PluginName             = "hamburbur";
-    public const string PluginDescription     = "Gorilla Tag mod menu made with <3 by HanSolo and ZlothY";
-    public const string PluginVersion          = "5.1.4";
-    public const bool   BetaBuild              = true;
-    public const string HamburburDataUrl       = "https://hamburbur.org/data";
+    public const string PluginGuid        = "org.hamburbur.menu";
+    public const string PluginName        = "hamburbur";
+    public const string PluginDescription = "Gorilla Tag mod menu made with <3 by HanSolo and ZlothY";
+    public const string PluginVersion     = "5.1.4";
+    public const bool   BetaBuild         = true;
+    public const string HamburburDataUrl  = "https://hamburbur.org/data";
 
     public const string HamburgerAscii =
             "\n        ████████████████████        \n      ██░░░░░░░░░░░░░░░░░░░░██      \n    ██░░░░  ██░░░░░░░░  ██░░░░██    \n  ██░░░░░░████░░░░░░░░████░░░░░░██  \n  ██░░░░░░░░░░░░████░░░░░░░░░░░░██  \n  ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░██  \n████████████████████████████████████\n██                                ██\n  ████████████████████████████████  \n██░░░░░░░░░░  ░░░░░░░░░░░░░░░░░░░░██\n  ████      ██        ██      ████  \n  ██░░██████░░████████░░██████░░██  \n  ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░██  \n    ████████████████████████████    \n";

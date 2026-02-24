@@ -9,7 +9,6 @@ using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Rig;
 using hamburbur.Mods.Settings;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Windows.Speech;
@@ -473,7 +472,7 @@ public class VoiceControls : Singleton<VoiceControls>
 
         return $"{hours}{minutes} and {seconds}.";
     }
-    
+
     private string NumberToWords(int number)
     {
         if (number == 0)

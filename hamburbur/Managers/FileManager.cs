@@ -7,12 +7,9 @@ using hamburbur.Components;
 using hamburbur.GUI;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Macros;
-using hamburbur.Mods.Misc;
-using hamburbur.Server_API;
 using hamburbur.Tools;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
-using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 namespace hamburbur.Managers;
 
@@ -34,9 +31,9 @@ public class FileManager : Singleton<FileManager>
     protected override void Awake()
     {
         base.Awake();
-        SoundsFolder       = Path.Combine(RootHamburburFolder, "Sounds");
-        MacrosFolder       = Path.Combine(RootHamburburFolder, "Macros");
-        EventLoggerFolder  = Path.Combine(RootHamburburFolder, "Logged Events");
+        SoundsFolder      = Path.Combine(RootHamburburFolder, "Sounds");
+        MacrosFolder      = Path.Combine(RootHamburburFolder, "Macros");
+        EventLoggerFolder = Path.Combine(RootHamburburFolder, "Logged Events");
     }
 
     private void Start()
@@ -97,7 +94,6 @@ public class FileManager : Singleton<FileManager>
                     }
 
 #endregion
-
 
                 hasLoadedSavedData = true;
             }

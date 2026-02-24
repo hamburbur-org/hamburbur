@@ -43,7 +43,7 @@ public class ReportGun : hamburburmod
     {
         gunLib.Start();
     }
-    
+
     protected override void LateUpdate()
     {
         gunLib.LateUpdate();

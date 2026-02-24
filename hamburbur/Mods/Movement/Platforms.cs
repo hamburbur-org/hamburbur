@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 using GorillaLocomotion.Climbing;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Settings;
 using hamburbur.Tools;
-using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 namespace hamburbur.Mods.Movement;

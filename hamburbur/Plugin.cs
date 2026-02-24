@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
-using BepInEx;
 using GorillaLocomotion;
 using GorillaNetworking;
 using hamburbur.Components;
@@ -233,37 +232,40 @@ public class Plugin : MonoBehaviour
 
                                             hasDoneDelayedStart = true;
 
-                                            string hamburburStatus = (string)data["hamburburStatus"];
-                                            Version latestMenuVersion =
-                                                    new((string)data["latestMenuVersion"] ?? string.Empty);
-
-                                            Version minimumMenuVersion =
-                                                    new((string)data["minimumMenuVersion"] ?? string.Empty);
-
-                                            Version currentVersion = new(Constants.PluginVersion);
-
-                                            if (hamburburStatus != "Undetected")
+                                            if (!Constants.BetaBuild)
                                             {
-                                                CreateStumpStatus(
-                                                        $"Hamburbur currently isn't available.\nReason: {hamburburStatus}",
-                                                        ErrorIcon);
+                                                string hamburburStatus = (string)data["hamburburStatus"];
+                                                Version latestMenuVersion =
+                                                        new((string)data["latestMenuVersion"] ?? string.Empty);
 
-                                                return;
+                                                Version minimumMenuVersion =
+                                                        new((string)data["minimumMenuVersion"] ?? string.Empty);
+
+                                                Version currentVersion = new(Constants.PluginVersion);
+
+                                                if (hamburburStatus != "Undetected")
+                                                {
+                                                    CreateStumpStatus(
+                                                            $"Hamburbur currently isn't available.\nReason: {hamburburStatus}",
+                                                            ErrorIcon);
+
+                                                    return;
+                                                }
+
+                                                if (currentVersion < minimumMenuVersion)
+                                                {
+                                                    CreateStumpStatus(
+                                                            $"You are using an outdated version of hamburbur.\nLatest version: {data["latestMenuVersion"]}\nMinimum version: {data["minimumMenuVersion"]}\nCurrent version: {Constants.PluginVersion}",
+                                                            HamburburIcon);
+
+                                                    return;
+                                                }
+
+                                                if (currentVersion < latestMenuVersion)
+                                                    CreateStumpStatus(
+                                                            $"You are not on the latest version of hamburbur ({data["latestMenuVersion"]})\nYou are currently on version {Constants.PluginVersion}. We recommend updating.",
+                                                            HamburburIcon);
                                             }
-
-                                            if (currentVersion < minimumMenuVersion)
-                                            {
-                                                CreateStumpStatus(
-                                                        $"You are using an outdated version of hamburbur.\nLatest version: {data["latestMenuVersion"]}\nMinimum version: {data["minimumMenuVersion"]}\nCurrent version: {Constants.PluginVersion}",
-                                                        HamburburIcon);
-
-                                                return;
-                                            }
-
-                                            if (currentVersion < latestMenuVersion)
-                                                CreateStumpStatus(
-                                                        $"You are not on the latest version of hamburbur ({data["latestMenuVersion"]})\nYou are currently on version {Constants.PluginVersion}. We recommend updating.",
-                                                        HamburburIcon);
 
                                             versionOkay = true;
 
