@@ -82,6 +82,18 @@ public class VoiceControls : Singleton<VoiceControls>
 
     private IEpoopenator Start()
     {
+        if (Application.platform != RuntimePlatform.WindowsPlayer || Environment.OSVersion.Version.Major < 10)
+        {
+            NotificationManager.SendNotification(
+                    "<color=red>Error</color>",
+                    "Your system cannot use the voice commands feature",
+                    5f,
+                    false,
+                    false);
+
+            yield break;
+        }
+
         if (!firstInitialisation)
         {
             yield return new WaitForSeconds(5f);
@@ -106,6 +118,18 @@ public class VoiceControls : Singleton<VoiceControls>
         dictationRecognizer                   =  new DictationRecognizer();
         dictationRecognizer.DictationResult   += OnDictationResult;
         dictationRecognizer.DictationComplete += OnDictationComplete;
+        dictationRecognizer.DictationError += (error, hresult) =>
+                                              {
+                                                  if (!error.Contains(
+                                                              "Dictation support is not enabled on this device"))
+                                                      return;
+
+                                                  NotificationManager.SendNotification("<color=red>Error</color>",
+                                                          "Online Speech Recognition is not enabled on this device. Please enable in in privacy settings to use Voice Controls!",
+                                                          5f, true, true);
+
+                                                  Process.Start("ms-settings:privacy-speech");
+                                              };
 
         Log("Voice system ready. Speak a wake word!");
     }
