@@ -1,3 +1,4 @@
+using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using UnityEngine;
 
@@ -11,6 +12,18 @@ public class GrayZone : hamburburmod
 
     protected override void OnEnable()
     {
+        if (!Tools.Utils.IsMasterClient)
+        {
+            NotificationManager.SendNotification(
+                    "<color=red>Error</color>",
+                    "You are not master client.",
+                    5f,
+                    false,
+                    false);
+            
+            return;
+        }
+        
         greyZones = Object.FindObjectsOfType<GreyZoneManager>();
 
         foreach (GreyZoneManager greyZone in greyZones)

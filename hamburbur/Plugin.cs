@@ -69,9 +69,7 @@ public class Plugin : MonoBehaviour
     public AssetBundle HamburburBundle { get; private set; }
     public GameObject  ComponentHolder { get; private set; }
     public AudioClip   HamburgerSound  { get; private set; }
-
-    public AudioClip ILikeFemboysSound { get; private set; }
-
+    
     public TMP_FontAsset DiloWorldFont { get; private set; }
 
     public Texture2D HamburburIcon { get; private set; }
@@ -197,7 +195,7 @@ public class Plugin : MonoBehaviour
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success)
-            NotificationManager.SendNotification("ERROR", $"Failed to send vote: {request.error}", 5f, true, true);
+            NotificationManager.SendNotification("ERROR", $"Failed to send vote: {request.error}", 5f, true, false);
     }
 
     private void OnGameInitialized()
@@ -358,9 +356,7 @@ public class Plugin : MonoBehaviour
                                                     HamburburBundle.LoadAsset<GameObject>("ConsoleIndicator");
 
                                             DiloWorldFont = HamburburBundle.LoadAsset<TMP_FontAsset>("DiloWorld SDF");
-
-                                            ILikeFemboysSound = HamburburBundle.LoadAsset<AudioClip>("ilikefemboys");
-
+                                            
                                             gtPlayerControllerToRealRatio =
                                                     1 / GTPlayer.Instance.leftHand.controllerTransform.lossyScale
                                                                 .magnitude;
