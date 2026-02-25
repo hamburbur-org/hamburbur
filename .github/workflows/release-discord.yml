@@ -1,0 +1,39 @@
+name: Release Discord Notifier
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Count commits since last release
+        id: commits
+        run: |
+          git fetch --tags
+          PREV_TAG=$(git tag --sort=-creatordate | sed -n 2p)
+          if [ -z "$PREV_TAG" ]; then
+            COUNT=$(git rev-list --count HEAD)
+          else
+            COUNT=$(git rev-list --count $PREV_TAG..HEAD)
+          fi
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+
+      - name: Send Discord Webhook
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{
+            \"embeds\": [{
+              \"title\": \"hamburbur\",
+              \"description\": \"**Version:** ${{ github.event.release.tag_name }}\n**Commits since last release:** ${{ steps.commits.outputs.count }}\n\n**Release Notes:**\n${{ github.event.release.body }}\n\n[Download](https://github.com/hamburbur-org/hamburbur/releases/latest/download/hamburbur.dll) • [Source Code](https://github.com/hamburbur-org/hamburbur/) • [Injector](https://github.com/hamburbur-org/hamburbur-injector/releases/latest/download/HamburburInjector.exe)\",
+              \"url\": \"${{ github.event.release.html_url }}\",
+              \"color\": 16753920
+            }]
+          }" \
+          ${{ secrets.DISCORD_WEBHOOK }}
