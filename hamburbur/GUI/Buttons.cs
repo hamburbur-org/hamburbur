@@ -204,6 +204,7 @@ public static class Buttons
                     (typeof(Griddy), null),
                     (typeof(GhostAnimations), null),
                     (typeof(SmoothRig), null),
+                    (typeof(CopyMovementGun), null),
             ],
 
             ["Fun"] =
