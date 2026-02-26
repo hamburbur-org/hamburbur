@@ -21,19 +21,19 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
     public AudioClip CameraShutterSound       { get; private set; }
 
     //Button Press Sounds
-    public AudioClip Default       { get; private set; }
-    public AudioClip KeyboardClick { get; private set; }
-    public AudioClip Pop           { get; private set; }
-    public AudioClip Discord       { get; private set; }
-    public AudioClip SmoothClick   { get; private set; }
-    public AudioClip HardClick     { get; private set; }
-    public AudioClip UiEnter       { get; private set; }
-    public AudioClip Wii           { get; private set; }
-    public AudioClip Minecraft     { get; private set; }
-    public AudioClip Untitled      { get; private set; }
-    public AudioClip Destiny       { get; private set; }
-    public AudioClip Watch         { get; private set; }
-    public AudioClip Creamy        { get; private set; }
+    private AudioClip Default       { get; set; }
+    private AudioClip KeyboardClick { get; set; }
+    private AudioClip Pop           { get; set; }
+    private AudioClip Discord       { get; set; }
+    private AudioClip SmoothClick   { get; set; }
+    private AudioClip HardClick     { get; set; }
+    private AudioClip UiEnter       { get; set; }
+    private AudioClip Wii           { get; set; }
+    private AudioClip Minecraft     { get; set; }
+    private AudioClip Untitled      { get; set; }
+    private AudioClip Destiny       { get; set; }
+    private AudioClip Watch         { get; set; }
+    private AudioClip Creamy        { get; set; }
 
     private void Start()
     {

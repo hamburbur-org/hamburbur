@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using UnityEngine;
 
 namespace hamburbur.Mods.SoundBoard;
 
@@ -20,8 +21,16 @@ public class Sound : hamburburmod
         if (playingSound != Guid.Empty)
             VoiceManager.Get().StopAudioClip(playingSound);
 
-        SoundBoardLoader.LoadSound(SoundPath, SoundName,
-                audioClip => playingSound = VoiceManager.Get().AudioClip(audioClip));
+        SoundBoardLoader.LoadSound(SoundPath, SoundName, audioClip =>
+                                                         {
+                                                             if (audioClip == null)
+                                                                 return;
+
+                                                             if (audioClip.loadState == AudioDataLoadState.Unloaded)
+                                                                 audioClip.LoadAudioData();
+
+                                                             playingSound = VoiceManager.Get().AudioClip(audioClip);
+                                                         });
     }
 
     protected override void Update()

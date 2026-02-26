@@ -66,7 +66,7 @@ public static class SoundBoardLoader
                 $"file://{filePath}",
                 GetAudioType(Path.GetExtension(filePath))
         );
-
+        
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success)
@@ -78,8 +78,7 @@ public static class SoundBoardLoader
         }
 
         AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
-        clip.LoadAudioData();
-
+        
         AudioFilePool[fileName] = clip;
         callback?.Invoke(clip);
     }

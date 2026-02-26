@@ -96,6 +96,9 @@ public class Plugin : MonoBehaviour
         GorillaTagger.OnPlayerSpawned(OnGameInitialized);
     }
 
+    private float  lastFpsUpdate;
+    private string fpsText;
+
     private void LateUpdate()
     {
         if (!versionOkay)
@@ -109,13 +112,22 @@ public class Plugin : MonoBehaviour
         if (cocText != null)
         {
             bool   inRoom         = PhotonNetwork.InRoom;
-            int    fps            = Mathf.RoundToInt(1f / Time.smoothDeltaTime);
+            
+            if (lastFpsUpdate + 0.1f < Time.time)
+            {
+                lastFpsUpdate = Time.time;
+                int    fps    = Mathf.RoundToInt(1f / Time.smoothDeltaTime);
+                string colour = fps > 60 ? fps > 72 ? "green" : "yellow" : "red";
+                fpsText = $"<color={colour}>{fps}</color>";
+            }
+            
             string roomCode       = inRoom ? PhotonNetwork.CurrentRoom.Name : "NaN";
             string peopleInCode   = inRoom ? PhotonNetwork.CurrentRoom.PlayerCount.ToString() : "NaN";
+            string maxInCode   = inRoom ? PhotonNetwork.CurrentRoom.MaxPlayers.ToString() : "NaN";
             string gameModeString = inRoom ? NetworkSystem.Instance.GameModeString : "NaN";
             string ping           = inRoom ? PhotonNetwork.GetPing().ToString() : "NaN";
             cocText.text =
-                    $"<size=150%><b>Welcome to hamburbur {(NetworkSystem.Instance.LocalPlayer.SanitizedNickName.IsNullOrEmpty() ? "BADGORILLA" : NetworkSystem.Instance.LocalPlayer.SanitizedNickName)}!</b></size>\n\n<size=125%><b>Room Stats</b></size>\nFPS: {fps}\nRoom Code: {roomCode}\nPeople In Code: {peopleInCode}/10\nGameMode String: {gameModeString}\nPing: {ping}\n\n<size=125%><b>Menu Stats</b><size=125%>\nAmount Of Mods: {amountOfMods}\nMenu Build: {Constants.PluginVersion}\n{(Constants.BetaBuild ? "Beta Build" : "Release Build")}\n\n<size=75%>Made with <3 by HanSolo and ZlothY</size>";
+                    $"<size=150%><b>Welcome to hamburbur {(NetworkSystem.Instance.LocalPlayer.SanitizedNickName.IsNullOrEmpty() ? "" : NetworkSystem.Instance.LocalPlayer.SanitizedNickName)}!</b></size>\n\n<size=125%><b>Room Stats</b></size>\nFPS: {fpsText}\nRoom Code: {roomCode}\nPeople In Code: {peopleInCode}/{maxInCode}\nGameMode String: {gameModeString}\nPing: {ping}\n\n<size=125%><b>Menu Stats</b><size=125%>\nAmount Of Mods: {amountOfMods}\nMenu Build: {Constants.PluginVersion}\n{(Constants.BetaBuild ? "Beta Build" : "Release Build")}\n\n<size=75%>Made with <3 by ZlothY</size>";
 
             motdHeadingText.font = DiloWorldFont;
             motdBodyText.font    = DiloWorldFont;

@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Room;
 
-[hamburburmod("Join hamburbur code", "Makes you join the hamburbur code", ButtonType.Fixed, AccessSetting.Public,
+[hamburburmod("Join peakest", "Makes you join the og code us developers use to test stuff and play together", ButtonType.Fixed, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class JoinPeakest : hamburburmod
 {
