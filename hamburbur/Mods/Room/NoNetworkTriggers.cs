@@ -2,7 +2,7 @@ using GorillaNetworking;
 using hamburbur.Mod_Backend;
 using HarmonyLib;
 
-namespace hamburbur.Mods.Multiplayer;
+namespace hamburbur.Mods.Room;
 
 [hamburburmod("No Network Triggers", "Disables network triggers", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]

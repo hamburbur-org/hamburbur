@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using GorillaNetworking;
 using hamburbur.Misc;
 using HarmonyLib;
@@ -130,7 +127,6 @@ public static class BanErrorPatch
                         }
 
                         if (obj.ErrorMessage.Contains("account"))
-                        {
                             GorillaComputer.instance.GeneralFailureMessage(
                                     !isIndefinite
                                             ? $"""
@@ -144,28 +140,20 @@ public static class BanErrorPatch
 
                                                Ban Reason: {reason}
                                                """);
-                        }
                         else
-                        {
-                            string localIPs = string.Join(", ", Dns.GetHostEntry(Dns.GetHostName())
-                                                                   .AddressList
-                                                                   .Where(ip => ip.AddressFamily ==
-                                                                              AddressFamily.InterNetwork));
-
                             GorillaComputer.instance.GeneralFailureMessage(
                                     !isIndefinite
                                             ? $"""
-                                               This IP [{localIPs}] has been banned for {reason.Split(" ")[0]}
+                                               This IP has been banned for {reason.Split(" ")[0]}
 
                                                Time Left: {FormatTimeLeft(remaining)}
                                                Unban Date: {formattedUnban}
                                                """
                                             : $"""
-                                               This IP [{localIPs}] has been INDEFINITELY banned.
+                                               This IP has been INDEFINITELY banned.
 
                                                Ban Reason: {reason}
                                                """);
-                        }
 
                         break;
                     }

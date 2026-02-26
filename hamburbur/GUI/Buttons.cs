@@ -17,6 +17,7 @@ using hamburbur.Mods.Movement.Walker;
 using hamburbur.Mods.Multiplayer;
 using hamburbur.Mods.OP;
 using hamburbur.Mods.Rig;
+using hamburbur.Mods.Room;
 using hamburbur.Mods.Scoreboard;
 using hamburbur.Mods.Settings;
 using hamburbur.Mods.SoundBoard;
@@ -30,11 +31,12 @@ public static class Buttons
     {
             ["Main"] =
             [
-                    (typeof(JoinTHECode), null),
+                    (typeof(JoinDiscord), null),
                     (typeof(Search), null),
                     (typeof(Settings), null),
                     (typeof(EnabledMods), null),
                     (typeof(Movement), null),
+                    (typeof(Room), null),
                     (typeof(Macros), null),
                     (typeof(Multiplayer), null),
                     (typeof(Visual), null),
@@ -116,6 +118,15 @@ public static class Buttons
                     (typeof(IronMan), null),
             ],
 
+            ["Room"] =
+            [
+                    (typeof(JoinHamburburCode), null),
+                    (typeof(JoinPeakest), null),
+                    (typeof(NoNetworkTriggers), null),
+                    (typeof(CreatePublic), null),
+                    (typeof(BadPublicRoomCode), null),
+            ],
+
             ["Macros"] =
             [
                     (typeof(MacroRecorder), null),
@@ -132,12 +143,10 @@ public static class Buttons
                     (typeof(BetterTagAura), null),
                     (typeof(HandTracers), null),
                     (typeof(BodyTracers), null),
-                    //(typeof(NoCustomProperties), null),
                     (typeof(BoxESP3D), null),
                     (typeof(BoxESP2D), null),
                     (typeof(BoxESP4D), null),
                     (typeof(Boners), null),
-                    (typeof(NoNetworkTriggers), null),
             ],
 
             ["Visual"] =
@@ -152,7 +161,6 @@ public static class Buttons
 
             ["Misc"] =
             [
-                    (typeof(CreatePublic), null),
                     (typeof(RestartJarvis), null),
                     (typeof(ScreenShot), null),
                     (typeof(PCPressButtons), null),
@@ -210,7 +218,6 @@ public static class Buttons
                     (typeof(PayGornMenuConsoleSpoof), null),
                     (typeof(FuckWithGShirtsNetworking), null),
                     (typeof(FuckWithGChatBoxNetworking), null),
-                    (typeof(BadPublicRoomCode), null),
                     (typeof(ReportGun), null),
             ],
 
@@ -268,7 +275,6 @@ public static class Buttons
 
             ["Credits"] =
             [
-                    (typeof(HanSolo1000Falcon), null),
                     (typeof(ZlothY), null),
                     (typeof(GorillaN0t), null),
             ],

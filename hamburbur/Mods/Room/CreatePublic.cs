@@ -5,7 +5,7 @@ using GorillaTagScripts;
 using hamburbur.Mod_Backend;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
-namespace hamburbur.Mods.Misc;
+namespace hamburbur.Mods.Room;
 
 [hamburburmod(                "Create Public",      "Creates a public room so you have master", ButtonType.Fixed,
         AccessSetting.Public, EnabledType.Disabled, 0)]

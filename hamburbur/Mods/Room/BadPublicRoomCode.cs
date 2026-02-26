@@ -6,7 +6,7 @@ using hamburbur.Mod_Backend;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 using Random = UnityEngine.Random;
 
-namespace hamburbur.Mods.Fun;
+namespace hamburbur.Mods.Room;
 
 [hamburburmod(                "Bad Public Room Code", "Creates a public room with a not so nice work", ButtonType.Fixed,
         AccessSetting.Public, EnabledType.Disabled,   0)]
