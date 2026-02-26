@@ -14,6 +14,8 @@ public class CopyMovementGun : hamburburmod
 
     protected override void LateUpdate()
     {
+        gunLib.LateUpdate();
+        
         if (!gunLib.IsShooting || gunLib.ChosenRig == null)
         {
             if (!RigUtils.IsRigEnabled)
