@@ -31,7 +31,7 @@ jobs:
           -d "{
             \"embeds\": [{
               \"title\": \"hamburbur\",
-              \"description\": \"**Version:** ${{ github.event.release.tag_name }}\n**Commits since last release:** ${{ steps.commits.outputs.count }}\n\n**Release Notes:**\n${{ github.event.release.body }}\n\n[[Download](https://github.com/hamburbur-org/hamburbur/releases/latest/download/hamburbur.dll)] • [[Source Code](https://github.com/hamburbur-org/hamburbur/)] • [[Injector](https://github.com/hamburbur-org/hamburbur-injector/releases/latest/download/HamburburInjector.exe)]\",
+              \"description\": \"**Version:** ${{ github.event.release.tag_name }}\n**Commits since last release:** ${{ steps.commits.outputs.count }}\n\n**Release Notes:**\n${{ github.event.release.body }}\nHamburbur is dependant on [GorillaNotfications](https://github.com/hamburbur-org/Gorilla-Notifications/releases/latest/download/GorillaNotifications.dll) so make sure you download that!\n\n[[Download](https://github.com/hamburbur-org/hamburbur/releases/latest/download/hamburbur.dll)] • [[Source Code](https://github.com/hamburbur-org/hamburbur/)] • [[Injector](https://github.com/hamburbur-org/hamburbur-injector/releases/latest/download/HamburburInjector.exe)]\",
               \"url\": \"${{ github.event.release.html_url }}\",
               \"color\": 2823771
             }]
