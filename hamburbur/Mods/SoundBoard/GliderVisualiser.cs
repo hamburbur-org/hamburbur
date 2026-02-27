@@ -13,7 +13,7 @@ namespace hamburbur.Mods.SoundBoard;
 [hamburburmod("Glider Visualizer",
         "Turns the Gliders in SkyJungle into a equaliser for the soundboard. !! CURRENTLY DISABLED !!",
         ButtonType.Togglable,
-        AccessSetting.BetaBuildOnly, EnabledType.Disabled, 0)]
+        AccessSetting.Public, EnabledType.Disabled, 0)]
 public class GliderVisualizer : hamburburmod
 {
     private const int   SampleSize       = 1024;

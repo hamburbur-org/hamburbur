@@ -11,7 +11,6 @@ public static class RigPatches
                 !__instance.isLocal;
     }
 
-    // II Stupid Added this but is apparently causing bans soo...
     [HarmonyPatch(typeof(VRRig), nameof(VRRig.PostTick))]
     public static class RigPostTickPatch
     {
