@@ -172,6 +172,11 @@ public class VoiceManager : IAudioReader<float>
         if (PostProcessClip)
             foreach (Action<float[]> postProcess in PostProcessors.Values)
                 postProcess?.Invoke(buffer);
+        
+        if (lastMixedBuffer == null || lastMixedBuffer.Length != buffer.Length)
+            lastMixedBuffer = new float[buffer.Length];
+        
+        Array.Copy(buffer, lastMixedBuffer, buffer.Length);
 
         lastSamplePosition = (lastSamplePosition + samples) % microphoneClip.samples;
 
@@ -354,6 +359,8 @@ public class VoiceManager : IAudioReader<float>
         return resampled;
     }
 
+    private float[] lastMixedBuffer;
+
     /// <summary>
     ///     Fills the provided buffer with the current mixed audio output from all active clips.
     ///     This represents the same combined audio data that is pushed into the Photon voice stream,
@@ -361,11 +368,11 @@ public class VoiceManager : IAudioReader<float>
     /// </summary>
     public void GetMixedOutput(float[] buffer)
     {
-        if (buffer == null || buffer.Length == 0)
+        if (lastMixedBuffer == null)
             return;
 
-        for (int i = 0; i < buffer.Length; i++)
-            buffer[i] = NextAudioClipSample();
+        int len = Mathf.Min(buffer.Length, lastMixedBuffer.Length);
+        Array.Copy(lastMixedBuffer, buffer, len);
     }
 
     /// <summary>

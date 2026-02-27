@@ -16,11 +16,14 @@ namespace hamburbur.Mods.SoundBoard;
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class GliderVisualizer : hamburburmod
 {
-    private const int   SampleSize       = 1024;
-    private const float HeightMultiplier = 4f;
-    private const float Radius           = 6f;
-    private const float CircleHeight     = 0f;
-    private const float OrbitSpeed       = 0.4f;
+    private const  int   SampleSize       = 1024;
+    private const float HeightMultiplier = 10f;
+    private const  float Radius           = 6f;
+    private const  float CircleHeight     = -0.1f;
+    private const  float OrbitSpeed       = 0.3f;
+
+    private const float InfluenceLowerBound = 0f;
+    private const float InfluenceUpperBound = 20f;
 
     public static bool IsEnabled;
 
@@ -37,6 +40,8 @@ public class GliderVisualizer : hamburburmod
         int              halfCount = all.Length;
         gliders = new GliderHoldable[halfCount];
         Array.Copy(all, gliders, halfCount);
+        
+        smoothedHeights = new float[gliders.Length];
 
         shuffledIndices = new int[gliders.Length];
         for (int i = 0; i < shuffledIndices.Length; i++)
@@ -52,10 +57,9 @@ public class GliderVisualizer : hamburburmod
 
     protected override void Update()
     {
-        if (gliders.Length == 0) return;
-
-        smoothedHeights = new float[gliders.Length];
-
+        if (gliders.Length == 0) 
+            return;
+        
         VoiceManager.Get().GetMixedOutput(spectrum);
 
         Vector3 center         = GorillaTagger.Instance.headCollider.transform.position;
@@ -88,10 +92,14 @@ public class GliderVisualizer : hamburburmod
 
             float avg = sum / bandsPerGlider;
 
-            float targetHeight = avg * HeightMultiplier;
-            smoothedHeights[i] = Mathf.Lerp(smoothedHeights[i], targetHeight, 0.08f);
-
-            float influence = Mathf.Clamp(smoothedHeights[i], 0f, 0.15f);
+            float       targetHeight = avg * HeightMultiplier;
+            const float SmoothSpeed  = 8f;
+            smoothedHeights[i] = Mathf.Lerp(
+                    smoothedHeights[i],
+                    targetHeight,
+                    1f - Mathf.Exp(-SmoothSpeed * Time.deltaTime)
+            );
+            float influence = Mathf.Clamp(smoothedHeights[i], InfluenceLowerBound, InfluenceUpperBound);
 
             pos.y += influence;
 
