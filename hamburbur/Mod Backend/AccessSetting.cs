@@ -4,6 +4,4 @@ public enum AccessSetting
 {
     Public,
     BetaBuildOnly,
-    AdminOnly,
-    SuperAdminOnly,
 }
