@@ -1,5 +1,6 @@
 ﻿using hamburbur.Libs;
 using hamburbur.Mod_Backend;
+using UnityEngine;
 
 namespace hamburbur.Mods.Misc;
 
@@ -9,12 +10,12 @@ public class MonkeClick : hamburburmod
 {
     private readonly GunLib gunLib = new();
 
-    private GorillaTriggerColliderHandIndicator handIndicator;
+    private GameObject handIndicator;
 
     protected override void Start()
     {
-        handIndicator = GorillaTagger.Instance.rightHandTriggerCollider
-                                     .GetComponent<GorillaTriggerColliderHandIndicator>();
+        
+        handIndicator = GorillaTagger.Instance.rightHandTriggerCollider;
 
         gunLib.Start();
     }

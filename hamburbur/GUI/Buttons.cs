@@ -274,6 +274,7 @@ public static class Buttons
             ["Player Commands"] =
             [
                     (typeof(TeleportTo), null),
+                    (typeof(Mute), null),
             ],
 
             ["Scoreboard"] = [],
