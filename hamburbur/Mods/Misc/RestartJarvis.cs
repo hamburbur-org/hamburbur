@@ -17,7 +17,7 @@ public class RestartJarvis : hamburburmod
         CoroutineManager.Instance.StartCoroutine(AddJarvis());
     }
 
-    private IEnumerator AddJarvis()
+    public static IEnumerator AddJarvis()
     {
         yield return new WaitForEndOfFrame();
         Plugin.Instance.ComponentHolder.AddComponent<VoiceControls>();

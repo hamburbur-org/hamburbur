@@ -65,6 +65,7 @@ public static class Buttons
                     (typeof(ButtonPressSound), null),
                     (typeof(RightHanded), null),
                     (typeof(DoLoadingScreen), null),
+                    (typeof(DisableJarvis), null),
                     (typeof(JarvisSpeak), null),
                     (typeof(JarvisNotifications), null),
                     (typeof(ModNotifications), null),

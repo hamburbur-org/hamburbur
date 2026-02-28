@@ -40,7 +40,7 @@ public class JmanAnnoyGun : hamburburmod
 
         Vector3 position = gunLib.ChosenRig.transform.position + Tools.Utils.RandomVector3();
 
-        VRRig.LocalRig.transform.position = position;
+        RigUtils.RigPosition = position;
         VRRig.LocalRig.transform.LookAt(gunLib.ChosenRig.transform.position);
 
         VRRig.LocalRig.head.rigTarget.transform.rotation = Tools.Utils.RandomQuaternion();
