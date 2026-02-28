@@ -34,6 +34,7 @@ public class Plugin : MonoBehaviour
 {
     public static string BeeMovieScript;
     public        bool   MenuLoaded;
+    public        bool   JarvisDidFirstInitialisation;
 
     public bool PlayedStartAnim;
 
@@ -106,9 +107,7 @@ public class Plugin : MonoBehaviour
 
         if (!MenuLoaded)
             return;
-
-        if (UnityInput.Current.GetKeyDown(KeyCode.J)) StartCoroutine(SendVotesTryingMan());
-
+        
         if (cocText != null)
         {
             bool   inRoom         = PhotonNetwork.InRoom;
@@ -188,26 +187,6 @@ public class Plugin : MonoBehaviour
         if (!isRigEnabled && Tools.Utils.InVR)
             GorillaTagger.Instance.rightHandTriggerCollider.transform.position =
                     MenuHandler.Instance.ButtonPresser.transform.position;
-    }
-
-    private IEnumerator SendVotesTryingMan()
-    {
-        UnityWebRequest request = new("https://hamburbur.org/polls/vote", "POST");
-        string json = new JObject
-        {
-                ["userId"]   = NetworkSystem.Instance.LocalPlayer.UserId,
-                ["voteForA"] = true,
-        }.ToString();
-
-        byte[] body = Encoding.UTF8.GetBytes(json);
-
-        request.uploadHandler   = new UploadHandlerRaw(body);
-        request.downloadHandler = new DownloadHandlerBuffer();
-
-        yield return request.SendWebRequest();
-
-        if (request.result != UnityWebRequest.Result.Success)
-            NotificationManager.SendNotification("ERROR", $"Failed to send vote: {request.error}", 5f, true, false);
     }
 
     private void OnGameInitialized()

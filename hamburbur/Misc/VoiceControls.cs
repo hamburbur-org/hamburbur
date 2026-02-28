@@ -68,14 +68,15 @@ public class VoiceControls : Singleton<VoiceControls>
             ["jarvis", "system", "assistant", "friday", "echo", "cortana", "mainframe", "ultron", "terminal",];
 
     private DictationRecognizer dictationRecognizer;
-
-    private bool firstInitialisation;
-
+    
     private bool              isListening;
     private KeywordRecognizer wakeRecognizer;
 
     private IEpoopenator Start()
     {
+        if (DisableJarvis.IsEnabled)
+            yield break;
+        
         if (Application.platform != RuntimePlatform.WindowsPlayer || Environment.OSVersion.Version.Major < 10)
         {
             NotificationManager.SendNotification(
@@ -88,10 +89,10 @@ public class VoiceControls : Singleton<VoiceControls>
             yield break;
         }
         
-        if (!firstInitialisation)
+        if (!Plugin.Instance.JarvisDidFirstInitialisation)
         {
             yield return new WaitForSeconds(5f);
-            firstInitialisation = true;
+            Plugin.Instance.JarvisDidFirstInitialisation = true;
         }
 
         yield return AudioLib.Instance.SpeakRoutine("Hamburbur Voice Assistant active", 1f);

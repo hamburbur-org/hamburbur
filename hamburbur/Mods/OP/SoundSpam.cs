@@ -17,7 +17,7 @@ public class SoundSpam : hamburburmod
 
     protected override void Update()
     {
-        if (!InputManager.Instance.RightTrigger.IsPressed)
+        if (!InputManager.Instance.RightTrigger.IsPressed && Tools.Utils.InVR)
         {
             if (trailObject.activeSelf)
                 trailObject.SetActive(false);
