@@ -96,7 +96,6 @@ public static class Buttons
                     (typeof(ChangeFlySpeed), null),
                     (typeof(BlackBackgroundNotifs), null),
                     (typeof(ToggleMenu), null),
-                    (typeof(Jarvis), null),
             ],
 
             ["Movement"] =
@@ -171,7 +170,7 @@ public static class Buttons
 
             ["Misc"] =
             [
-                    (typeof(Jarvis), null),
+                    (typeof(RestartJarvis), null),
                     (typeof(ScreenShot), null),
                     (typeof(PCPressButtons), null),
                     (typeof(MonkeClick), null),
