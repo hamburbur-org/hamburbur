@@ -101,21 +101,17 @@ public class MenuHandler : Singleton<MenuHandler>
 
             if (RightHanded.IsEnabled ? inputs.RightSecondary.WasReleased : inputs.LeftSecondary.WasReleased)
                 StartCoroutine(Menu.transform.parent == Tools.Utils.RealLeftController
-                    ? CloseMenu()
-                    : GUIHandler.Instance.CloseMenu());
+                                       ? CloseMenu()
+                                       : GUIHandler.Instance.CloseMenu());
         }
-        else if (RightHanded.IsEnabled ? inputs.RightSecondary.WasPressed : inputs.LeftSecondary.WasPressed) 
+        else if (RightHanded.IsEnabled ? inputs.RightSecondary.WasPressed : inputs.LeftSecondary.WasPressed)
         {
             if (MenuOpen)
-            {
                 StartCoroutine(Menu.transform.parent == Tools.Utils.RealLeftController
-                    ? CloseMenu()
-                    : GUIHandler.Instance.CloseMenu());
-            }
+                                       ? CloseMenu()
+                                       : GUIHandler.Instance.CloseMenu());
             else
-            {
                 StartCoroutine(OpenMenu());
-            }
         }
     }
 
@@ -168,10 +164,21 @@ public class MenuHandler : Singleton<MenuHandler>
         }
 
         (string lastCategory, int lastPageIndex) = LastCategories[^2];
+
+        if (Buttons.Categories.TryGetValue(lastCategory, out (Type, hamburburmod)[] category))
+        {
+            int maxPage =
+                    Mathf.CeilToInt((float)category.Length / ButtonHandler.ButtonsPerPage) - 1;
+
+            if (lastPageIndex > maxPage)
+                lastPageIndex = 0;
+        }
+
+        LastCategories.RemoveAt(LastCategories.Count - 1);
+
         ButtonHandler.Instance.SetCategory(lastCategory, false);
-        PageIndex = lastPageIndex;
+        Instance.PageIndex = lastPageIndex;
         ButtonHandler.Instance.UpdateButtons();
-        LastCategories.RemoveAt(LastCategories.Count - 2);
     }
 
     private IEnumerator SetActiveAfterAFrame()
