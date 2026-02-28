@@ -280,6 +280,8 @@ public static class Buttons
             [
                     (typeof(TeleportTo), null),
                     (typeof(Mute), null),
+                    (typeof(ChangeReportType), null),
+                    (typeof(Report), null),
             ],
 
             ["Scoreboard"] = [],
