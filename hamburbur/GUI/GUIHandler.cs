@@ -38,7 +38,7 @@ public class GUIHandler : Singleton<GUIHandler>
     public bool Open;
 
     private TextMeshProUGUI fpsText;
-    private TextMeshProUGUI arrayListText;
+    public TextMeshProUGUI arrayListText;
 
     private float lastFpsUpdate;
     private float lastTimeDataStreamed;
