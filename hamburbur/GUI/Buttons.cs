@@ -119,7 +119,6 @@ public static class Buttons
                     (typeof(SpiderWalk), null),
                     (typeof(WebShooter), null),
                     (typeof(IronMan), null),
-
             ],
 
             ["Room"] =
@@ -283,6 +282,10 @@ public static class Buttons
             [
                     (typeof(ZlothY), null),
                     (typeof(GorillaN0t), null),
+            ],
+
+            ["Contributors"] =
+            [
                     (typeof(baggZ), null),
             ],
     };

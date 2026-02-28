@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Credits;
 
-[hamburburmod(                "<color=#00c1bf>baggZ</color>", "Made mods and settings", ButtonType.Fixed,
+[hamburburmod(                "<color=#00c1bf>baggZ</color>", "Made some cool mods and settings", ButtonType.Fixed,
     AccessSetting.Public, EnabledType.Disabled,                0)]
 public class baggZ : hamburburmod
 {

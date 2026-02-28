@@ -1,23 +1,24 @@
 using System.Linq;
 using hamburbur.Mod_Backend;
-using GorillaNetworking;
 
 namespace hamburbur.Mods.Scoreboard;
 
-[hamburburmod(                "Mute", "Teleport to the selected player", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Mute", "Mute the selected player", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class Mute : hamburburmod
 {
     protected override void OnEnable()
     {
-        var player = PlayerLine.CurrentRig.OwningNetPlayer;
-        
+        NetPlayer player = PlayerLine.CurrentRig.creator;
+
         if (player == null || player.IsNull) return;
 
-        var lines = GorillaScoreboardTotalUpdater.allScoreboards
-            .SelectMany(s => s.lines)
-            .Where(l => l.playerActorNumber == player.ActorNumber || player.Equals(l.linePlayer))
-            .ToArray();
+        GorillaPlayerScoreboardLine[] lines = GorillaScoreboardTotalUpdater.allScoreboards
+                                                                           .SelectMany(s => s.lines)
+                                                                           .Where(l => l.playerActorNumber ==
+                                                                                    player.ActorNumber ||
+                                                                                    player.Equals(l.linePlayer))
+                                                                           .ToArray();
 
         for (int i = 0; i < lines.Length; i++)
             if (i == 0)
@@ -26,19 +27,23 @@ public class Mute : hamburburmod
                 lines[i].PressButton(true, GorillaPlayerLineButton.ButtonType.Mute);
             }
             else
+            {
                 lines[i].InitializeLine();
+            }
     }
-    
+
     protected override void OnDisable()
     {
-        var player = PlayerLine.CurrentRig.OwningNetPlayer;
-        
+        NetPlayer player = PlayerLine.CurrentRig.creator;
+
         if (player == null || player.IsNull) return;
 
-        var lines = GorillaScoreboardTotalUpdater.allScoreboards
-            .SelectMany(s => s.lines)
-            .Where(l => l.playerActorNumber == player.ActorNumber || player.Equals(l.linePlayer))
-            .ToArray();
+        GorillaPlayerScoreboardLine[] lines = GorillaScoreboardTotalUpdater.allScoreboards
+                                                                           .SelectMany(s => s.lines)
+                                                                           .Where(l => l.playerActorNumber ==
+                                                                                    player.ActorNumber ||
+                                                                                    player.Equals(l.linePlayer))
+                                                                           .ToArray();
 
         for (int i = 0; i < lines.Length; i++)
             if (i == 0)
@@ -47,6 +52,8 @@ public class Mute : hamburburmod
                 lines[i].PressButton(false, GorillaPlayerLineButton.ButtonType.Mute);
             }
             else
+            {
                 lines[i].InitializeLine();
+            }
     }
 }
