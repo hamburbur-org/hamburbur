@@ -39,8 +39,10 @@ public class Platforms : hamburburmod
         if (InputManager.Instance.RightGrip.WasPressed)
         {
             rightPlatform.SetActive(true);
-            rightPlatform.transform.position =
-                    Tools.Utils.RealRightController.position - Tools.Utils.RealRightController.right * 0.05f;
+            if (!StickyPlatforms.IsEnabled)
+                rightPlatform.transform.position = Tools.Utils.RealRightController.position -
+                                                  Tools.Utils.RealRightController.right * 0.05f;
+            else rightPlatform.transform.position = Tools.Utils.RealRightController.position;
 
             rightPlatform.transform.rotation = Tools.Utils.RealRightController.rotation;
         }
@@ -52,8 +54,10 @@ public class Platforms : hamburburmod
         if (InputManager.Instance.LeftGrip.WasPressed)
         {
             leftPlatform.SetActive(true);
-            leftPlatform.transform.position =
-                    Tools.Utils.RealLeftController.position + Tools.Utils.RealLeftController.right * 0.05f;
+            if (!StickyPlatforms.IsEnabled)
+                leftPlatform.transform.position = Tools.Utils.RealLeftController.position +
+                                                  Tools.Utils.RealLeftController.right * 0.05f;
+            else leftPlatform.transform.position = Tools.Utils.RealLeftController.position;
 
             leftPlatform.transform.rotation = Tools.Utils.RealLeftController.rotation;
         }

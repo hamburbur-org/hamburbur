@@ -94,13 +94,29 @@ public class MenuHandler : Singleton<MenuHandler>
 
         InputManager inputs = InputManager.Instance;
 
-        if (RightHanded.IsEnabled ? inputs.RightSecondary.WasPressed : inputs.LeftSecondary.WasPressed)
-            StartCoroutine(OpenMenu());
+        if (!ToggleMenu.IsEnabled)
+        {
+            if (RightHanded.IsEnabled ? inputs.RightSecondary.WasPressed : inputs.LeftSecondary.WasPressed)
+                StartCoroutine(OpenMenu());
 
-        if (RightHanded.IsEnabled ? inputs.RightSecondary.WasReleased : inputs.LeftSecondary.WasReleased)
-            StartCoroutine(Menu.transform.parent == Tools.Utils.RealLeftController
-                                   ? CloseMenu()
-                                   : GUIHandler.Instance.CloseMenu());
+            if (RightHanded.IsEnabled ? inputs.RightSecondary.WasReleased : inputs.LeftSecondary.WasReleased)
+                StartCoroutine(Menu.transform.parent == Tools.Utils.RealLeftController
+                    ? CloseMenu()
+                    : GUIHandler.Instance.CloseMenu());
+        }
+        else if (RightHanded.IsEnabled ? inputs.RightSecondary.WasPressed : inputs.LeftSecondary.WasPressed) 
+        {
+            if (MenuOpen)
+            {
+                StartCoroutine(Menu.transform.parent == Tools.Utils.RealLeftController
+                    ? CloseMenu()
+                    : GUIHandler.Instance.CloseMenu());
+            }
+            else
+            {
+                StartCoroutine(OpenMenu());
+            }
+        }
     }
 
     private void OnDisable() => CoroutineManager.Instance.StartCoroutine(CloseMenu());
