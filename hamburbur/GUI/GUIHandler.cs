@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using BepInEx;
 using GorillaNetworking;
 using hamburbur.Components;
@@ -19,6 +20,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using ArrayList = System.Collections.ArrayList;
 
 namespace hamburbur.GUI;
 
@@ -36,6 +38,7 @@ public class GUIHandler : Singleton<GUIHandler>
     public bool Open;
 
     private TextMeshProUGUI fpsText;
+    private TextMeshProUGUI arrayListText;
 
     private float lastFpsUpdate;
     private float lastTimeDataStreamed;
@@ -63,6 +66,8 @@ public class GUIHandler : Singleton<GUIHandler>
             .AddListener(() => ButtonHandler.Instance.SetCategory("Main"));
 
         Menu.transform.TakeChild(3, 0, 0, 0).AddComponent<GreetingHandler>();
+        
+        arrayListText = Canvas.transform.TakeChild(3).GetComponent<TextMeshProUGUI>();
 
         //Text input field
         Menu.transform.TakeChild(3, 0, 0, 1, 0).GetComponent<TMP_InputField>().onSelect
@@ -196,6 +201,20 @@ public class GUIHandler : Singleton<GUIHandler>
 
     private void Update()
     {
+        if (Mods.Settings.ArrayList.IsEnabled && arrayListText != false)
+        {
+            ValueTuple<Type, hamburburmod>[] enabledMods = Buttons.GetEnabledMods();
+
+            StringBuilder sb = new();
+            
+            sb.AppendLine("<size=32><color=green>Enabled Mods</color></size>");
+
+            foreach ((Type, hamburburmod) mod in enabledMods)
+                sb.AppendLine(mod.Item2.ModName);
+
+            arrayListText.text = sb.ToString();
+        }
+        
         if (KeyboardManager.Instance.KeyboardOpen)
             return;
 

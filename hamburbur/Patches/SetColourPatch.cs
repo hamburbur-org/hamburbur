@@ -9,6 +9,9 @@ public static class SetColourPatch
 {
     private static void Postfix(VRRig __instance, Color color)
     {
+        if (__instance.isLocal)
+            return;
+        
         RigUtils.OnRigColourChanged?.Invoke(__instance, color);
 
         if (RigUtils.LoadedRigs.Contains(__instance))

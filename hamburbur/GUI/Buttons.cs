@@ -54,6 +54,7 @@ public static class Buttons
             ["Settings"] =
             [
                     (typeof(Themes), null),
+                    (typeof(ArrayList), null),
                     (typeof(DynamicMenuSounds), null),
                     (typeof(DynamicNotificationSounds), null),
                     (typeof(ButtonPressSound), null),

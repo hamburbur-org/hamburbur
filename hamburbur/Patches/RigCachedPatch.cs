@@ -8,6 +8,9 @@ public static class RigCachedPatch
 {
     private static void Postfix(NetPlayer player, VRRig vrrig)
     {
+        if (vrrig.isLocal)
+            return;
+        
         RigUtils.OnRigUnloaded?.Invoke(vrrig);
         RigUtils.LoadedRigs.Remove(vrrig);
     }
