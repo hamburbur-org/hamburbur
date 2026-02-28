@@ -89,6 +89,7 @@ public static class Buttons
                     (typeof(GravityModifierType), null),
                     (typeof(ChangeFlySpeed), null),
                     (typeof(BlackBackgroundNotifs), null),
+                    (typeof(ToggleMenu), null),
             ],
 
             ["Movement"] =
@@ -103,6 +104,8 @@ public static class Buttons
                     (typeof(Speedboost), null),
                     (typeof(WallAssist), null),
                     (typeof(Fly), null),
+                    (typeof(DrStrangeFly), null),
+                    (typeof(BarkFly), null),
                     (typeof(WalkerMovement), null),
                     (typeof(NoSlip), null),
                     (typeof(DisableForestColliders), null),
@@ -116,6 +119,7 @@ public static class Buttons
                     (typeof(SpiderWalk), null),
                     (typeof(WebShooter), null),
                     (typeof(IronMan), null),
+
             ],
 
             ["Room"] =
@@ -278,6 +282,7 @@ public static class Buttons
             [
                     (typeof(ZlothY), null),
                     (typeof(GorillaN0t), null),
+                    (typeof(baggZ), null),
             ],
     };
 

@@ -12,6 +12,10 @@ public class Themes : hamburburmod
 {
     public static          string                         PrefabName;
     public static readonly Dictionary<string, GameObject> ThemesDict = new();
+    
+    public static ScreenShotCamera Instance { get; private set; }
+
+    public static GameObject menuPrefab;
 
     public static readonly List<Tuple<string, string, Vector3, Quaternion, Color>> AllThemes =
     [
@@ -90,7 +94,7 @@ public class Themes : hamburburmod
     private void LoadCurrentTheme()
     {
         PrefabName = AllThemes[IncrementalValue].Item1;
-        GameObject menuPrefab = ThemesDict.TryGetValue(PrefabName, out GameObject value)
+        menuPrefab = ThemesDict.TryGetValue(PrefabName, out GameObject value)
                                         ? value
                                         : Plugin.Instance.HamburburBundle.LoadAsset<GameObject>(PrefabName);
 
