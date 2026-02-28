@@ -5,6 +5,7 @@ using hamburbur.Misc;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Categories;
 using hamburbur.Mods.Credits;
+using hamburbur.Mods.Credits.Contributors;
 using hamburbur.Mods.CustomMaps;
 using hamburbur.Mods.CustomMaps.ChimpCombat;
 using hamburbur.Mods.CustomMaps.CrownTag;
@@ -283,6 +284,7 @@ public static class Buttons
             [
                     (typeof(ZlothY), null),
                     (typeof(GorillaN0t), null),
+                    (typeof(Contributors), null),
             ],
 
             ["Contributors"] =
