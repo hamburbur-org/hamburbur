@@ -12,7 +12,7 @@ public class ChangeReportType : hamburburmod
 
     public static ChangeReportType Instance { get; private set; }
 
-    public override string ModName => AssociatedAttribute.Name + Report.reportTypes[IncrementalValue].name;
+    public override string ModName => AssociatedAttribute.Name + Report.ReportTypes[IncrementalValue].name;
 
     protected override void Start() => Instance = this;
 

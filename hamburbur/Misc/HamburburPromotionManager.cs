@@ -22,6 +22,8 @@ public class HamburburPromotionManager : Singleton<HamburburPromotionManager>
         fin.transform.localScale = new Vector3(0.8f,    0.9f, 0.0001f);
         fin.transform.position   = new Vector3(-64.72f, 12f,  -84.72f);
         fin.transform.rotation   = Quaternion.Euler(0f, 271.63f, 0f);
+        
+        if (fin.TryGetComponent(out Collider collider)) collider.Obliterate();
 
         if (!fin.TryGetComponent(out Renderer renderer))
             return;
