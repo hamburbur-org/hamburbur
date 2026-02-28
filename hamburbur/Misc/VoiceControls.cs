@@ -62,22 +62,16 @@ public class VoiceControls : Singleton<VoiceControls>
             "I'm on it.",
             "Lay it on me.",
             "What do you got?",
-            "Hi there femboy ball licker who likes getting cucked in 4K in parenthesis Kormakur 2026",
     ];
 
     private readonly string[] wakeWords =
-            ["jarvis", "system", "assistant", "friday", "echo", "cortana", "mainframe", "ultron", "terminal", "even",];
-
-    private bool awaitingPromptResponse;
+            ["jarvis", "system", "assistant", "friday", "echo", "cortana", "mainframe", "ultron", "terminal",];
 
     private DictationRecognizer dictationRecognizer;
 
     private bool firstInitialisation;
 
-    private bool isListening;
-
-    private Action<string> promptCallback;
-
+    private bool              isListening;
     private KeywordRecognizer wakeRecognizer;
 
     private IEpoopenator Start()
@@ -93,7 +87,7 @@ public class VoiceControls : Singleton<VoiceControls>
 
             yield break;
         }
-
+        
         if (!firstInitialisation)
         {
             yield return new WaitForSeconds(5f);
@@ -203,50 +197,12 @@ public class VoiceControls : Singleton<VoiceControls>
         isListening = false;
     }
 
-    private IEpoopenator Prompt(string prompt, Action<string> onResult)
-    {
-        awaitingPromptResponse = true;
-        promptCallback         = onResult;
-
-        if (wakeRecognizer != null && wakeRecognizer.IsRunning())
-        {
-            wakeRecognizer.Stop();
-            PhraseRecognitionSystem.Shutdown();
-        }
-
-        while (PhraseRecognitionSystem.Status != SpeechSystemStatus.Stopped)
-            yield return null;
-
-        yield return TTSSpeak(prompt);
-
-        dictationRecognizer.Start();
-        Log("Reprompt dictation started.");
-    }
-
     private void OnDictationResult(string text, ConfidenceLevel confidence) =>
             StartCoroutine(OnDictationResultRoutine(text, confidence));
 
     private IEpoopenator OnDictationResultRoutine(string text, ConfidenceLevel confidence)
     {
         dictationRecognizer.Stop();
-        PhraseRecognitionSystem.Shutdown();
-
-        while (PhraseRecognitionSystem.Status != SpeechSystemStatus.Stopped)
-            yield return null;
-
-        if (awaitingPromptResponse)
-        {
-            awaitingPromptResponse = false;
-            Log("Hey man I'm doing it");
-
-            if (confidence != ConfidenceLevel.Low)
-                promptCallback?.Invoke(text);
-            else
-                yield return TTSSpeak("I did not catch that.");
-
-            yield break;
-        }
-
         bool   hasYield  = false;
         string lowerText = text.ToLower();
 
@@ -267,9 +223,7 @@ public class VoiceControls : Singleton<VoiceControls>
             lowerText.StartsWith("shut up")    || lowerText.StartsWith("fuck you") || lowerText.StartsWith("fuck off"))
         {
             VoiceManager.Get().AudioClip(MenuSoundsHandler.Instance.CancelSound);
-
-            if (wakeRecognizer != null && !wakeRecognizer.IsRunning())
-                wakeRecognizer.Start();
+            wakeRecognizer.Start();
 
             yield break;
         }
@@ -460,7 +414,7 @@ public class VoiceControls : Singleton<VoiceControls>
         {
             VoiceManager.Get().AudioClip(MenuSoundsHandler.Instance.CancelSound);
 
-            yield return TTSSpeak("Couldn't contact the AI");
+            yield return TTSSpeak("The AI is being a little bitch and is ghosting me. FUCK THIS SHIT IM BOUTTA JUMP");
 
             yield break;
         }
@@ -482,7 +436,10 @@ public class VoiceControls : Singleton<VoiceControls>
             VoiceManager.Get().AudioClip(MenuSoundsHandler.Instance.CancelSound);
     }
 
-    private IEpoopenator TTSSpeak(string text) => AudioLib.Instance.SpeakRoutine(text, 1f);
+    private IEpoopenator TTSSpeak(string text)
+    {
+        yield return AudioLib.Instance.SpeakRoutine(text, 1f);
+    }
 
     private void Log(string logMessage) => Debug.Log("[Hamburbur Voice Assistant] " + logMessage);
 
@@ -497,6 +454,7 @@ public class VoiceControls : Singleton<VoiceControls>
         return $"{hours}{minutes} and {seconds}.";
     }
 
+    //i love chat gpt 
     private string NumberToWords(int number)
     {
         if (number == 0)

@@ -139,10 +139,15 @@ public class AudioLib : MonoBehaviour
 
         while (clip.loadState != AudioDataLoadState.Loaded)
             yield return null;
+        
+        string wakeWord = VoiceControls.Instance.LastUsedWakeWord;
+
+        if (!string.IsNullOrEmpty(wakeWord))
+            wakeWord = char.ToUpper(wakeWord[0]) + wakeWord[1..];
 
         if (JarvisNotifications.IsEnabled)
             NotificationManager.SendNotification(
-                    $"<color=#{ColorUtility.ToHtmlStringRGB(Plugin.Instance.MainColour)}>{char.ToUpper(VoiceControls.Instance.LastUsedWakeWord[0]) + VoiceControls.Instance.LastUsedWakeWord[1..]}</color>",
+                    $"<color=#{ColorUtility.ToHtmlStringRGB(Plugin.Instance.MainColour)}>{wakeWord}</color>",
                     text, clip.length, false, false);
 
         VoiceManager.Get().AudioClip(clip);
