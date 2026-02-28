@@ -5,15 +5,14 @@ using hamburbur.Mod_Backend;
 using hamburbur.Tools;
 using UnityEngine;
 
-namespace hamburbur.Mods.Misc;
+namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Force Restart Jarvis", "Kills and revives jarvis", ButtonType.Fixed, AccessSetting.Public,
-        EnabledType.Disabled, 0)]
-public class RestartJarvis : hamburburmod
+[hamburburmod("Jarvis", "Use the built in voice assistant Jarvis", ButtonType.Togglable, AccessSetting.Public,
+        EnabledType.Enabled, 0)]
+public class Jarvis : hamburburmod
 {
-    protected override void Pressed()
+    protected override void OnEnable()
     {
-        VoiceControls.Instance.Obliterate();
         CoroutineManager.Instance.StartCoroutine(AddJarvis());
     }
 
@@ -21,5 +20,10 @@ public class RestartJarvis : hamburburmod
     {
         yield return new WaitForEndOfFrame();
         Plugin.Instance.ComponentHolder.AddComponent<VoiceControls>();
+    }
+
+    protected override void OnDisable()
+    {
+        VoiceControls.Instance.Obliterate();
     }
 }
