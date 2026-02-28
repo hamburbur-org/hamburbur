@@ -63,12 +63,15 @@ public class GUIHandler : Singleton<GUIHandler>
             .AddListener(() => ButtonHandler.Instance.SetCategory("Main"));
 
         Menu.transform.TakeChild(3, 0, 0, 0).AddComponent<GreetingHandler>();
+
+        //Text input field
         Menu.transform.TakeChild(3, 0, 0, 1, 0).GetComponent<TMP_InputField>().onSelect
             .AddListener(_ => WASDFly.DisableMovement = true);
 
         Menu.transform.TakeChild(3, 0, 0, 1, 0).GetComponent<TMP_InputField>().onDeselect
             .AddListener(_ => WASDFly.DisableMovement = false);
 
+        //Jarvis Speak Button
         Menu.transform.TakeChild(3, 0, 0, 1, 1).GetComponent<Button>().onClick
             .AddListener(() =>
                          {
@@ -171,6 +174,18 @@ public class GUIHandler : Singleton<GUIHandler>
 
                              StartCoroutine(SpeakRoutine(text));
                          });
+
+        //Join Button
+        Menu.transform.TakeChild(3, 0, 0, 1, 2).GetComponent<Button>().onClick.AddListener(() =>
+            {
+                string text = Menu.transform.TakeChild(3, 0, 0, 1, 0)
+                                  .GetComponent<TMP_InputField>().text;
+
+                if (text.IsNullOrEmpty())
+                    return;
+
+                PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(text, JoinType.Solo);
+            });
 
         SetUpButtons();
         Menu.SetActive(false);
