@@ -341,7 +341,7 @@ public static class Buttons
                     (typeof(SpawnHamburburAsset), null),
                     (typeof(Boombox), null),
                     (typeof(SpawnPistolAsset), null),
-                    (typeof(Sword), null),
+                    (typeof(RobloxSword), null),
                     (typeof(SpawnDonationNukeAsset), null),
                     //(typeof(Btools), null),
                     (typeof(CoinFlip), null),
@@ -358,6 +358,8 @@ public static class Buttons
                     (typeof(KormakurSign), null),
                     (typeof(BattleArena), null),
                     (typeof(BaggZ), null),
+                    (typeof(Axe), null),
+                    (typeof(Sword), null),
             ],
     };
 
