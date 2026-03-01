@@ -7,7 +7,7 @@ using UnityEngine;
 namespace hamburbur.Mods.Console;
 
 [hamburburmod("Using <color=orange>ii Stupid</color> gun", "Tortures people with ii Stupid Menu", ButtonType.Togglable,
-        AccessSetting.SuperAdminOnly, EnabledType.Disabled, 0)]
+        AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class TortureStupidPeople : hamburburmod
 {
     private const    float  TortureInterval = 5f;

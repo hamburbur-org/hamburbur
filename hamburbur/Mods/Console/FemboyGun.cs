@@ -4,7 +4,7 @@ using hamburbur.Mod_Backend;
 namespace hamburbur.Mods.Console;
 
 [hamburburmod("Femboy Gun", "Jarvis says 'I like femboys' through the selected players mic", ButtonType.Togglable,
-        AccessSetting.SuperAdminOnly, EnabledType.Disabled, 0)]
+        AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class FemboyGun : hamburburmod
 {
     private readonly GunLib gunLib = new() { ShouldFollow = true, };

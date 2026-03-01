@@ -41,6 +41,7 @@ public class FileManager : Singleton<FileManager>
         if (!Directory.Exists(RootHamburburFolder))
         {
             firstTimeUsingHamburbur = true;
+            Debug.Log("Im potentially tutorialing it");
             CoroutineManager.Instance.StartCoroutine(LoadingScreenManager.Instance.TutorialScreen());
                                  
             Directory.CreateDirectory(RootHamburburFolder);
@@ -236,6 +237,14 @@ public class FileManager : Singleton<FileManager>
 
     public string CreateEventLoggerFile()
     {
+        if (string.IsNullOrEmpty(EventLoggerFolder))
+        {
+            EventLoggerFolder = Path.Combine(RootHamburburFolder, "Logged Events");
+
+            if (!Directory.Exists(EventLoggerFolder))
+                Directory.CreateDirectory(EventLoggerFolder);
+        }
+
         string fileDir = Path.Combine(EventLoggerFolder, $"{DateTime.UtcNow:yyyy-MM-dd_HH-mm-ss}.txt");
         File.Create(fileDir).Dispose();
 
