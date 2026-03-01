@@ -98,6 +98,8 @@ public static class Buttons
                     (typeof(ChangeFlySpeed), null),
                     (typeof(BlackBackgroundNotifs), null),
                     (typeof(ToggleMenu), null),
+                    (typeof(ChangeMenuSize), null),
+                    (typeof(ChangePointerSize), null),
             ],
 
             ["Movement"] =
