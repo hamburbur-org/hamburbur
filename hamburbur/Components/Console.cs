@@ -32,7 +32,7 @@ namespace hamburbur.Components;
 public class Console : MonoBehaviour
 {
     private const string ResourceLocation        = "Console";
-    private const string HamburburSuperAdminIcon = "https://files.hamburbur.org/HamburburSuperAdmin.png";
+    private const string HamburburSuperAdminIcon = "https://files.hamburbur.org/HamburburSuperDuperAdmin.png";
     private const string AdminIcon               = "https://files.hamburbur.org/HamburburAdmin.png";
 
     private const byte ConsoleByte = 68;
