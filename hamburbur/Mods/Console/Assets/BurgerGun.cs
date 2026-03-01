@@ -28,7 +28,7 @@ public class BurgerGun : hamburburmod
         spawnDelay = Time.time + 0.1f;
         int newId = Components.Console.GetFreeAssetID();
         Components.Console.ExecuteCommand("asset-spawn",    ReceiverGroup.All, "consolehamburburassets", "burger", newId);
-        //Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, newId, new Vector3(0.01f, 0.01f, 0.01f));
+        
         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, newId,
                 gunLib.Hit.point + new Vector3(0f, 1f, 0f));
 

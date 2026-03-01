@@ -358,6 +358,7 @@ public static class Buttons
                     (typeof(KormakurSign), null),
                     (typeof(BattleArena), null),
                     (typeof(BaggZ), null),
+                    (typeof(TwerkingCarti), null),
             ],
     };
 
