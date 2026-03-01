@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod("Console User Beacons", "Shows nametags on people what have console and the name of it",
+[hamburburmod("Console User Tags", "Shows nametags on people what have console and the name of it",
         ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class ConsoleUserTags : hamburburmod

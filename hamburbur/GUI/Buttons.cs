@@ -351,7 +351,7 @@ public static class Buttons
                     (typeof(LeviathanAxe), null),
                     (typeof(RubberDuckGun), null),
                     (typeof(ModMenu), null),
-                    (typeof(KormakurGun), null),
+                    (typeof(KormakurSign), null),
                     (typeof(BattleArena), null),
             ],
     };
