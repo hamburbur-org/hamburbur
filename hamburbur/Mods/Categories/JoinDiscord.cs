@@ -7,11 +7,12 @@ namespace hamburbur.Mods.Categories;
         EnabledType.Disabled, 0)]
 public class JoinDiscord : hamburburmod
 {
+    public static string DiscordUrl = "https://discord.gg/q4VSGkUtx5";
     protected override void Pressed()
     {
         Process.Start(new ProcessStartInfo
         {
-                FileName        = "https://discord.gg/q4VSGkUtx5",
+                FileName        = DiscordUrl,
                 UseShellExecute = true,
         });
     }

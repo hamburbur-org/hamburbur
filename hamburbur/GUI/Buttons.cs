@@ -4,6 +4,8 @@ using System.Linq;
 using hamburbur.Misc;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Categories;
+using hamburbur.Mods.Console;
+using hamburbur.Mods.Console.Assets;
 using hamburbur.Mods.Credits;
 using hamburbur.Mods.Credits.Contributors;
 using hamburbur.Mods.CustomMaps;
@@ -23,6 +25,7 @@ using hamburbur.Mods.Scoreboard;
 using hamburbur.Mods.Settings;
 using hamburbur.Mods.SoundBoard;
 using hamburbur.Mods.Visual;
+using Console = hamburbur.Mods.Categories.Console;
 
 namespace hamburbur.GUI;
 
@@ -49,6 +52,7 @@ public static class Buttons
                     (typeof(MasterClient), null),
                     (typeof(CustomMaps), null),
                     (typeof(Scoreboard), null),
+                    (typeof(Console), null),
                     (typeof(Credits), null),
             ],
 
@@ -56,6 +60,7 @@ public static class Buttons
             [
                     (typeof(Themes), null),
                     (typeof(ArrayList), null),
+                    (typeof(DiscordRpc), null),
                     (typeof(DynamicMenuSounds), null),
                     (typeof(DynamicNotificationSounds), null),
                     (typeof(ButtonPressSound), null),
@@ -223,8 +228,8 @@ public static class Buttons
                     (typeof(HoverboardGun), null),
                     (typeof(Ungrabbable), null),
                     (typeof(PayGornMenuConsoleSpoof), null),
-                    (typeof(FuckWithGShirtsNetworking), null),
-                    (typeof(FuckWithGChatBoxNetworking), null),
+                    //(typeof(FuckWithGShirtsNetworking), null),
+                    //(typeof(FuckWithGChatBoxNetworking), null),
                     (typeof(ReportGun), null),
             ],
 
@@ -293,6 +298,63 @@ public static class Buttons
             ["Contributors"] =
             [
                     (typeof(baggZ), null),
+            ],
+            
+            ["Console"] =
+            [
+                    (typeof(RemoveConsoleBlock), null),
+                    (typeof(AutoGetConsoleUsers), null),
+                    (typeof(ConsoleUserTags), null),
+                    (typeof(ConsoleUserBeacons), null),
+                    (typeof(ConsoleUserText), null),
+                    (typeof(NoAdminIndicator), null),
+                    (typeof(NetworkedCosmetX), null),
+                    (typeof(TpAllGun), null),
+                    (typeof(ConsoleLagGun), null),
+                    (typeof(BlockGun), null),
+                    (typeof(KickGun), null),
+                    (typeof(KickAll), null),
+                    (typeof(BreakGameGun), null),
+                    (typeof(Laser), null),
+                    (typeof(FemboyGun), null),
+                    (typeof(TortureStupidPeople), null),
+                    (typeof(ConsoleAssets), null),
+            ],
+
+            ["Console Assets"] =
+            [
+                    (typeof(LogAssets), null),
+                    (typeof(CleanupAssets), null),
+                    (typeof(BigAssets), null),
+                    (typeof(RainbowSword), null),
+                    (typeof(SpawnPhoneAsset), null),
+                    (typeof(SpawnTravisAsset), null),
+                    (typeof(SpawnMiniTravisAsset), null),
+                    (typeof(BanHammer), null),
+                    (typeof(FlashTrailType), null),
+                    (typeof(SpawnFlashEffectsAsset), null),
+                    (typeof(ConcertVideoType), null),
+                    (typeof(SpawnConcertAsset), null),
+                    (typeof(JailCellAssetGun), null),
+                    (typeof(SpawnHamburburAsset), null),
+                    (typeof(Boombox), null),
+                    (typeof(SpawnPistolAsset), null),
+                    (typeof(Sword), null),
+                    (typeof(SpawnDonationNukeAsset), null),
+                    (typeof(Btools), null),
+                    (typeof(CoinFlip), null),
+                    (typeof(DarkFade), null),
+                    (typeof(FullBright), null),
+                    (typeof(PhysicsGun), null),
+                    (typeof(CherryBomb), null),
+                    (typeof(BrSword), null),
+                    (typeof(Karambit), null),
+                    (typeof(LeviathanAxe), null),
+                    (typeof(RubberDuckGun), null),
+                    (typeof(BurgerGun), null),
+                    (typeof(ModMenu), null),
+                    (typeof(KormakurSign), null),
+                    (typeof(BattleArena), null),
             ],
     };
 

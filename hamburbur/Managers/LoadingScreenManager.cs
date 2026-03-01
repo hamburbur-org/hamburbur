@@ -3,6 +3,7 @@ using GorillaLocomotion;
 using hamburbur.Components;
 using hamburbur.Tools;
 using UnityEngine;
+using UnityEngine.Video;
 
 namespace hamburbur.Managers;
 
@@ -59,5 +60,64 @@ public class LoadingScreenManager : Singleton<LoadingScreenManager>
 
         Plugin.Instance.DelayedStart();
         gameObject.Obliterate();
+    }
+
+    public IEnumerator TutorialScreen()
+    {
+        GTPlayer.Instance.disableMovement = true;
+        
+        GameObject tutorialScreen = Instantiate(Plugin.Instance.HamburburBundle.LoadAsset<GameObject>("TutorialScreen"));
+        
+        //Already contains the video url and play on awake is true in the asset bundle
+        VideoPlayer player = tutorialScreen.GetComponent<VideoPlayer>();
+
+        bool shouldClose = false;
+        
+        //Exit Button
+        tutorialScreen.transform.GetChild(0).AddComponent<ButtonCollider>().OnPress += () => shouldClose = true;
+
+        player.loopPointReached += _ => shouldClose = true;
+
+        while (!shouldClose)
+        {
+            if (tutorialScreen == null)
+                yield break;
+            
+            float distance = Vector3.Distance(GTPlayer.Instance.bodyCollider.transform.position, tutorialScreen.transform.position);
+            
+            if (distance > 10f)
+                shouldClose = true;
+            
+            yield return null;
+        }
+        
+        GTPlayer.Instance.disableMovement = false;
+
+        CoroutineManager.Instance.StartCoroutine(ShrinkAndDestroy(tutorialScreen));
+    }
+    
+    private IEnumerator ShrinkAndDestroy(GameObject obj)
+    {
+        const float Duration = 0.25f;
+        float       time     = 0f;
+        
+        Vector3 startScale = obj.transform.localScale;
+
+        while (time < Duration)
+        {
+            if (obj == null)
+                yield break;
+            
+            time += Time.deltaTime;
+
+            float t = time / Duration;
+            
+            obj.transform.localScale = Vector3.Lerp(startScale, Vector3.zero, t);
+            
+            yield return null;
+        }
+        
+        GTPlayer.Instance.disableMovement = false;
+        obj.Obliterate();
     }
 }
