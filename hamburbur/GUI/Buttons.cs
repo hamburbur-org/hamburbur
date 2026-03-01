@@ -360,6 +360,7 @@ public static class Buttons
                     (typeof(BaggZ), null),
                     (typeof(Axe), null),
                     (typeof(Sword), null),
+                    (typeof(TwerkingCarti), null),
             ],
     };
 
