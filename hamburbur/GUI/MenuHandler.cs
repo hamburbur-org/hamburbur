@@ -310,14 +310,14 @@ public class MenuHandler : Singleton<MenuHandler>
         while (Time.time - startTime < 0.1f)
         {
             float t = (Time.time - startTime) / 0.1f;
-            Menu.transform.parent.localScale   = Vector3.Lerp(Vector3.zero, Vector3.one,         t);
-            ButtonPresser.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one * 0.01f, t);
+            Menu.transform.parent.localScale   = Vector3.Lerp(Vector3.zero, Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f),         t);
+            ButtonPresser.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f), t);
 
             yield return null;
         }
 
-        Menu.transform.parent.localScale   = Vector3.one;
-        ButtonPresser.transform.localScale = Vector3.one * 0.01f;
+        Menu.transform.parent.localScale   = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f);
+        ButtonPresser.transform.localScale = Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f);
 
         if (typingCoroutine != null)
             StopCoroutine(typingCoroutine);
