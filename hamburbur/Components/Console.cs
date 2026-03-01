@@ -207,7 +207,7 @@ public class Console : MonoBehaviour
                             superAdminHamburburMaterial.renderQueue = (int)RenderQueue.Transparent;
                         }
 
-                        bool isSuper = HamburburData.HamburburSuperAdmins.Contains(playerRig.creator.UserId);
+                        bool isSuper = HamburburData.Admins.TryGetValue(player.UserId, out string potentialSuperAdminName) && HamburburData.HamburburSuperAdmins.Contains(potentialSuperAdminName);
                         
                         adminConeObject.GetComponent<Renderer>().material = isSuper ? superAdminHamburburMaterial : adminHamburburMaterial;
 
@@ -217,17 +217,15 @@ public class Console : MonoBehaviour
                     adminConeObject.GetComponent<Renderer>().material.color = playerRig.playerColor;
 
                     adminConeObject.transform.localScale =
-                            new Vector3(0.4f, 0.4f, 0.01f) * playerRig.scaleFactor;
+                            new Vector3(0.4f, 0.4f, 0.0001f) * playerRig.scaleFactor;
 
-                    adminConeObject.transform.position =
-                            playerRig.headMesh.transform.position + playerRig.headMesh.transform.up *
-                            (GetIndicatorDistance(playerRig) * playerRig.scaleFactor);
+                    adminConeObject.transform.position = playerRig.bodyRenderer.transform.TransformPoint(0f, 1f, 0f);
 
                     adminConeObject.transform.LookAt(GorillaTagger.Instance.headCollider.transform
                                                                   .position);
 
                     Vector3 rot = adminConeObject.transform.rotation.eulerAngles;
-                    rot                                += new Vector3(0f, 0f, Mathf.Sin(Time.time * 2f) * 10f);
+                    rot                                += new Vector3(0f, 0f, Mathf.Sin(Time.time * 2f) * 25f);
                     adminConeObject.transform.rotation =  Quaternion.Euler(rot);
                 }
 
@@ -239,7 +237,10 @@ public class Console : MonoBehaviour
                         adminIsScaling = false;
                 }
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
         else
         {
