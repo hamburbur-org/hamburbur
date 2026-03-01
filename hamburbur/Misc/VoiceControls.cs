@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using GorillaLocomotion;
 using GorillaNetworking;
 using hamburbur.Components;
 using hamburbur.GUI;
@@ -415,7 +416,7 @@ public class VoiceControls : Singleton<VoiceControls>
         {
             VoiceManager.Get().AudioClip(MenuSoundsHandler.Instance.CancelSound);
 
-            yield return TTSSpeak("The AI is being a little bitch and is ghosting me. FUCK THIS SHIT IM BOUTTA JUMP");
+            yield return TTSSpeak("Could not fetch a response from the ai");
 
             yield break;
         }

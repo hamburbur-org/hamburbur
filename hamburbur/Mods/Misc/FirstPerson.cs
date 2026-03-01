@@ -12,6 +12,8 @@ public class FirstPerson : hamburburmod
     private bool  wasEnabled = true;
     private float zoomFov    = 35f;
 
+    private float cachedNearClip;
+
     protected override void LateUpdate()
     {
         if (Plugin.Instance.ThirdPersonCamera == null)
@@ -57,6 +59,8 @@ public class FirstPerson : hamburburmod
         if (Plugin.Instance.ThirdPersonCamera != null)
             wasEnabled = Plugin.Instance.ThirdPersonCamera.gameObject.transform.Find("CM vcam1")
                                .GetComponent<CinemachineVirtualCamera>().enabled;
+        cachedNearClip = Plugin.Instance.ThirdPersonCamera.nearClipPlane;
+        Plugin.Instance.ThirdPersonCamera.nearClipPlane = 0.13f;
     }
 
     protected override void OnDisable()
@@ -67,5 +71,6 @@ public class FirstPerson : hamburburmod
         Plugin.Instance.ThirdPersonCamera.GetComponent<Camera>().fieldOfView = 60f;
         Plugin.Instance.ThirdPersonCamera.gameObject.transform.Find("CM vcam1").GetComponent<CinemachineVirtualCamera>()
               .enabled = wasEnabled;
+        Plugin.Instance.ThirdPersonCamera.nearClipPlane = cachedNearClip;
     }
 }
