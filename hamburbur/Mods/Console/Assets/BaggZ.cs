@@ -1,37 +1,33 @@
 using hamburbur.Mod_Backend;
 using Photon.Realtime;
 using UnityEngine;
-using Vector3 = System.Numerics.Vector3;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("BaggZ", "Spawns the bag asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
-        EnabledType.AlwaysDisabled, 0)]
+[hamburburmod("BaggZ", "Summons the bag asset",
+    ButtonType.Togglable,
+    AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class BaggZ : hamburburmod
 {
-    private static int allocatedId = -1;
+    private int assetId;
 
     protected override void OnEnable()
     {
-        allocatedId = Components.Console.GetFreeAssetID();
+        assetId = Components.Console.GetFreeAssetID();
         Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "consolehamburburassets", "bag",
-                allocatedId);
+            assetId);
 
-        Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, allocatedId, 3);
+        Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, assetId, 2);
 
-        Components.Console.ExecuteCommand("asset-setlocalposition", ReceiverGroup.All, allocatedId,
-                new Vector3(0f, 0f, 0f));
+        Components.Console.ExecuteCommand("asset-setlocalposition", ReceiverGroup.All, assetId,
+            new Vector3(0.05f, 0.03f, 0f));
 
-        Components.Console.ExecuteCommand("asset-setlocalrotation", ReceiverGroup.All, allocatedId,
-                Quaternion.Euler(0f, 0f, 0f));
-        
-        Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, allocatedId,
-                Vector3.One);
+        Components.Console.ExecuteCommand("asset-setlocalrotation", ReceiverGroup.All, assetId,
+            Quaternion.Euler(0f, 0f, 90f));
+
+        Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, assetId, Vector3.one * 5);
     }
 
-    protected override void OnDisable()
-    {
-        Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, allocatedId);
-        allocatedId = -1;
-    }
+    protected override void OnDisable() =>
+        Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
 }
