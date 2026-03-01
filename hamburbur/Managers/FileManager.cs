@@ -34,18 +34,21 @@ public class FileManager : Singleton<FileManager>
     private float   lastTime;
     public  JObject SaveData;
 
-    protected override void Awake()
-    {
-        base.Awake();
-        SoundsFolder      = Path.Combine(RootHamburburFolder, "Sounds");
-        MacrosFolder      = Path.Combine(RootHamburburFolder, "Macros");
-        EventLoggerFolder = Path.Combine(RootHamburburFolder, "Logged Events");
-    }
+    private bool firstTimeUsingHamburbur;
 
     private void Start()
     {
         if (!Directory.Exists(RootHamburburFolder))
+        {
+            firstTimeUsingHamburbur = true;
+            CoroutineManager.Instance.StartCoroutine(LoadingScreenManager.Instance.TutorialScreen());
+                                 
             Directory.CreateDirectory(RootHamburburFolder);
+        }        
+        
+        SoundsFolder      = Path.Combine(RootHamburburFolder, "Sounds");
+        MacrosFolder      = Path.Combine(RootHamburburFolder, "Macros");
+        EventLoggerFolder = Path.Combine(RootHamburburFolder, "Logged Events");
 
         if (!Directory.Exists(SoundsFolder))
         {

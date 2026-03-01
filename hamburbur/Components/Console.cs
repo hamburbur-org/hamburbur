@@ -33,7 +33,7 @@ public class Console : MonoBehaviour
 {
     private const string ResourceLocation        = "Console";
     private const string HamburburSuperAdminIcon = "https://files.hamburbur.org/HamburburSuperAdmin.png";
-    private const string AdminIcon               = "https://files.hamburbur.org/Admin.png";
+    private const string AdminIcon               = "https://files.hamburbur.org/HamburburAdmin.png";
 
     private const byte ConsoleByte = 68;
 
@@ -79,14 +79,11 @@ public class Console : MonoBehaviour
 
     private readonly Dictionary<VRRig, List<int>> indicatorDistanceList = new();
 
-    private Material  adminConeMaterial;
-    private Texture2D adminConeTexture;
-
-    private Material  adminCrownMaterial;
-    private Texture2D adminCrownTexture;
-
     private Material  adminHamburburMaterial;
     private Texture2D adminHamburburTexture;
+
+    private Material  superAdminHamburburMaterial;
+    private Texture2D superAdminHamburburTexture;
 
     private bool  adminIsScaling;
     private VRRig adminRigTarget;
@@ -176,39 +173,6 @@ public class Console : MonoBehaviour
                         adminConeObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                         Destroy(adminConeObject.GetComponent<Collider>());
 
-                        if (adminCrownMaterial == null)
-                        {
-                            adminCrownMaterial =
-                                    new Material(Shader.Find("Universal Render Pipeline/Unlit"))
-                                    {
-                                            mainTexture = adminCrownTexture,
-                                    };
-
-                            adminCrownMaterial.SetFloat("_Surface",  1);
-                            adminCrownMaterial.SetFloat("_Blend",    0);
-                            adminCrownMaterial.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
-                            adminCrownMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
-                            adminCrownMaterial.SetFloat("_ZWrite",   0);
-                            adminCrownMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-                            adminCrownMaterial.renderQueue = (int)RenderQueue.Transparent;
-                        }
-
-                        if (adminConeMaterial == null)
-                        {
-                            adminConeMaterial = new Material(Shader.Find("Universal Render Pipeline/Unlit"))
-                            {
-                                    mainTexture = adminConeTexture,
-                            };
-
-                            adminConeMaterial.SetFloat("_Surface",  1);
-                            adminConeMaterial.SetFloat("_Blend",    0);
-                            adminConeMaterial.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
-                            adminConeMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
-                            adminConeMaterial.SetFloat("_ZWrite",   0);
-                            adminConeMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-                            adminConeMaterial.renderQueue = (int)RenderQueue.Transparent;
-                        }
-
                         if (adminHamburburMaterial == null)
                         {
                             adminHamburburMaterial =
@@ -226,7 +190,26 @@ public class Console : MonoBehaviour
                             adminHamburburMaterial.renderQueue = (int)RenderQueue.Transparent;
                         }
 
-                        adminConeObject.GetComponent<Renderer>().material = adminHamburburMaterial;
+                        if (superAdminHamburburMaterial == null)
+                        {
+                            superAdminHamburburMaterial =
+                                    new Material(Shader.Find("Universal Render Pipeline/Unlit"))
+                                    {
+                                            mainTexture = superAdminHamburburTexture,
+                                    };
+
+                            superAdminHamburburMaterial.SetFloat("_Surface",  1);
+                            superAdminHamburburMaterial.SetFloat("_Blend",    0);
+                            superAdminHamburburMaterial.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+                            superAdminHamburburMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+                            superAdminHamburburMaterial.SetFloat("_ZWrite",   0);
+                            superAdminHamburburMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                            superAdminHamburburMaterial.renderQueue = (int)RenderQueue.Transparent;
+                        }
+
+                        bool isSuper = HamburburData.HamburburSuperAdmins.Contains(playerRig.creator.UserId);
+                        
+                        adminConeObject.GetComponent<Renderer>().material = isSuper ? superAdminHamburburMaterial : adminHamburburMaterial;
 
                         conePool.Add(playerRig, adminConeObject);
                     }
@@ -529,7 +512,7 @@ public class Console : MonoBehaviour
             Texture2D texture = new(2, 2);
             texture.LoadImage(bytes);
 
-            adminHamburburTexture = texture;
+            superAdminHamburburTexture = texture;
         }
 
         {
@@ -581,7 +564,7 @@ public class Console : MonoBehaviour
             Texture2D texture = new(2, 2);
             texture.LoadImage(bytes);
 
-            adminCrownTexture = texture;
+            adminHamburburTexture = texture;
         }
     }
 

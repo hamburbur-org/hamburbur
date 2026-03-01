@@ -7,7 +7,7 @@ using UnityEngine;
 namespace hamburbur.Mods.Console.Assets;
 
 [hamburburmod("Rubber Duck Gun", "A gun that lets you spawn in rubber ducks if they have console", ButtonType.Togglable,
-        AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
+        AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class RubberDuckGun : hamburburmod
 {
     public static List<int> DuckIds = [];

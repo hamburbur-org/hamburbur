@@ -60,6 +60,7 @@ public static class Buttons
             [
                     (typeof(Themes), null),
                     (typeof(ArrayList), null),
+                    (typeof(DiscordRpc), null),
                     (typeof(DynamicMenuSounds), null),
                     (typeof(DynamicNotificationSounds), null),
                     (typeof(ButtonPressSound), null),
@@ -227,8 +228,8 @@ public static class Buttons
                     (typeof(HoverboardGun), null),
                     (typeof(Ungrabbable), null),
                     (typeof(PayGornMenuConsoleSpoof), null),
-                    (typeof(FuckWithGShirtsNetworking), null),
-                    (typeof(FuckWithGChatBoxNetworking), null),
+                    //(typeof(FuckWithGShirtsNetworking), null),
+                    //(typeof(FuckWithGChatBoxNetworking), null),
                     (typeof(ReportGun), null),
             ],
 
@@ -350,6 +351,7 @@ public static class Buttons
                     (typeof(Karambit), null),
                     (typeof(LeviathanAxe), null),
                     (typeof(RubberDuckGun), null),
+                    (typeof(BurgerGun), null),
                     (typeof(ModMenu), null),
                     (typeof(KormakurSign), null),
                     (typeof(BattleArena), null),

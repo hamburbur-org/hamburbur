@@ -7,7 +7,7 @@ using UnityEngine;
 namespace hamburbur.Mods.Console.Assets;
 
 [hamburburmod(                "Battle Arena", "Creates a battle arena", ButtonType.Togglable, AccessSetting.AdminOnly,
-        EnabledType.Disabled, 0)]
+        EnabledType.AlwaysDisabled, 0)]
 public class BattleArena : hamburburmod
 {
     private int assetId;

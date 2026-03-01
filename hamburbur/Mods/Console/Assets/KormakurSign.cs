@@ -6,7 +6,7 @@ namespace hamburbur.Mods.Console.Assets;
 
 [hamburburmod("Kormakur Sign", "A sign that lets you tell people who kormakur is if they have console",
         ButtonType.Togglable,
-        AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
+        AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class KormakurSign : hamburburmod
 {
     private int assetId;
