@@ -9,11 +9,11 @@ namespace hamburbur.Mods.Scoreboard;
         EnabledType.Disabled, 0)]
 public class Report : hamburburmod
 {
-    public static List<(GorillaPlayerLineButton.ButtonType type, string name)> reportTypes =
+    public static readonly List<(GorillaPlayerLineButton.ButtonType type, string name)> ReportTypes =
     [
-        (GorillaPlayerLineButton.ButtonType.Cheating, "Cheating"),
-        (GorillaPlayerLineButton.ButtonType.HateSpeech, "Hate Speech"),
-        (GorillaPlayerLineButton.ButtonType.Toxicity, "Toxicity")
+            (GorillaPlayerLineButton.ButtonType.Cheating, "Cheating"),
+            (GorillaPlayerLineButton.ButtonType.HateSpeech, "Hate Speech"),
+            (GorillaPlayerLineButton.ButtonType.Toxicity, "Toxicity"),
     ];
 
     protected override void Pressed()
@@ -23,16 +23,17 @@ public class Report : hamburburmod
         if (player == null || player.IsNull) return;
 
         GorillaPlayerScoreboardLine[] lines = GorillaScoreboardTotalUpdater.allScoreboards
-            .SelectMany(s => s.lines)
-            .Where(l => l.playerActorNumber == player.ActorNumber ||
-                        player.Equals(l.linePlayer))
-            .ToArray();
+                                                                           .SelectMany(s => s.lines)
+                                                                           .Where(l => l.playerActorNumber ==
+                                                                                player.ActorNumber ||
+                                                                                player.Equals(l.linePlayer))
+                                                                           .ToArray();
 
         for (int i = 0; i < lines.Length; i++)
             if (i == 0)
             {
                 lines[i].reportButton.isOn = true;
-                lines[i].PressButton(true, reportTypes[ChangeReportType.Instance.IncrementalValue].type);
+                lines[i].PressButton(true, ReportTypes[ChangeReportType.Instance.IncrementalValue].type);
             }
             else
             {
