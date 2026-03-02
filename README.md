@@ -38,7 +38,7 @@ The goal is to provide a clean and minimal mod menu experience without unnecessa
 
 - Gorilla Tag (Steam VR version (rift is not supported)
 - BepInEx 5.x
-- Any OS that can support BepInEx and GorillaTag (Windows is needed for Jarvis or Voice Controls)
+- Any OS that can support BepInEx and GorillaTag (Windows is needed for Jarvis/Voice Controls)
 
 ---
 
