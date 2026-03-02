@@ -364,6 +364,7 @@ public static class Buttons
                     (typeof(Sword), null),
                     (typeof(TwerkingCarti), null),
                     (typeof(LightningGun), null),
+                    (typeof(Shreksophone), null),
             ],
     };
 
