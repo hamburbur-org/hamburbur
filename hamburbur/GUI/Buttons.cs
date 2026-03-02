@@ -320,6 +320,8 @@ public static class Buttons
                     (typeof(Laser), null),
                     (typeof(FemboyGun), null),
                     (typeof(TortureStupidPeople), null),
+                    (typeof(SilentKickGun), null),
+                    (typeof(NotifyPresence), null),
                     (typeof(ConsoleAssets), null),
             ],
 
@@ -361,6 +363,7 @@ public static class Buttons
                     (typeof(Axe), null),
                     (typeof(Sword), null),
                     (typeof(TwerkingCarti), null),
+                    (typeof(LightningGun), null),
                     (typeof(Shreksophone), null),
             ],
     };
