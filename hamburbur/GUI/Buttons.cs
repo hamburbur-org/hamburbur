@@ -233,6 +233,7 @@ public static class Buttons
                     //(typeof(FuckWithGShirtsNetworking), null),
                     //(typeof(FuckWithGChatBoxNetworking), null),
                     (typeof(ReportGun), null),
+                    (typeof(Beyblade), null),
             ],
 
             ["SoundBoard"] =
@@ -365,6 +366,10 @@ public static class Buttons
                     (typeof(TwerkingCarti), null),
                     (typeof(LightningGun), null),
                     (typeof(Shreksophone), null),
+                    (typeof(ChangeAsset), null),
+                    (typeof(ChangeAssetScale), null),
+                    (typeof(AssetGun), null),
+                    (typeof(GiveAssetGun), null),
             ],
     };
 
