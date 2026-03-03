@@ -27,8 +27,8 @@ public class AssetGun : hamburburmod
 
         spawnDelay = Time.time + 0.1f;
         int newId = Components.Console.GetFreeAssetID();
-        Components.Console.ExecuteCommand("asset-spawn",    ReceiverGroup.All, ChangeAsset.assets[ChangeAsset.Instance.IncrementalValue].file,
-            ChangeAsset.assets[ChangeAsset.Instance.IncrementalValue].prefabName, newId);
+        Components.Console.ExecuteCommand("asset-spawn",    ReceiverGroup.All, ChangeAsset.Assets[ChangeAsset.Instance.IncrementalValue].file,
+            ChangeAsset.Assets[ChangeAsset.Instance.IncrementalValue].prefabName, newId);
         
         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, newId,
                 gunLib.Hit.point);

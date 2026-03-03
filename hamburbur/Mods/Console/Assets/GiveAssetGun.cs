@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using hamburbur.Libs;
 using hamburbur.Mod_Backend;
-using hamburbur.Tools;
 using Photon.Realtime;
 using UnityEngine;
 
@@ -11,7 +10,7 @@ namespace hamburbur.Mods.Console.Assets;
         AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class GiveAssetGun : hamburburmod
 {
-    public static List<int> AssetIds = [];
+    private static readonly List<int> AssetIds = [];
 
     private readonly GunLib gunLib = new() { ShouldFollow = true, };
 
@@ -28,19 +27,21 @@ public class GiveAssetGun : hamburburmod
 
         spawnDelay = Time.time + 0.1f;
         int newId = Components.Console.GetFreeAssetID();
-        Components.Console.ExecuteCommand("asset-spawn",    ReceiverGroup.All, ChangeAsset.assets[ChangeAsset.Instance.IncrementalValue].file,
-            ChangeAsset.assets[ChangeAsset.Instance.IncrementalValue].prefabName, newId);
-        
-        Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, newId, 2, gunLib.ChosenRig.OwningNetPlayer.ActorNumber);
-        
+        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All,
+                ChangeAsset.Assets[ChangeAsset.Instance.IncrementalValue].file,
+                ChangeAsset.Assets[ChangeAsset.Instance.IncrementalValue].prefabName, newId);
+
+        Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, newId, 2,
+                gunLib.ChosenRig.OwningNetPlayer.ActorNumber);
+
         Components.Console.ExecuteCommand("asset-setlocalposition", ReceiverGroup.All, newId,
-            ChangeAsset.assets[ChangeAsset.Instance.IncrementalValue].position);
-        
+                ChangeAsset.Assets[ChangeAsset.Instance.IncrementalValue].position);
+
         Components.Console.ExecuteCommand("asset-setlocalrotation", ReceiverGroup.All, newId,
-            ChangeAsset.assets[ChangeAsset.Instance.IncrementalValue].rotation);
-        
+                ChangeAsset.Assets[ChangeAsset.Instance.IncrementalValue].rotation);
+
         Components.Console.ExecuteCommand("asset-setlocalscale", ReceiverGroup.All, newId,
-            ChangeAsset.assets[ChangeAsset.Instance.IncrementalValue].scale);
+                ChangeAsset.Assets[ChangeAsset.Instance.IncrementalValue].scale);
 
         AssetIds.Add(newId);
     }

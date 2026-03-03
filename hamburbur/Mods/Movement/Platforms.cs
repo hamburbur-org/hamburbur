@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using GorillaLocomotion.Climbing;
+using hamburbur.Components;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Settings;
@@ -115,24 +116,5 @@ public class Platforms : hamburburmod
         gorillaClimbable.enabled = StickyPlatforms.IsEnabled;
 
         return platform;
-    }
-
-    private class ColourChanger : MonoBehaviour
-    {
-        private float    elapsedTime;
-        private Renderer renderer;
-
-        private void Start()
-        {
-            if (!gameObject.TryGetComponent(out renderer))
-                this.Obliterate();
-        }
-
-        private void Update()
-        {
-            elapsedTime += Time.deltaTime;
-            float time = Mathf.PingPong(elapsedTime, 1f);
-            renderer.material.color = Color.Lerp(Plugin.Instance.MainColour, Plugin.Instance.SecondaryColour, time);
-        }
     }
 }
