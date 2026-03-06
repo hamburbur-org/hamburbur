@@ -28,7 +28,7 @@ public class HandTracers : hamburburmod
 
     protected override void OnEnable()
     {
-        foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => !rig.isLocal))
+        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
             CreateTracer(rig);
 
         RigUtils.OnRigLoaded   += CreateTracer;
@@ -40,7 +40,7 @@ public class HandTracers : hamburburmod
 
     protected override void OnDisable()
     {
-        foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => !rig.isLocal))
+        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
             DestroyTracer(rig);
 
         RigUtils.OnRigLoaded   -= CreateTracer;

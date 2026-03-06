@@ -29,7 +29,7 @@ public class BetterTagAura : hamburburmod
         float closestDistance     = float.MaxValue;
         VRRig closestNonTaggedRig = null;
 
-        foreach (VRRig vrrig in GorillaParent.instance.vrrigs)
+        foreach (VRRig vrrig in VRRigCache.m_activeRigs)
         {
             if (vrrig == null || vrrig.isLocal)
                 continue;

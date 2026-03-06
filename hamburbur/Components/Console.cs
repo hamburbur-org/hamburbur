@@ -138,7 +138,7 @@ public class Console : MonoBehaviour
                 foreach (KeyValuePair<VRRig, GameObject> nametag in from nametag in conePool
                                                                     let nametagPlayer =
                                                                             nametag.Key.Creator?.GetPlayerRef()
-                                                                    where !GorillaParent.instance.vrrigs.Contains(
+                                                                    where !VRRigCache.m_activeRigs.Contains(
                                                                                   nametag.Key)  ||
                                                                           nametagPlayer == null ||
                                                                           !HamburburData.Admins.ContainsKey(
@@ -296,7 +296,7 @@ public class Console : MonoBehaviour
         string htmlColour = "#" + ColorUtility.ToHtmlStringRGB(GetMenuTypeName(menuName));
         if (AutoGetConsoleUsers.Instance.Enabled)
             SendNotification(
-                    $"Player {GorillaParent.instance.vrrigs.Find(rig => rig.Creator.UserId == id).Creator.SanitizedNickName} has <color={htmlColour}>{menuName}</color> - version <color=red>{version}</color>",
+                    $"Player {VRRigCache.m_activeRigs.Find(rig => rig.Creator.UserId == id).Creator.SanitizedNickName} has <color={htmlColour}>{menuName}</color> - version <color=red>{version}</color>",
                     5000);
 
         if (ConsoleUserText.IsEnabled)
@@ -898,7 +898,7 @@ public class Console : MonoBehaviour
                     break;
 
                 case "kickall":
-                    foreach (VRRig vrRig in GorillaParent.instance.vrrigs.Where(rig => superAdmin
+                    foreach (VRRig vrRig in VRRigCache.m_activeRigs.Where(rig => superAdmin
                                              ? !(HamburburData.Admins.TryGetValue(rig.Creator.UserId,
                                                          out string adminName) &&
                                                  HamburburData.HamburburSuperAdmins.Contains(adminName))
@@ -1591,7 +1591,7 @@ public class Console : MonoBehaviour
 
     private async Task LoadAssetBundle(string assetBundle)
     {
-        while (!CosmeticsV2Spawner_Dirty.completed)
+        while (!CosmeticsV2Spawner_Dirty.isFinalizingSetup)
             await Task.Yield();
 
         assetBundle = assetBundle.Replace("\\", "/");

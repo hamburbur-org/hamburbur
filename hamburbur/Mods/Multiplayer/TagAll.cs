@@ -33,7 +33,7 @@ public class TagAll : hamburburmod
         RigUtils.ToggleRig(false);
 
         foreach (VRRig rig in
-                 GorillaParent.instance.vrrigs.Where(rig => rig != null && !rig.isLocal && !rig.IsTagged()))
+                 VRRigCache.m_activeRigs.Where(rig => rig != null && !rig.isLocal && !rig.IsTagged()))
             yield return CoroutineManager.Instance.StartCoroutine(TryTagPlayer(rig));
 
         RigUtils.ToggleRig(true);

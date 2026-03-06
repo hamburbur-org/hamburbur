@@ -11,7 +11,7 @@ public class Boners : hamburburmod
 {
     protected override void OnEnable()
     {
-        foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => !rig.isLocal))
+        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
             SkellonifyRig(rig);
 
         RigUtils.OnRigLoaded   += SkellonifyRig;
@@ -23,7 +23,7 @@ public class Boners : hamburburmod
         RigUtils.OnRigLoaded   -= SkellonifyRig;
         RigUtils.OnRigUnloaded -= UnSkellonifyRig;
 
-        foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => !rig.isLocal))
+        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
             UnSkellonifyRig(rig);
     }
 

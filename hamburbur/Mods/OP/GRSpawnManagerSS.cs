@@ -77,7 +77,7 @@ public class GRBlindAll : hamburburmod
 {
     protected override void Update()
     {
-        foreach (VRRig rig in GorillaParent.instance.vrrigs)
+        foreach (VRRig rig in VRRigCache.m_activeRigs)
         {
             if (rig.isLocal)
                 continue;

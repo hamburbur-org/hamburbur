@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
-using System.Text;
-using BepInEx;
 using GorillaLocomotion;
 using GorillaNetworking;
 using hamburbur.Components;
@@ -24,7 +22,6 @@ using Photon.Pun;
 using Photon.Voice.Unity;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.Video;
 
@@ -35,9 +32,6 @@ public class Plugin : MonoBehaviour
     public static string BeeMovieScript;
     public        bool   MenuLoaded;
     public        bool   JarvisDidFirstInitialisation;
-
-    public Dictionary<string, string> specialCosmetics = new();
-    public Dictionary<string, string> specialCosmeticsDetailed = new();
 
     public bool PlayedStartAnim;
 
@@ -54,26 +48,32 @@ public class Plugin : MonoBehaviour
 
     private TextMeshPro cocHeadingText;
     private TextMeshPro cocText;
+    private string      fpsText;
 
     private float gtPlayerControllerToRealRatio;
 
     private Harmony harmony;
+
+    private float lastFpsUpdate;
 
     private AudioSource menuAudioSource;
     private TextMeshPro motdBodyText;
 
     private TextMeshPro motdHeadingText;
 
-    private       GameObject rBall, lBall;
-    private       GameObject stumpObj;
-    private       bool       versionOkay;
-    public static Plugin     Instance { get; private set; }
+    private GameObject rBall, lBall;
+
+    public        Dictionary<string, string> specialCosmetics         = new();
+    public        Dictionary<string, string> specialCosmeticsDetailed = new();
+    private       GameObject                 stumpObj;
+    private       bool                       versionOkay;
+    public static Plugin                     Instance { get; private set; }
 
     public Shader      UberShader      { get; private set; }
     public AssetBundle HamburburBundle { get; private set; }
     public GameObject  ComponentHolder { get; private set; }
     public AudioClip   HamburgerSound  { get; private set; }
-    
+
     public TMP_FontAsset DiloWorldFont { get; private set; }
 
     public Texture2D HamburburIcon { get; private set; }
@@ -100,9 +100,6 @@ public class Plugin : MonoBehaviour
         GorillaTagger.OnPlayerSpawned(OnGameInitialized);
     }
 
-    private float  lastFpsUpdate;
-    private string fpsText;
-
     private void LateUpdate()
     {
         if (!versionOkay)
@@ -110,11 +107,11 @@ public class Plugin : MonoBehaviour
 
         if (!MenuLoaded)
             return;
-        
+
         if (cocText != null)
         {
-            bool   inRoom         = PhotonNetwork.InRoom;
-            
+            bool inRoom = PhotonNetwork.InRoom;
+
             if (lastFpsUpdate + 0.1f < Time.time)
             {
                 lastFpsUpdate = Time.time;
@@ -122,10 +119,10 @@ public class Plugin : MonoBehaviour
                 string colour = fps > 60 ? fps > 72 ? "green" : "yellow" : "red";
                 fpsText = $"<color={colour}>{fps}</color>";
             }
-            
+
             string roomCode       = inRoom ? PhotonNetwork.CurrentRoom.Name : "NaN";
             string peopleInCode   = inRoom ? PhotonNetwork.CurrentRoom.PlayerCount.ToString() : "NaN";
-            string maxInCode   = inRoom ? PhotonNetwork.CurrentRoom.MaxPlayers.ToString() : "NaN";
+            string maxInCode      = inRoom ? PhotonNetwork.CurrentRoom.MaxPlayers.ToString() : "NaN";
             string gameModeString = inRoom ? NetworkSystem.Instance.GameModeString : "NaN";
             string ping           = inRoom ? PhotonNetwork.GetPing().ToString() : "NaN";
             cocText.text =
@@ -229,6 +226,14 @@ public class Plugin : MonoBehaviour
         FirstPersonCamera = GTPlayer.Instance.mainCamera;
         ThirdPersonCamera = GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).GetComponent<Camera>();
 
+        VRRigCache.OnRigDeactivated += rigContainer =>
+                                       {
+                                           VRRig vrrig = rigContainer.vrrig;
+
+                                           RigUtils.OnRigUnloaded?.Invoke(vrrig);
+                                           RigUtils.LoadedRigs.Remove(vrrig);
+                                       };
+
         if (PlayerPrefsExtensions.GetBool(DoLoadingScreen.PlayerPrefsKey, true))
         {
             GameObject loadingScreenHolder = new("hamburbur loading screen");
@@ -252,12 +257,17 @@ public class Plugin : MonoBehaviour
                                                 return;
 
                                             hasDoneDelayedStart = true;
-                                            
-                                            JObject cosmetics = HamburburData.Data["specialCosmetics"]!.ToObject<JObject>();
+
+                                            JObject cosmetics = HamburburData.Data["specialCosmetics"]!
+                                                                             .ToObject<JObject>();
+
                                             foreach (JProperty prop in cosmetics.Properties())
                                                 specialCosmetics[prop.Name] = prop.Value.ToString();
 
-                                            JObject cosmeticsDetailed = HamburburData.Data["specialCosmeticsDetailed"]!.ToObject<JObject>();;
+                                            JObject cosmeticsDetailed = HamburburData.Data["specialCosmeticsDetailed"]!
+                                                   .ToObject<JObject>();
+
+                                            ;
                                             foreach (JProperty prop in cosmeticsDetailed.Properties())
                                                 specialCosmeticsDetailed[prop.Name] = prop.Value.ToString();
 
@@ -358,7 +368,7 @@ public class Plugin : MonoBehaviour
                                                     HamburburBundle.LoadAsset<GameObject>("ConsoleIndicator");
 
                                             DiloWorldFont = HamburburBundle.LoadAsset<TMP_FontAsset>("DiloWorld SDF");
-                                            
+
                                             gtPlayerControllerToRealRatio =
                                                     1 / GTPlayer.Instance.leftHand.controllerTransform.lossyScale
                                                                 .magnitude;

@@ -44,14 +44,14 @@ public static class Extensions
     }
 
     public static VRRig Rig(this int actorNumber) =>
-            GorillaParent.instance.vrrigs.Find(r => r.Creator.ActorNumber == actorNumber);
+            VRRigCache.m_activeRigs.Find(r => r.Creator.ActorNumber == actorNumber);
 
-    public static VRRig Rig(this NetPlayer netPlayer) => GorillaParent.instance.vrrigDict[netPlayer];
+    public static VRRig Rig(this NetPlayer netPlayer) => VRRigCache.rigsInUse[netPlayer].Rig;
 
     public static VRRig Rig(this Player player) =>
-            GorillaParent.instance.vrrigs.Find(r => r.Creator.GetPlayerRef().Equals(player));
+            VRRigCache.m_activeRigs.Find(r => r.Creator.GetPlayerRef().Equals(player));
 
-    public static VRRig Rig(this string id) => GorillaParent.instance.vrrigs.Find(r => r.Creator?.UserId == id);
+    public static VRRig Rig(this string id) => VRRigCache.m_activeRigs.Find(r => r.Creator?.UserId == id);
 
     public static NetPlayer OwningNetPlayer(this VRRig rig) => rig?.Creator;
     public static Vector3   Velocity(this VRRig rig) => RigUtils.RigVelocities.GetValueOrDefault(rig, Vector3.zero);

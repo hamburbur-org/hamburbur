@@ -197,7 +197,6 @@ public static class Buttons
                     (typeof(UnlimitFPS), null),
                     (typeof(TestSoundEffectGT), null),
                     (typeof(ChangeTestSoundEffectGT), null),
-                    (typeof(ForceEnableHands), null),
                     (typeof(LobbyHopper), null),
                     (typeof(ARS), null),
                     (typeof(CopyIdGun), null),

@@ -35,7 +35,7 @@ public class LavaDistanceNotification : hamburburmod
         VRRig closestRig      = null;
 
         foreach (VRRig vrrig in
-                 GorillaParent.instance.vrrigs)
+                 VRRigCache.m_activeRigs)
         {
             if (vrrig == null ||
                 vrrig ==

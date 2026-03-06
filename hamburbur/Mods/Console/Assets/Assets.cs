@@ -322,11 +322,11 @@ public class SpawnHamburburAsset : hamburburmod
         if (!NetworkSystem.Instance.InRoom || Time.time < nextPlayTime)
             return;
 
-        foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => Vector3.Distance(
-                                                                                 rig.headMesh.transform.position,
-                                                                                 GorillaTagger.Instance.offlineVRRig
-                                                                                        .rightHandTransform.position) <=
-                                                                         0.4f))
+        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => Vector3.Distance(
+                                                                           rig.headMesh.transform.position,
+                                                                           GorillaTagger.Instance.offlineVRRig
+                                                                                  .rightHandTransform.position) <=
+                                                                   0.4f))
             Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, assetId, "Sound",
                     "mmmchezburger");
 

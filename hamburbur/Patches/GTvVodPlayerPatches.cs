@@ -1,3 +1,4 @@
+/*
 using HarmonyLib;
 using UnityEngine.Video;
 
@@ -85,3 +86,4 @@ public class GTvVodPlayerPatches
             __instance.player.aspectRatio = VideoAspectRatio.Stretch;
     }
 }
+*/

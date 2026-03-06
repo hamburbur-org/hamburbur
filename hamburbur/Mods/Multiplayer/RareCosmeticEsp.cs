@@ -12,7 +12,7 @@ public class RareCosmeticEsp : hamburburmod
     protected override void OnEnable()
     {
         if (NetworkSystem.Instance.InRoom)
-            foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => !rig.isLocal))
+            foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
                 CheckAndApplyEsp(rig);
 
         RigUtils.OnRigCosmeticsLoaded += CheckAndApplyEsp;
@@ -27,13 +27,13 @@ public class RareCosmeticEsp : hamburburmod
         if (!NetworkSystem.Instance.InRoom)
             return;
 
-        foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => !rig.isLocal))
+        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
             CheckAndApplyEsp(rig);
     }
 
     private void CheckAndApplyEsp(VRRig rig)
     {
-        if (!Plugin.Instance.specialCosmetics.Keys.Any(cosmeticKey => rig.rawCosmeticString.Contains(cosmeticKey)) ||
+        if (!Plugin.Instance.specialCosmetics.Keys.Any(cosmeticKey => rig._playerOwnedCosmetics.Contains(cosmeticKey)) ||
             rig.isLocal)
             return;
 

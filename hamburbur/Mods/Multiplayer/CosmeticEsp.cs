@@ -13,7 +13,7 @@ public class CosmeticEsp : hamburburmod
     protected override void OnEnable()
     {
         if (NetworkSystem.Instance.InRoom)
-            foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => !rig.isLocal))
+            foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
                 ApplyEsp(rig);
 
         RigUtils.OnRigCosmeticsLoaded += ApplyEsp;
@@ -28,7 +28,7 @@ public class CosmeticEsp : hamburburmod
         if (!NetworkSystem.Instance.InRoom)
             return;
 
-        foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => !rig.isLocal))
+        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
             ApplyEsp(rig);
     }
 

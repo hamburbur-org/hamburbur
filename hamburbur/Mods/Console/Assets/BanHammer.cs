@@ -121,7 +121,7 @@ public class BanHammer : hamburburmod
         Components.Console.ExecuteCommand("asset-playanimation", ReceiverGroup.All, allocatedBanHammerId,
                 "Model", "HitGround");
 
-        foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => Vector3.Distance(
+        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => Vector3.Distance(
                                                                                  GorillaTagger.Instance
                                                                                         .rightHandTransform.position,
                                                                                  rig.transform.position) < 2f))

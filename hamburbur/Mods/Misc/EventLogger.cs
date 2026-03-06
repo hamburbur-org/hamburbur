@@ -42,7 +42,7 @@ public class EventLogger : hamburburmod
         float       t   = Time.time;
 
         string senderName =
-                GorillaParent.instance.vrrigs
+                VRRigCache.m_activeRigs
                              .FirstOrDefault(rig => rig.OwningNetPlayer().ActorNumber == eventData.Sender)
                             ?.OwningNetPlayer().SanitizedNickName ?? "UNKNOWN";
 

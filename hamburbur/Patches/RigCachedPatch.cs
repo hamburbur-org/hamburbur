@@ -1,9 +1,9 @@
-using hamburbur.Tools;
+/*using hamburbur.Tools;
 using HarmonyLib;
 
 namespace hamburbur.Patches;
 
-[HarmonyPatch(typeof(VRRigCache), nameof(VRRigCache.RemoveRigFromGorillaParent))]
+[HarmonyPatch(typeof(VRRigCache), nameof(VRRigCache.r))]
 public static class RigCachedPatch
 {
     private static void Postfix(NetPlayer player, VRRig vrrig)
@@ -14,4 +14,4 @@ public static class RigCachedPatch
         RigUtils.OnRigUnloaded?.Invoke(vrrig);
         RigUtils.LoadedRigs.Remove(vrrig);
     }
-}
+}*/

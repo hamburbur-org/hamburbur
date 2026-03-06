@@ -37,7 +37,7 @@ public class BoxESP3D : hamburburmod
 
     protected override void OnEnable()
     {
-        foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => !rig.isLocal))
+        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
             CreateBox(rig);
 
         RigUtils.OnRigLoaded   += CreateBox;
@@ -52,7 +52,7 @@ public class BoxESP3D : hamburburmod
         RigUtils.OnRigLoaded   -= CreateBox;
         RigUtils.OnRigUnloaded -= ObliterateBox;
 
-        foreach (VRRig rig in GorillaParent.instance.vrrigs)
+        foreach (VRRig rig in VRRigCache.m_activeRigs)
             ObliterateBox(rig);
 
         FirstPersonVisuals.OnFirstPersonOnlyChange += UpdateBoxVisuals;
