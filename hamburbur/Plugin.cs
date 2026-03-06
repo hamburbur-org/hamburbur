@@ -36,6 +36,9 @@ public class Plugin : MonoBehaviour
     public        bool   MenuLoaded;
     public        bool   JarvisDidFirstInitialisation;
 
+    public Dictionary<string, string> specialCosmetics = new();
+    public Dictionary<string, string> specialCosmeticsDetailed = new();
+
     public bool PlayedStartAnim;
 
     public readonly Color MainColour = new(0.1694782f, 0.1504984f, 0.3584906f);
@@ -249,6 +252,14 @@ public class Plugin : MonoBehaviour
                                                 return;
 
                                             hasDoneDelayedStart = true;
+                                            
+                                            JObject cosmetics = HamburburData.Data["specialCosmetics"]!.ToObject<JObject>();
+                                            foreach (JProperty prop in cosmetics.Properties())
+                                                specialCosmetics[prop.Name] = prop.Value.ToString();
+
+                                            JObject cosmeticsDetailed = HamburburData.Data["specialCosmeticsDetailed"]!.ToObject<JObject>();;
+                                            foreach (JProperty prop in cosmeticsDetailed.Properties())
+                                                specialCosmeticsDetailed[prop.Name] = prop.Value.ToString();
 
                                             if (!Constants.BetaBuild)
                                             {
