@@ -161,6 +161,7 @@ public static class Buttons
                     (typeof(BoxESP4D), null),
                     (typeof(Boners), null),
                     (typeof(CosmeticEsp), null),
+                    (typeof(RareCosmeticEsp), null),
             ],
 
             ["Visual"] =

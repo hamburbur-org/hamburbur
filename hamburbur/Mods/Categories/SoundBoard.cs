@@ -23,7 +23,7 @@ public class SoundBoard : hamburburmod
                         ButtonHandler.Instance.SetCategory("SoundBoard");
                         SoundBoardLoader.HasLoadedAllSounds = true;
                     }, () => ButtonHandler.Instance.SetCategory("Main"), "Yes <size=80%>(load all sounds)\n[may cause temporary lag]</size>",
-                    "No <size=80%>(return to main)</wsize>"));
+                    "No <size=80%>(return to main)</size>"));
         else
             ButtonHandler.Instance.SetCategory("SoundBoard");
     }

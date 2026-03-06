@@ -1,11 +1,12 @@
 using System.Linq;
+using hamburbur.Components;
 using hamburbur.Mod_Backend;
 using hamburbur.Tools;
 using UnityEngine;
 
 namespace hamburbur.Mods.Multiplayer;
 
-[hamburburmod("Cosmetic ESP", "If anyone has a special cosmetic it will be visible through walls", ButtonType.Togglable,
+[hamburburmod("Rare Cosmetic ESP", "Most cosmetics on people will be visible through walls", ButtonType.Togglable,
         AccessSetting.BetaBuildOnly, EnabledType.Disabled, 0)]
 public class CosmeticEsp : hamburburmod
 {
@@ -13,53 +14,41 @@ public class CosmeticEsp : hamburburmod
     {
         if (NetworkSystem.Instance.InRoom)
             foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => !rig.isLocal))
-                CheckAndApplyEsp(rig);
+                ApplyEsp(rig);
 
-        RigUtils.OnRigCosmeticsLoaded += CheckAndApplyEsp;
+        RigUtils.OnRigCosmeticsLoaded += ApplyEsp;
         RigUtils.OnRigUnloaded        += RestoreCosmetics;
     }
 
     protected override void OnDisable()
     {
-        RigUtils.OnRigCosmeticsLoaded -= CheckAndApplyEsp;
+        RigUtils.OnRigCosmeticsLoaded -= ApplyEsp;
         RigUtils.OnRigUnloaded        -= RestoreCosmetics;
 
         if (!NetworkSystem.Instance.InRoom)
             return;
 
         foreach (VRRig rig in GorillaParent.instance.vrrigs.Where(rig => !rig.isLocal))
-            CheckAndApplyEsp(rig);
+            ApplyEsp(rig);
     }
 
-    private void CheckAndApplyEsp(VRRig rig)
+    private static void ApplyEsp(VRRig rig)
     {
-        if (!Plugin.Instance.specialCosmetics.Keys.Any(cosmeticKey => rig.rawCosmeticString.Contains(cosmeticKey)) ||
-            rig.isLocal)
-            return;
-
-        foreach (GameObject cosmeticObject in rig.cosmetics.Where(cosmeticObject =>
-                                                                          Plugin.Instance.specialCosmetics.Keys
-                                                                                 .Any(cosmeticKey =>
-                                                                                          cosmeticObject.name
-                                                                                                 .Contains(
-                                                                                                          cosmeticKey))))
+        foreach (GameObject cosmeticObject in rig.cosmetics)
         {
             if (!cosmeticObject.TryGetComponent(out MeshRenderer meshRenderer))
                 continue;
 
             meshRenderer.material.shader = Shader.Find("GUI/Text Shader");
             meshRenderer.material.color  = Plugin.Instance.MainColour;
+
+            cosmeticObject.AddComponent<ColourChanger>().alpha = 0.4f;
         }
     }
 
     private void RestoreCosmetics(VRRig rig)
     {
-        foreach (GameObject cosmeticObject in rig.cosmetics.Where(cosmeticObject =>
-                                                                          Plugin.Instance.specialCosmetics.Keys
-                                                                                 .Any(cosmeticKey =>
-                                                                                          cosmeticObject.name
-                                                                                                 .Contains(
-                                                                                                          cosmeticKey))))
+        foreach (GameObject cosmeticObject in rig.cosmetics)
         {
             if (!cosmeticObject.TryGetComponent(out MeshRenderer meshRenderer))
                 continue;
