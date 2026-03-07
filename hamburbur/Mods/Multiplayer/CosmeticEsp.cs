@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Multiplayer;
 
-[hamburburmod("Rare Cosmetic ESP", "Most cosmetics on people will be visible through walls", ButtonType.Togglable,
+[hamburburmod("Cosmetic ESP", "Most cosmetics on people will be visible through walls", ButtonType.Togglable,
         AccessSetting.BetaBuildOnly, EnabledType.Disabled, 0)]
 public class CosmeticEsp : hamburburmod
 {

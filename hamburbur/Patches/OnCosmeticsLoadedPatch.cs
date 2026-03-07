@@ -3,11 +3,11 @@ using HarmonyLib;
 
 namespace hamburbur.Patches;
 
-[HarmonyPatch(typeof(VRRig), "IUserCosmeticsCallback.OnGetUserCosmetics")]
-public static class OnCosmeticsLoadedPatch
+[HarmonyPatch(typeof(VRRig))]
+internal static class OnCosmeticsLoadedPatch
 {
-    private static void Postfix(VRRig __instance)
-    {
-        RigUtils.OnRigCosmeticsLoaded?.Invoke(__instance);
-    }
+    [HarmonyPatch("IUserCosmeticsCallback.OnGetUserCosmetics")]
+    [HarmonyPostfix]
+    private static void OnGetRigCosmetics(VRRig __instance) =>
+            RigUtils.OnRigCosmeticsLoaded?.Invoke(__instance);
 }
