@@ -42,8 +42,7 @@ public class TagAll : hamburburmod
 
     private IEnumerator TryTagPlayer(VRRig rigToTag)
     {
-        bool        hasReportedTag = false;
-        const float Timeout        = 20f;
+        const float Timeout        = 8f;
         float       timer          = 0f;
         while (timer < Timeout && !rigToTag.IsTagged())
         {
@@ -53,12 +52,8 @@ public class TagAll : hamburburmod
 
             GTPlayer.Instance.leftHand.controllerTransform.position = rigToTag.transform.position;
             VRRig.LocalRig.leftHand.rigTarget.transform.position    = rigToTag.transform.position;
-
-            if (timer > 1f && !hasReportedTag)
-            {
-                GameMode.ReportTag(rigToTag.OwningNetPlayer());
-                hasReportedTag = true;
-            }
+            
+            GameMode.ReportTag(rigToTag.OwningNetPlayer());
 
             yield return null;
         }

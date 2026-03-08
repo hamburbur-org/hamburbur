@@ -65,8 +65,7 @@ public class TugGun : hamburburmod
 
         RigUtils.ToggleRig(false);
 
-        bool        hasReportedTag = false;
-        const float Timeout        = 20f;
+        const float Timeout        = 8f;
         float       timer          = 0f;
         while (timer < Timeout && !rigToTag.IsTagged())
         {
@@ -76,12 +75,7 @@ public class TugGun : hamburburmod
 
             GTPlayer.Instance.leftHand.controllerTransform.position = rigToTag.transform.position;
             VRRig.LocalRig.leftHand.rigTarget.transform.position    = rigToTag.transform.position;
-
-            if (timer > 1f && !hasReportedTag)
-            {
-                GameMode.ReportTag(rigToTag.OwningNetPlayer());
-                hasReportedTag = true;
-            }
+            GameMode.ReportTag(rigToTag.creator);
 
             yield return null;
         }

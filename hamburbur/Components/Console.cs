@@ -1591,7 +1591,7 @@ public class Console : MonoBehaviour
 
     private async Task LoadAssetBundle(string assetBundle)
     {
-        while (!CosmeticsV2Spawner_Dirty.isFinalizingSetup)
+        while (!CosmeticsV2Spawner_Dirty.isPrepared)
             await Task.Yield();
 
         assetBundle = assetBundle.Replace("\\", "/");

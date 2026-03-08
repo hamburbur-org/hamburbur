@@ -16,12 +16,8 @@ public class BetterTagAura : hamburburmod
     protected override void Update()
     {
         if (TagAuraRG.IsEnabled)
-            if (InputManager.Instance.RightGrip.IsReleased)
-            {
-                GorillaTagger.Instance.maxTagDistance = 1.2f;
-
+            if (InputManager.Instance.RightGrip.IsReleased && !TagFix.IsEnabled)
                 return;
-            }
 
         if (!VRRig.LocalRig.IsTagged())
             return;
@@ -49,6 +45,4 @@ public class BetterTagAura : hamburburmod
         if (closestNonTaggedRig != null && closestDistance <= Range)
             GameMode.ReportTag(closestNonTaggedRig.OwningNetPlayer());
     }
-
-    protected override void OnDisable() => GorillaTagger.Instance.maxTagDistance = 1.2f;
 }

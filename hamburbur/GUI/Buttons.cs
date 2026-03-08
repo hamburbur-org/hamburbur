@@ -154,6 +154,7 @@ public static class Buttons
                     (typeof(TagAll), null),
                     (typeof(TagAura), null),
                     (typeof(BetterTagAura), null),
+                    (typeof(TagFix), null),
                     (typeof(HandTracers), null),
                     (typeof(BodyTracers), null),
                     (typeof(BoxESP3D), null),

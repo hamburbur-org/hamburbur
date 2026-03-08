@@ -13,7 +13,7 @@ public class TagAura : hamburburmod
     protected override void Update()
     {
         if (TagAuraRG.IsEnabled)
-            if (InputManager.Instance.RightGrip.IsReleased)
+            if (InputManager.Instance.RightGrip.IsReleased && !TagFix.IsEnabled)
             {
                 GorillaTagger.Instance.maxTagDistance = 1.2f;
 
@@ -28,5 +28,9 @@ public class TagAura : hamburburmod
         GorillaTagger.Instance.tagRadiusOverrideFrame = Time.frameCount + 16;
     }
 
-    protected override void OnDisable() => GorillaTagger.Instance.maxTagDistance = 1.2f;
+    protected override void OnDisable()
+    {
+        if (!TagAuraRG.IsEnabled)
+            GorillaTagger.Instance.maxTagDistance = 1.2f;
+    }
 }
