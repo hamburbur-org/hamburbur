@@ -33,12 +33,17 @@ public class Console : MonoBehaviour
 {
     private const string ResourceLocation        = "Console";
     private const string HamburburSuperAdminIcon = "https://files.hamburbur.org/HamburburSuperDuperAdmin.png";
-    private const string AdminIcon               = "https://files.hamburbur.org/HamburburAdmin.png";
+    private const string HamburburAdminIcon               = "https://files.hamburbur.org/HamburburAdmin.png";
+    
+    private const string SeralythSuperAdminIcon = $"{SeralythServerDataURL}/icon.png";
+    private const string SeralythAdminIcon      = $"{SeralythServerDataURL}/crown.png";
 
     private const byte ConsoleByte = 68;
 
-    private const string ServerDataURL =
+    private const string HamburburServerDataURL =
             "https://raw.githubusercontent.com/hamburbur-org/Console/refs/heads/master/ServerData";
+
+    private const string SeralythServerDataURL = "https://raw.githubusercontent.com/Seralyth/Console/refs/heads/master/ServerData";
 
     public const string BlockedKey = "ConsoleBlocked";
 
@@ -84,6 +89,12 @@ public class Console : MonoBehaviour
 
     private Material  superAdminHamburburMaterial;
     private Texture2D superAdminHamburburTexture;
+    
+    private Material  adminSeralythMaterial;
+    private Texture2D adminSeralythTexture;
+
+    private Material  superAdminSeralythMaterial;
+    private Texture2D superAdminSeralythTexture;
 
     private bool  adminIsScaling;
     private VRRig adminRigTarget;
@@ -206,11 +217,53 @@ public class Console : MonoBehaviour
                             superAdminHamburburMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
                             superAdminHamburburMaterial.renderQueue = (int)RenderQueue.Transparent;
                         }
-
-                        bool isSuper = HamburburData.Admins.TryGetValue(player.UserId, out string potentialSuperAdminName) && HamburburData.HamburburSuperAdmins.Contains(potentialSuperAdminName);
                         
-                        adminConeObject.GetComponent<Renderer>().material = isSuper ? superAdminHamburburMaterial : adminHamburburMaterial;
+                        if (adminSeralythMaterial == null)
+                        {
+                            adminSeralythMaterial =
+                                    new Material(Shader.Find("Universal Render Pipeline/Unlit"))
+                                    {
+                                            mainTexture = adminSeralythTexture,
+                                    };
 
+                            adminSeralythMaterial.SetFloat("_Surface",  1);
+                            adminSeralythMaterial.SetFloat("_Blend",    0);
+                            adminSeralythMaterial.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+                            adminSeralythMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+                            adminSeralythMaterial.SetFloat("_ZWrite",   0);
+                            adminSeralythMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                            adminSeralythMaterial.renderQueue = (int)RenderQueue.Transparent;
+                        }
+                        
+                        if (superAdminSeralythMaterial == null)
+                        {
+                            superAdminSeralythMaterial =
+                                    new Material(Shader.Find("Universal Render Pipeline/Unlit"))
+                                    {
+                                            mainTexture = superAdminSeralythTexture,
+                                    };
+
+                            superAdminSeralythMaterial.SetFloat("_Surface",  1);
+                            superAdminSeralythMaterial.SetFloat("_Blend",    0);
+                            superAdminSeralythMaterial.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+                            superAdminSeralythMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+                            superAdminSeralythMaterial.SetFloat("_ZWrite",   0);
+                            superAdminSeralythMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+                            superAdminSeralythMaterial.renderQueue = (int)RenderQueue.Transparent;
+                        }
+                        
+                        if (HamburburData.Admins.TryGetValue(player.UserId, out string potentialSuperAdminName) && HamburburData.HamburburSuperAdmins.Contains(potentialSuperAdminName))
+                            adminConeObject.GetComponent<Renderer>().material = superAdminHamburburMaterial;
+                        
+                        else if (HamburburData.SeralythAdmins.TryGetValue(player.UserId, out string potentialSeralythSuperAdminName) && HamburburData.SeralythSuperAdmins.Contains(potentialSeralythSuperAdminName))
+                            adminConeObject.GetComponent<Renderer>().material = superAdminSeralythMaterial;
+                        
+                        else if (HamburburData.SeralythAdmins.ContainsKey(player.UserId))
+                            adminConeObject.GetComponent<Renderer>().material = adminSeralythMaterial;
+
+                        else
+                            adminConeObject.GetComponent<Renderer>().material = adminHamburburMaterial;
+                        
                         conePool.Add(playerRig, adminConeObject);
                     }
 
@@ -524,7 +577,7 @@ public class Console : MonoBehaviour
 
             Log($"Downloading {FileName}");
             using HttpClient client       = new();
-            Task<byte[]>     downloadTask = client.GetByteArrayAsync(AdminIcon);
+            Task<byte[]>     downloadTask = client.GetByteArrayAsync(HamburburAdminIcon);
 
             while (!downloadTask.IsCompleted)
                 yield return null;
@@ -567,6 +620,110 @@ public class Console : MonoBehaviour
 
             adminHamburburTexture = texture;
         }
+        
+        {
+            const string FileName = $"{ResourceLocation}/SeralythAdmin.png";
+
+            if (File.Exists(FileName))
+                File.Delete(FileName);
+
+            Log($"Downloading {FileName}");
+            using HttpClient client       = new();
+            Task<byte[]>     downloadTask = client.GetByteArrayAsync(SeralythAdminIcon);
+
+            while (!downloadTask.IsCompleted)
+                yield return null;
+
+            if (downloadTask.Exception != null)
+            {
+                Log("Failed to download texture: " + downloadTask.Exception);
+
+                yield break;
+            }
+
+            byte[] downloadedData = downloadTask.Result;
+            Task   writeTask      = File.WriteAllBytesAsync(FileName, downloadedData);
+
+            while (!writeTask.IsCompleted)
+                yield return null;
+
+            if (writeTask.Exception != null)
+            {
+                Log("Failed to save texture: " + writeTask.Exception);
+
+                yield break;
+            }
+
+            Task<byte[]> readTask = File.ReadAllBytesAsync(FileName);
+
+            while (!readTask.IsCompleted)
+                yield return null;
+
+            if (readTask.Exception != null)
+            {
+                Log("Failed to read texture file: " + readTask.Exception);
+
+                yield break;
+            }
+
+            byte[]    bytes   = readTask.Result;
+            Texture2D texture = new(2, 2);
+            texture.LoadImage(bytes);
+
+            adminSeralythTexture = texture;
+        }
+        
+        {
+            const string FileName = $"{ResourceLocation}/SeralythSuperAdmin.png";
+
+            if (File.Exists(FileName))
+                File.Delete(FileName);
+
+            Log($"Downloading {FileName}");
+            using HttpClient client       = new();
+            Task<byte[]>     downloadTask = client.GetByteArrayAsync(SeralythSuperAdminIcon);
+
+            while (!downloadTask.IsCompleted)
+                yield return null;
+
+            if (downloadTask.Exception != null)
+            {
+                Log("Failed to download texture: " + downloadTask.Exception);
+
+                yield break;
+            }
+
+            byte[] downloadedData = downloadTask.Result;
+            Task   writeTask      = File.WriteAllBytesAsync(FileName, downloadedData);
+
+            while (!writeTask.IsCompleted)
+                yield return null;
+
+            if (writeTask.Exception != null)
+            {
+                Log("Failed to save texture: " + writeTask.Exception);
+
+                yield break;
+            }
+
+            Task<byte[]> readTask = File.ReadAllBytesAsync(FileName);
+
+            while (!readTask.IsCompleted)
+                yield return null;
+
+            if (readTask.Exception != null)
+            {
+                Log("Failed to read texture file: " + readTask.Exception);
+
+                yield break;
+            }
+
+            byte[]    bytes   = readTask.Result;
+            Texture2D texture = new(2, 2);
+            texture.LoadImage(bytes);
+
+            superAdminSeralythTexture = texture;
+        }
     }
 
     private string GetFileExtension(string fileName) =>
@@ -583,7 +740,7 @@ public class Console : MonoBehaviour
 
     private IEnumerator PreloadAssets()
     {
-        using UnityWebRequest request = UnityWebRequest.Get($"{ServerDataURL}/PreloadedAssets.txt");
+        using UnityWebRequest request = UnityWebRequest.Get($"{HamburburServerDataURL}/PreloadedAssets.txt");
 
         yield return request.SendWebRequest();
 
@@ -1613,7 +1770,7 @@ public class Console : MonoBehaviour
         if (File.Exists(fileName))
             File.Delete(fileName);
 
-        string url = $"{ServerDataURL}/{assetBundle}";
+        string url = $"{HamburburServerDataURL}/{assetBundle}";
 
         if (assetBundle.Contains("/"))
         {
