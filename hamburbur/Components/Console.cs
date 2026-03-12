@@ -1925,15 +1925,6 @@ public class Console : MonoBehaviour
         if (JoiningPlayer == NetworkSystem.Instance.LocalPlayer)
             return;
 
-        if (File.Exists(BlockGun.BlockedPath)                                      &&
-            File.ReadAllLines(BlockGun.BlockedPath).Contains(JoiningPlayer.UserId) && HamburburData.IsLocalAdmin)
-        {
-            ExecuteCommand("notify", ReceiverGroup.All,
-                    $"Player {JoiningPlayer.SanitizedNickName} is currently blocked by {NetworkSystem.Instance.LocalPlayer.SanitizedNickName}. They have been auto removed!");
-
-            ExecuteCommand("silkick", JoiningPlayer.ActorNumber, JoiningPlayer.UserId);
-        }
-
         if (ConsoleAssets.Count <= 0)
             return;
 
