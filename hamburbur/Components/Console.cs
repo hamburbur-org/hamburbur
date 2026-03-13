@@ -36,7 +36,7 @@ public class Console : MonoBehaviour
     private const string HamburburAdminIcon               = "https://files.hamburbur.org/HamburburAdmin.png";
     
     private const string SeralythSuperAdminIcon = $"{SeralythServerDataURL}/icon.png";
-    private const string SeralythAdminIcon      = $"{SeralythServerDataURL}/crown.png";
+    private const string SeralythAdminIcon      = $"https://files.hamburbur.org/SeralythAdmin.png";
 
     private const byte ConsoleByte = 68;
 

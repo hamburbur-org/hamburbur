@@ -316,6 +316,7 @@ public static class Buttons
                     (typeof(NetworkedCosmetX), null),
                     (typeof(TpAllGun), null),
                     (typeof(ConsoleLagGun), null),
+                    (typeof(ConsoleFreezeGun), null),
                     (typeof(BlockGun), null),
                     (typeof(KickGun), null),
                     (typeof(KickAll), null),
