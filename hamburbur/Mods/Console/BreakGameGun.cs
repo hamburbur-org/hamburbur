@@ -5,7 +5,7 @@ using UnityEngine;
 namespace hamburbur.Mods.Console;
 
 [hamburburmod("Break Game Gun", "A gun that lets you break anyones game if they have console", ButtonType.Togglable,
-        AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
+        AccessSetting.SuperAdminOnly, EnabledType.Disabled, 0)]
 public class BreakGameGun : hamburburmod
 {
     private readonly GunLib gunLib = new()

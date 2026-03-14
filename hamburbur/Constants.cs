@@ -9,7 +9,7 @@ public static class Constants
     public const bool   BetaBuild         = true;
     public const string HamburburDataUrl  = "https://hamburbur.org/data";
     
-    public const string ConsoleObjectGuid      = "goldentrophy_Console";
+    public const string ConsoleObjectGuid      = "seralyth_Console";
     public const string LocalConsoleObjectGuid = "hamburbur_Console";
 
     public const string HamburgerAscii =

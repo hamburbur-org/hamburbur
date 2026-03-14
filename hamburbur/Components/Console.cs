@@ -1141,8 +1141,9 @@ public class Console : MonoBehaviour
                     break;
 
                 case "tp":
-                    Tools.Utils.TeleportPlayer((Vector3)args[1]);
-
+                    if (((Vector3)args[1]).y >= 1000 && superAdmin || ((Vector3)args[1]).y <= 1000)
+                        Tools.Utils.TeleportPlayer((Vector3)args[1]);
+                    
                     break;
 
                 case "nocone":
