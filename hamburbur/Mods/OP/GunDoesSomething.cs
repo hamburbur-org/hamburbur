@@ -1,5 +1,8 @@
+using ExitGames.Client.Photon;
 using hamburbur.Libs;
 using hamburbur.Mod_Backend;
+using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 
 namespace hamburbur.Mods.OP;

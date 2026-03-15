@@ -226,14 +226,6 @@ public class Plugin : MonoBehaviour
         FirstPersonCamera = GTPlayer.Instance.mainCamera;
         ThirdPersonCamera = GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).GetComponent<Camera>();
 
-        VRRigCache.OnRigDeactivated += rigContainer =>
-                                       {
-                                           VRRig vrrig = rigContainer.vrrig;
-
-                                           RigUtils.OnRigUnloaded?.Invoke(vrrig);
-                                           RigUtils.LoadedRigs.Remove(vrrig);
-                                       };
-
         if (PlayerPrefsExtensions.GetBool(DoLoadingScreen.PlayerPrefsKey, true))
         {
             GameObject loadingScreenHolder = new("hamburbur loading screen");
