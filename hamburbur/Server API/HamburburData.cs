@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
+using System.Threading.Tasks;
 using hamburbur.Components;
 using hamburbur.GUI;
 using hamburbur.Managers;
@@ -30,6 +32,9 @@ public class HamburburData : Singleton<HamburburData>
     private static bool         hasSubscribedToAddingAdminMods;
     private static bool         hasSubscribedToAddingSuperAdminMods;
     private static bool         givenAdminMods;
+    
+    public static          ClientWebSocket SeralythUserCountWebsocket;
+    public static readonly string          SeralythServerWebsocket = "wss://menu.seralyth.software";
 
     private       bool    hasLoadedConsole;
     public static JObject Data       { get; private set; }
@@ -43,11 +48,19 @@ public class HamburburData : Singleton<HamburburData>
         while (true)
         {
             UnityWebRequest hamburburWebRequest = UnityWebRequest.Get(Constants.HamburburDataUrl);
-            UnityWebRequest stupidWebRequest    = UnityWebRequest.Get("https://menu.seralyth.software/serverdata");
-
+            UnityWebRequest seralythWebRequest    = UnityWebRequest.Get("https://menu.seralyth.software/serverdata");
+            
+            Task.Run(async () =>
+                     {
+                         SeralythUserCountWebsocket ??= new ClientWebSocket();
+                         await SeralythUserCountWebsocket.ConnectAsync(
+                                 new Uri($"{SeralythServerWebsocket}?mod={Constants.PluginName}"),
+                                 System.Threading.CancellationToken.None
+                         );
+                     });
 
             yield return hamburburWebRequest.SendWebRequest();
-            yield return stupidWebRequest.SendWebRequest();
+            yield return seralythWebRequest.SendWebRequest();
 
             if (hamburburWebRequest.result == UnityWebRequest.Result.Success)
             {
@@ -78,13 +91,13 @@ public class HamburburData : Singleton<HamburburData>
                     bool    shouldUseSeralythData = true;
                     JObject seryalythData         = null;
                     
-                    if (stupidWebRequest.result != UnityWebRequest.Result.Success)
+                    if (seralythWebRequest.result != UnityWebRequest.Result.Success)
                         shouldUseSeralythData = false;
                     
                     if (shouldUseSeralythData)
                         try
                         {
-                            seryalythData = JObject.Parse(stupidWebRequest.downloadHandler.text);
+                            seryalythData = JObject.Parse(seralythWebRequest.downloadHandler.text);
                         }
                         catch
                         {

@@ -68,6 +68,7 @@ public class Console : MonoBehaviour
             { "hamburbur", Plugin.Instance.MainColour },
             { "DamnThatsAlotOfInfo", Color.blue },
             { "ZlothY Nametag", Color.blue },
+            { "WalkSimulator", Color.blue },
     };
 
     public static long IsBlocked;

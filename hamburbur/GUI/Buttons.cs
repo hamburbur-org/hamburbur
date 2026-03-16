@@ -202,6 +202,7 @@ public static class Buttons
                     (typeof(ARS), null),
                     (typeof(CopyIdGun), null),
                     (typeof(SpecialCosmeticsCapture), null),
+                    (typeof(VIMSpoof), null),
             ],
 
             ["Rig"] =
