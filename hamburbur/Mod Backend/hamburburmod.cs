@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using hamburbur.GUI;
 using hamburbur.Managers;
@@ -19,6 +20,9 @@ public class hamburburmod
     public virtual string                ModName          => AssociatedAttribute.Name;
     public virtual Type[]                Dependencies     => [];
     public virtual Type[]                IncompatibleMods => [];
+    
+    private readonly HashSet<Type> modsDisabledByCompatibilitySystem = [];
+    private readonly HashSet<Type> modsEnabledByCompatibilitySystem  = [];
 
     public void InvokeStart()
     {
@@ -75,11 +79,41 @@ public class hamburburmod
                 Enabled = !Enabled;
 
                 if (careAboutDependenciesAndIncompatibleMods)
-                    foreach ((Type, hamburburmod) mod in Buttons.Categories.Values.SelectMany(x => x))
-                        if (mod.Item2.AssociatedAttribute.ButtonType == ButtonType.Togglable && Enabled &&
-                            (Dependencies?.Contains(mod.Item1) ?? false)                     && mod.Item2.Enabled ||
-                            (IncompatibleMods?.Contains(mod.Item1) ?? false) && !Enabled)
-                            mod.Item2.Toggle(ButtonState.Normal, false, false);
+                    foreach ((Type modType, hamburburmod mod) in Buttons.Categories.Values.SelectMany(x => x))
+                    {
+                        if (mod.AssociatedAttribute.ButtonType != ButtonType.Togglable) 
+                            continue;
+
+                        switch (Enabled)
+                        {
+                            case true when (Dependencies?.Contains(modType) == true && !mod.Enabled):
+                                mod.Toggle(ButtonState.Normal, false, false);
+                                modsEnabledByCompatibilitySystem.Add(modType);
+
+                                break;
+
+                            case false when (Dependencies?.Contains(modType) == true && modsEnabledByCompatibilitySystem.Contains(modType)):
+                                mod.Toggle(ButtonState.Normal, false, false);
+                                modsEnabledByCompatibilitySystem.Remove(modType);
+
+                                break;
+                        }
+
+                        switch (Enabled)
+                        {
+                            case true when (IncompatibleMods?.Contains(modType) == true && mod.Enabled):
+                                mod.Toggle(ButtonState.Normal, false, false);
+                                modsDisabledByCompatibilitySystem.Add(modType);
+
+                                break;
+
+                            case false when (IncompatibleMods?.Contains(modType) == true && modsDisabledByCompatibilitySystem.Contains(modType)):
+                                mod.Toggle(ButtonState.Normal, false, false);
+                                modsDisabledByCompatibilitySystem.Remove(modType);
+
+                                break;
+                        }
+                    }
 
                 if (Enabled)
                 {
