@@ -68,7 +68,7 @@ public class KeyboardManager : Singleton<KeyboardManager>
     private float lastTimePositionSerialized;
 
     private Coroutine  moveRoutine;
-    private GameObject nonDominantButtonPresser;
+    public GameObject nonDominantButtonPresser;
 
     private       Action<string> onEnterPressed;
     public static string         TypedText { get; private set; } = "";

@@ -21,6 +21,7 @@ public class Themes : hamburburmod
     [
             Tuple.Create("hamburburv2", "hamburbur", Vector3.zero, Quaternion.identity,
                     Plugin.Instance.MainColour),
+            
             Tuple.Create("hamburbur", "hamburbur OG", Vector3.zero, Quaternion.Euler(0f, 0f, 90f),
                     Plugin.Instance.MainColour),
 
@@ -30,7 +31,8 @@ public class Themes : hamburburmod
 
             Tuple.Create("developertheme", "Developer theme", Vector3.zero, Quaternion.identity,
                     Plugin.Instance.MainColour),
-            Tuple.Create("destiny", "Destiny", Vector3.zero, Quaternion.identity,
+            
+            Tuple.Create("destiny", "Destiny", Vector3.zero, Quaternion.Euler(0f, 90f, 90f),
                     new Color(0.1764705f, 0.9058824f, 0.8862745f, 1f)),
 
             Tuple.Create("stupidtheme", "ii's Stupid Menu", Vector3.zero, Quaternion.identity,
@@ -41,6 +43,8 @@ public class Themes : hamburburmod
 
             Tuple.Create("sybauGold", "ShibaGT Gold", Vector3.zero, Quaternion.identity,
                     new Color(1f, 0.9215686f, 0.01960784f, 1f)),
+            
+            Tuple.Create("sybaugenesis", "ShibaGT Genesis", Vector3.zero, Quaternion.Euler(90f, 0f, 0f), Plugin.Instance.SecondaryColour),
 
             Tuple.Create("zlothsimple", "Zloth's Simple Menu", new Vector3(0f, 0f, -0.03f),
                     Quaternion.Euler(0f, 90f, 90f), new Color(0.3019608f, 0f, 0.9843137f, 1f)),

@@ -19,10 +19,12 @@ using hamburbur.Tools;
 using Photon.Pun;
 using Photon.Realtime;
 using Photon.Voice.Unity;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 using UnityEngine.Video;
 using JoinType = GorillaNetworking.JoinType;
 using Random = UnityEngine.Random;
@@ -134,7 +136,7 @@ public class Console : MonoBehaviour
 
     private void Update()
     {
-        if (Time.time - lastTimeClearedOtherConsoleInstances > 10f)
+        if (Time.time - lastTimeClearedOtherConsoleInstances > 10f && !DontDestroyOtherConsoleInstances.IsEnabled)
         {
             GameObject otherConsoleInstance = GameObject.Find(Constants.ConsoleObjectGuid);
             if (otherConsoleInstance != null)
@@ -253,6 +255,34 @@ public class Console : MonoBehaviour
                             superAdminSeralythMaterial.renderQueue = (int)RenderQueue.Transparent;
                         }
                         
+                        GameObject canvasObj = new("AdminNameCanvas");
+                        canvasObj.transform.SetParent(adminConeObject.transform, false);
+                        canvasObj.transform.localPosition = new Vector3(0f, 0.6f, 0f);
+                        canvasObj.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+                        canvasObj.transform.localScale    = Vector3.one * 0.0035f;
+
+                        Canvas canvas = canvasObj.AddComponent<Canvas>();
+                        canvas.renderMode = RenderMode.WorldSpace;
+                        CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
+                        scaler.dynamicPixelsPerUnit = 10f;
+                        canvasObj.AddComponent<GraphicRaycaster>();
+
+                        RectTransform canvasRect = canvasObj.GetComponent<RectTransform>();
+                        canvasRect.sizeDelta = new Vector2(1f, 1f);
+
+                        TextMeshProUGUI text = new GameObject("AdminNameText").AddComponent<TextMeshProUGUI>();
+                        text.transform.SetParent(canvasObj.transform, false);
+                        text.text             = adminName;
+                        text.enableAutoSizing = true;
+                        text.fontStyle        = FontStyles.Bold;
+                        text.color            = playerRig.playerColor;
+                        text.alignment        = TextAlignmentOptions.Center;
+                        text.font             = Plugin.Instance.DiloWorldFont;
+
+                        RectTransform textRect = text.GetComponent<RectTransform>();
+                        textRect.anchoredPosition = new Vector2(0f,   0f);
+                        textRect.sizeDelta        = new Vector2(200f, 100f);
+                        
                         if (HamburburData.Admins.TryGetValue(player.UserId, out string potentialSuperAdminName) && HamburburData.HamburburSuperAdmins.Contains(potentialSuperAdminName))
                             adminConeObject.GetComponent<Renderer>().material = superAdminHamburburMaterial;
                         
@@ -269,6 +299,13 @@ public class Console : MonoBehaviour
                     }
 
                     adminConeObject.GetComponent<Renderer>().material.color = playerRig.playerColor;
+                    
+                    TextMeshProUGUI adminText = adminConeObject.GetComponentInChildren<TextMeshProUGUI>();
+                    if (adminText != null)
+                    {
+                        adminText.color = playerRig.playerColor;
+                        adminText.text  = adminName;
+                    }
 
                     adminConeObject.transform.localScale =
                             new Vector3(0.4f, 0.4f, 0.0001f) * playerRig.scaleFactor;

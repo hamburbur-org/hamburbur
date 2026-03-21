@@ -32,7 +32,7 @@ public class GiveAssetGun : hamburburmod
                 ChangeAsset.Assets[ChangeAsset.Instance.IncrementalValue].prefabName, newId);
 
         Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, newId, 2,
-                gunLib.ChosenRig.OwningNetPlayer.ActorNumber);
+                gunLib.ChosenRig.creator.ActorNumber);
 
         Components.Console.ExecuteCommand("asset-setlocalposition", ReceiverGroup.All, newId,
                 ChangeAsset.Assets[ChangeAsset.Instance.IncrementalValue].position);
