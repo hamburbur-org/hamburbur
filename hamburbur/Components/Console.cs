@@ -57,6 +57,7 @@ public class Console : MonoBehaviour
 
     private static readonly Dictionary<string, Color> MenuColors = new()
     {
+            { "seralyth", new Color32(118, 6, 252, 128) },
             { "stupid", new Color32(255,   128, 0,   255) },
             { "symex", new Color32(138,    43,  226, 255) },
             { "colossal", new Color32(204, 0,   255, 255) },
@@ -394,7 +395,7 @@ public class Console : MonoBehaviour
             ConsoleUserText.AddPlayer(id, menuName, htmlColour);
 
         if (ConsoleUserTags.IsEnabled)
-            ConsoleUserTags.userTags[id] = (menuName, htmlColour);
+            ConsoleUserTags.UserTags[id] = (menuName, htmlColour);
 
         if (ConsoleUserBeacons.IsEnabled)
             ConsoleUserBeacons.UserTags.Add(id);

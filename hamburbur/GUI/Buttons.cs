@@ -100,6 +100,7 @@ public static class Buttons
                     (typeof(ToggleMenu), null),
                     (typeof(ChangeMenuSize), null),
                     (typeof(ChangePointerSize), null),
+                    (typeof(SlaughterTravisScoot), null),
             ],
 
             ["Movement"] =
@@ -170,7 +171,6 @@ public static class Buttons
                     //(typeof(GhostVision), null),
                     (typeof(ResetTime), null),
                     (typeof(TimeSetter), null),
-                    (typeof(Rain), null),
                     (typeof(NoRain), null),
                     (typeof(CleanUpForest), null),
             ],

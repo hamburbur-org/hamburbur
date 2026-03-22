@@ -416,7 +416,8 @@ public class VoiceControls : Singleton<VoiceControls>
         {
             VoiceManager.Get().AudioClip(MenuSoundsHandler.Instance.CancelSound);
 
-            yield return TTSSpeak("Could not fetch a response from the ai");
+            Debug.LogError(request.error);
+            yield return TTSSpeak("Could not fetch a response from the AI");
 
             yield break;
         }

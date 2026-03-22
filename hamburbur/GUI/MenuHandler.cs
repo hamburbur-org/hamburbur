@@ -22,7 +22,7 @@ public class MenuHandler : Singleton<MenuHandler>
     public        bool                MenuOpen;
 
     public  bool        IsWaiting;
-    private TextMeshPro menuName;
+    public  TextMeshPro MenuName;
     private Coroutine   typingCoroutine;
 
     public GameObject Menu { get; private set; }
@@ -129,6 +129,9 @@ public class MenuHandler : Singleton<MenuHandler>
         if (ButtonPresser != null)
             ButtonPresser.GetComponent<Renderer>().material.color = mainColour;
 
+        if (KeyboardManager.Instance.nonDominantButtonPresser != null)
+            KeyboardManager.Instance.nonDominantButtonPresser.GetComponent<Renderer>().material.color = mainColour;
+
         GameObject menu = Instantiate(menuPrefab, menuParent);
         menu.RecursivelySetLayer(UnityLayer.IgnoreRaycast);
         menu.SetActive(false);
@@ -138,7 +141,7 @@ public class MenuHandler : Singleton<MenuHandler>
 
         Menu = menu;
         Menu.transform.Find("Version").GetComponent<TextMeshPro>().text = $"v{Constants.PluginVersion}";
-        menuName = Menu.transform.Find("Title").GetComponent<TextMeshPro>();
+        MenuName = Menu.transform.Find("Title").GetComponent<TextMeshPro>();
 
         Transform miscButtons = Menu.transform.Find("MiscButtons");
         miscButtons.Find("Disconnect").AddComponent<ButtonCollider>().OnPress =
@@ -310,13 +313,16 @@ public class MenuHandler : Singleton<MenuHandler>
         while (Time.time - startTime < 0.1f)
         {
             float t = (Time.time - startTime) / 0.1f;
-            Menu.transform.parent.localScale   = Vector3.Lerp(Vector3.zero, Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f),         t);
-            ButtonPresser.transform.localScale = Vector3.Lerp(Vector3.zero, Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f), t);
+            Menu.transform.parent.localScale = Vector3.Lerp(Vector3.zero,
+                    Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f), t);
+
+            ButtonPresser.transform.localScale = Vector3.Lerp(Vector3.zero,
+                    Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f), t);
 
             yield return null;
         }
 
-        Menu.transform.parent.localScale   = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f);
+        Menu.transform.parent.localScale   = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue    * 0.1f);
         ButtonPresser.transform.localScale = Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f);
 
         if (typingCoroutine != null)
@@ -363,7 +369,7 @@ public class MenuHandler : Singleton<MenuHandler>
             typingCoroutine = null;
         }
 
-        menuName.text = "";
+        MenuName.text = "";
     }
 
     private IEnumerator TypeMenuTitle(string text, float typingSpeed = 0.2f, float pauseTime = 2f)
@@ -372,7 +378,7 @@ public class MenuHandler : Singleton<MenuHandler>
         {
             for (int i = 0; i <= text.Length && Menu.activeSelf; i++)
             {
-                menuName.text = text.Substring(0, i);
+                MenuName.text = text.Substring(0, i);
 
                 yield return new WaitForSeconds(typingSpeed);
             }
@@ -387,7 +393,7 @@ public class MenuHandler : Singleton<MenuHandler>
 
             for (int i = text.Length; i >= 0 && Menu.activeSelf; i--)
             {
-                menuName.text = text.Substring(0, i);
+                MenuName.text = text.Substring(0, i);
 
                 yield return new WaitForSeconds(typingSpeed / 2f);
             }
@@ -395,6 +401,6 @@ public class MenuHandler : Singleton<MenuHandler>
             yield return new WaitForSeconds(0.5f);
         }
 
-        menuName.text = "";
+        MenuName.text = "";
     }
 }

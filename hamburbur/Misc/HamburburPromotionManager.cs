@@ -3,14 +3,16 @@ using hamburbur.Tools;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.Video;
 
 namespace hamburbur.Misc;
 
 public class HamburburPromotionManager : Singleton<HamburburPromotionManager>
 {
-    private bool        hasSetupFeaturedMapVideo;
-    private VideoPlayer videoPlayer;
+    private                              bool        hasSetupFeaturedMapVideo;
+    private                              VideoPlayer videoPlayer;
+    public GameObject  Fin;
 
     private void Start()
     {
@@ -18,14 +20,14 @@ public class HamburburPromotionManager : Singleton<HamburburPromotionManager>
                            "Environment Objects/LocalObjects_Prefab/TreeRoom/TreeRoomInteractables/UI/SatelliteWardrobe/LCKWallCameraSpawner")
                   .Obliterate();
 
-        GameObject fin = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        fin.transform.localScale = new Vector3(0.8f,    0.9f, 0.0001f);
-        fin.transform.position   = new Vector3(-64.72f, 12f,  -84.72f);
-        fin.transform.rotation   = Quaternion.Euler(0f, 271.63f, 0f);
+        Fin = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Fin.transform.localScale = new Vector3(0.8f,    0.9f, 0.0001f);
+        Fin.transform.position   = new Vector3(-64.72f, 12f,  -84.72f);
+        Fin.transform.rotation   = Quaternion.Euler(0f, 271.63f, 0f);
         
-        if (fin.TryGetComponent(out Collider collider)) collider.Obliterate();
+        if (Fin.TryGetComponent(out Collider collider)) collider.Obliterate();
 
-        if (!fin.TryGetComponent(out Renderer renderer))
+        if (!Fin.TryGetComponent(out Renderer renderer))
             return;
 
         renderer.sharedMaterial.shader      = Plugin.Instance.UberShader;

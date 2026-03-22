@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using hamburbur.Components;
 using hamburbur.GUI;
 using hamburbur.Mod_Backend;
 using hamburbur.Tools;
@@ -18,13 +19,13 @@ public class ConsoleUserTags : hamburburmod
 {
     public static bool IsEnabled;
 
-    public static readonly  Dictionary<string, (string, string)> userTags   = new();
+    public static readonly  Dictionary<string, (string, string)> UserTags   = new();
     private static readonly Dictionary<string, GameObject>       activeTags = new();
     public override         Type[]                               Dependencies => [typeof(AutoGetConsoleUsers),];
 
     protected override void Update()
     {
-        foreach (KeyValuePair<string, (string, string)> entry in userTags.ToList())
+        foreach (KeyValuePair<string, (string, string)> entry in UserTags.ToList())
         {
             VRRig rig = entry.Key.Rig();
             if (rig == null)
@@ -33,7 +34,7 @@ public class ConsoleUserTags : hamburburmod
                     old.Obliterate();
 
                 activeTags.Remove(entry.Key);
-                userTags.Remove(entry.Key);
+                UserTags.Remove(entry.Key);
 
                 continue;
             }
@@ -52,18 +53,17 @@ public class ConsoleUserTags : hamburburmod
             text.font = entry.Value.Item1.Contains(Constants.PluginName) ||
                         Constants.PluginName.Contains(entry.Value.Item1)
                                 ? Plugin.Instance.DiloWorldFont
-                                : MenuHandler.Instance.Menu.transform.Find("Title").GetComponent<TextMeshPro>().font;
+                                : MenuHandler.Instance.MenuName.font;
 
-            text.fontStyle = MenuHandler.Instance.Menu.transform.Find("Title").GetComponent<TextMeshPro>().fontStyle;
+            text.fontStyle = MenuHandler.Instance.MenuName.fontStyle;
 
             tag.transform.localScale =
-                    Vector3.one * 0.25f * rig.scaleFactor;
+                    Vector3.one * (0.25f * rig.scaleFactor);
 
             tag.transform.position =
                     rig.headMesh.transform.position + new Vector3(0, 0.35f, 0);
 
-            tag.transform.LookAt(Camera.main.transform.position);
-            tag.transform.Rotate(0f, 180f, 0f);
+            tag.AddComponent<LookAtCamera>();
         }
     }
 
@@ -71,9 +71,11 @@ public class ConsoleUserTags : hamburburmod
     {
         IsEnabled = true;
 
-        if (NetworkSystem.Instance.InRoom)
-            foreach (Player player in PhotonNetwork.PlayerListOthers)
-                AutoGetConsoleUsers.Instance.PingForConsole(player);
+        if (!NetworkSystem.Instance.InRoom)
+            return;
+
+        foreach (Player player in PhotonNetwork.PlayerListOthers)
+            AutoGetConsoleUsers.Instance.PingForConsole(player);
     }
 
     protected override void OnDisable()

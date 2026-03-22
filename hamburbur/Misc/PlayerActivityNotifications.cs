@@ -1,6 +1,7 @@
 using System;
 using hamburbur.Managers;
 using hamburbur.Mods.Settings;
+using Photon.Pun;
 using UnityEngine;
 
 namespace hamburbur.Misc;
@@ -20,7 +21,7 @@ public class PlayerActivityNotifications : MonoBehaviour
 
     private void OnPlayerJoined(NetPlayer player)
     {
-        if (player.IsLocal || !RoomNotifications.Instance.Enabled)
+        if (player.IsLocal)
             return;
 
         string userId = player.UserId;
@@ -44,7 +45,7 @@ public class PlayerActivityNotifications : MonoBehaviour
                     8f,
                     false,
                     false);
-        else
+        else if (RoomNotifications.Instance.Enabled)
             NotificationManager.SendNotification(
                     "<color=yellow>Room Activity</color>",
                     $"{player.NickName} has joined your code",
@@ -55,7 +56,7 @@ public class PlayerActivityNotifications : MonoBehaviour
 
     private void OnPlayerLeft(NetPlayer player)
     {
-        if (player.IsLocal || !RoomNotifications.Instance.Enabled)
+        if (player.IsLocal)
             return;
 
         string userId = player.UserId;
@@ -97,6 +98,38 @@ public class PlayerActivityNotifications : MonoBehaviour
                 8f,
                 false,
                 false);
+
+        foreach (NetPlayer player in PhotonNetwork.PlayerListOthers)
+        {
+            if (player.IsLocal)
+                return;
+
+            string userId = player.UserId;
+
+            if (GorillaFriends.Main.IsFriend(userId))
+                NotificationManager.SendNotification(
+                        "<color=#1b0d4f>GorillaFriends</color>",
+                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrFriend)}>Friend</color> {player.NickName} has left your code",
+                        8f,
+                        true,
+                        false);
+
+            else if (GorillaFriends.Main.IsVerified(userId))
+                NotificationManager.SendNotification(
+                        "<color=#1b0d4f>GorillaFriends</color>",
+                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrVerified)}>Verified</color> player {player.NickName} has left your code",
+                        8f,
+                        true,
+                        false);
+
+            else
+                NotificationManager.SendNotification(
+                        "<color=yellow>Room Activity</color>",
+                        $"{player.NickName} has left your code",
+                        8f,
+                        false,
+                        false);
+        }
     }
 
     private void OnLeftRoom()

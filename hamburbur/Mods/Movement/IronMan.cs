@@ -13,13 +13,10 @@ public class IronMan : hamburburmod
     protected override void Update()
     {
         Rigidbody rb = GorillaTagger.Instance.rigidbody;
+        
+        float flySpeed = ChangeFlySpeed.Instance.IncrementalValue * 1.5f;
 
-        bool leftGrip  = InputManager.Instance.LeftGrip.IsPressed;
-        bool rightGrip = InputManager.Instance.RightGrip.IsPressed;
-
-        int flySpeed = ChangeFlySpeed.Instance.IncrementalValue;
-
-        if (leftGrip)
+        if (InputManager.Instance.LeftGrip.IsPressed)
         {
             Vector3 leftForce = flySpeed * -GorillaTagger.Instance.leftHandTransform.right;
             rb.AddForce(leftForce        * Time.deltaTime, ForceMode.VelocityChange);
@@ -41,7 +38,7 @@ public class IronMan : hamburburmod
             leftParticle.Obliterate(0.3f);
         }
 
-        if (rightGrip)
+        if (InputManager.Instance.RightGrip.IsPressed)
         {
             Vector3 rightForce = flySpeed * GorillaTagger.Instance.rightHandTransform.right;
             rb.AddForce(rightForce        * Time.deltaTime, ForceMode.VelocityChange);

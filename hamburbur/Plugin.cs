@@ -245,21 +245,15 @@ public class Plugin : MonoBehaviour
         ComponentHolder.AddComponent<HamburburData>();
         HamburburData.OnDataReloaded += data =>
                                         {
-                                            if (hasDoneDelayedStart)
-                                                return;
-
-                                            hasDoneDelayedStart = true;
-
-                                            JObject cosmetics = HamburburData.Data["specialCosmetics"]!
+                                            JObject cosmetics = data["specialCosmetics"]!
                                                                              .ToObject<JObject>();
 
                                             foreach (JProperty prop in cosmetics.Properties())
                                                 specialCosmetics[prop.Name] = prop.Value.ToString();
 
-                                            JObject cosmeticsDetailed = HamburburData.Data["specialCosmeticsDetailed"]!
+                                            JObject cosmeticsDetailed = data["specialCosmeticsDetailed"]!
                                                    .ToObject<JObject>();
-
-                                            ;
+                                            
                                             foreach (JProperty prop in cosmeticsDetailed.Properties())
                                                 specialCosmeticsDetailed[prop.Name] = prop.Value.ToString();
 
@@ -299,6 +293,11 @@ public class Plugin : MonoBehaviour
                                             }
 
                                             versionOkay = true;
+                                            
+                                            if (hasDoneDelayedStart)
+                                                return;
+
+                                            hasDoneDelayedStart = true;
 
                                             NetworkSystem.Instance.OnMasterClientSwitchedEvent += MasterNotification;
                                             NetworkSystem.Instance.OnJoinedRoomEvent += () => MasterNotification(null);
@@ -444,10 +443,7 @@ public class Plugin : MonoBehaviour
             return;
         }
 
-        if (!Mods.Settings.MasterNotification.IsEnabled)
-            return;
-
-        if (!Tools.Utils.IsMasterClient)
+        if (!Mods.Settings.MasterNotification.IsEnabled || !Tools.Utils.IsMasterClient)
             return;
 
         NotificationManager.SendNotification(
@@ -481,6 +477,9 @@ public class Plugin : MonoBehaviour
 
     private void CreateStumpStatus(string text, Texture2D icon)
     {
+        if (stumpObj != null) 
+            return;
+        
         stumpObj = new GameObject("HamburburStatusStump");
         Canvas canvas = stumpObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;
