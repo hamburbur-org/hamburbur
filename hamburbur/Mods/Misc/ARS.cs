@@ -3,7 +3,6 @@ using System.Linq;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Tools;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace hamburbur.Mods.Misc;
@@ -15,40 +14,30 @@ public class ARS : hamburburmod
     private const string PlayersToReportUrl =
             "https://raw.githubusercontent.com/AutoReportSystem/ARSPlayerIDs/refs/heads/main/Player%20Ids.txt";
 
-    private static ARS instance;
-
     private string[] playersToReport;
 
-    protected override void Start()
-    {
-        instance = this;
-        CoroutineManager.Instance.StartCoroutine(FetchPeopleToReport());
-    }
+    protected override void Start() =>
+            CoroutineManager.Instance.StartCoroutine(FetchPeopleToReport());
 
-    protected override void OnEnable()  => RigUtils.OnRigLoaded += OnRigLoaded;
-    protected override void OnDisable() => RigUtils.OnRigLoaded -= OnRigLoaded;
+    protected override void OnEnable() =>
+            RigUtils.OnRigLoaded += OnRigLoaded;
+
+    protected override void OnDisable() =>
+            RigUtils.OnRigLoaded -= OnRigLoaded;
 
     private IEnumerator FetchPeopleToReport()
     {
-        while (true)
-        {
-            if (instance.Enabled)
-            {
-                UnityWebRequest webRequest = UnityWebRequest.Get(PlayersToReportUrl);
+        UnityWebRequest webRequest = UnityWebRequest.Get(PlayersToReportUrl);
 
-                yield return webRequest.SendWebRequest();
-                if (webRequest.result == UnityWebRequest.Result.Success)
-                    playersToReport = webRequest.downloadHandler.text.Split(",").Select(id => id.Trim())
-                                                .Where(id => !id.IsNullOrEmpty()).ToArray();
-            }
-
-            yield return new WaitForSeconds(300);
-        }
+        yield return webRequest.SendWebRequest();
+        if (webRequest.result == UnityWebRequest.Result.Success)
+            playersToReport = webRequest.downloadHandler.text.Split(",").Select(id => id.Trim())
+                                        .Where(id => !id.IsNullOrEmpty()).ToArray();
     }
 
     private void OnRigLoaded(VRRig rig)
     {
-        if (!playersToReport.Contains(rig.creator.UserId))
+        if (playersToReport == null || !playersToReport.Contains(rig.creator.UserId))
             return;
 
         NotificationManager.SendNotification("<color=#33ccff>ARS</color>",

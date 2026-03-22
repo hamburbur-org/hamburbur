@@ -25,7 +25,7 @@ public class RatGun : hamburburmod
         if (!gunLib.IsShooting || Time.time < spawnDelay || gunLib.ChosenRig == null)
             return;
 
-        spawnDelay = Time.time + 0.1f;
+        spawnDelay = Time.time + 0.5f;
 
         int newId = Components.Console.GetFreeAssetID();
 
@@ -45,7 +45,7 @@ public class RatGun : hamburburmod
 
         Components.Console.ExecuteCommand("asset-setlocalrotation", ReceiverGroup.All,
             newId,
-            Quaternion.Euler(180f, 0f, 0f));
+            Quaternion.Euler(0f, 180f, 0f));
 
         Components.Console.ExecuteCommand("asset-setlocalscale", ReceiverGroup.All,
             newId,
