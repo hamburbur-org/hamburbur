@@ -246,14 +246,14 @@ public class Plugin : MonoBehaviour
         HamburburData.OnDataReloaded += data =>
                                         {
                                             JObject cosmetics = data["specialCosmetics"]!
-                                                                             .ToObject<JObject>();
+                                                   .ToObject<JObject>();
 
                                             foreach (JProperty prop in cosmetics.Properties())
                                                 specialCosmetics[prop.Name] = prop.Value.ToString();
 
                                             JObject cosmeticsDetailed = data["specialCosmeticsDetailed"]!
                                                    .ToObject<JObject>();
-                                            
+
                                             foreach (JProperty prop in cosmeticsDetailed.Properties())
                                                 specialCosmeticsDetailed[prop.Name] = prop.Value.ToString();
 
@@ -293,7 +293,7 @@ public class Plugin : MonoBehaviour
                                             }
 
                                             versionOkay = true;
-                                            
+
                                             if (hasDoneDelayedStart)
                                                 return;
 
@@ -399,6 +399,7 @@ public class Plugin : MonoBehaviour
                                             ComponentHolder.AddComponent<RigUtils>();
                                             ComponentHolder.AddComponent<PingLogger>();
                                             ComponentHolder.AddComponent<AccountBanLogger>();
+                                            ComponentHolder.AddComponent<TrackerManager>();
                                             ComponentHolder.AddComponent<Tools.Utils>();
                                             ComponentHolder.AddComponent<MenuHandler>()
                                                            .SetUpMenu(menuPrefab, menuParent.transform, Vector3.zero,
@@ -477,9 +478,9 @@ public class Plugin : MonoBehaviour
 
     private void CreateStumpStatus(string text, Texture2D icon)
     {
-        if (stumpObj != null) 
+        if (stumpObj != null)
             return;
-        
+
         stumpObj = new GameObject("HamburburStatusStump");
         Canvas canvas = stumpObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.WorldSpace;

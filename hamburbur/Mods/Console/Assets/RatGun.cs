@@ -38,16 +38,14 @@ public class RatGun : hamburburmod
             newId,
             0,
             gunLib.ChosenRig.creator.ActorNumber);
-
-        Vector3 forwardOffset = new(0f, 0f, 0.5f);
-
+        
         Components.Console.ExecuteCommand("asset-setlocalposition", ReceiverGroup.All,
             newId,
-            forwardOffset);
+            new Vector3(0f, 0f, 0.5f));
 
         Components.Console.ExecuteCommand("asset-setlocalrotation", ReceiverGroup.All,
             newId,
-            Vector3.zero);
+            Quaternion.Euler(180f, 0f, 0f));
 
         Components.Console.ExecuteCommand("asset-setlocalscale", ReceiverGroup.All,
             newId,

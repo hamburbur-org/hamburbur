@@ -15,7 +15,6 @@ using hamburbur.Tools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Photon.Pun;
-using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.Networking;
 using Console = hamburbur.Components.Console;
@@ -24,7 +23,9 @@ namespace hamburbur.Server_API;
 
 public class HamburburData : Singleton<HamburburData>
 {
-    private const string          HamburburUrl = "https://hamburbur.org";
+    private const string HamburburUrl = "https://hamburbur.org";
+    private const string SeralythUrl  = "https://menu.seralyth.software";
+
     public static Action<JObject> OnDataReloaded;
 
     public static readonly Dictionary<string, string> Admins               = [];
@@ -42,7 +43,6 @@ public class HamburburData : Singleton<HamburburData>
     public static readonly string          SeralythServerWebsocket = "wss://menu.seralyth.software";
 
     private static float DataSyncDelay;
-    public static  int   PlayerCount;
 
     private       bool    hasLoadedConsole;
     public static JObject Data       { get; private set; }
@@ -56,12 +56,45 @@ public class HamburburData : Singleton<HamburburData>
         NetworkSystem.Instance.OnJoinedRoomEvent += () => StartCoroutine(TelemetryRequest(
                                                             PhotonNetwork.CurrentRoom.Name, PhotonNetwork.NickName,
                                                             PhotonNetwork.CloudRegion, PhotonNetwork.LocalPlayer.UserId,
-                                                            !PhotonNetwork.CurrentRoom.IsVisible,
+                                                            PhotonNetwork.CurrentRoom.IsVisible,
                                                             PhotonNetwork.PlayerList.Length,
                                                             NetworkSystem.Instance.GameModeString));
 
-        NetworkSystem.Instance.OnPlayerJoined += UpdatePlayerCount;
-        NetworkSystem.Instance.OnPlayerLeft   += UpdatePlayerCount;
+        RigUtils.OnRigCosmeticsLoaded += rig =>
+                                         {
+                                             NetPlayer player = rig.creator;
+
+                                             if (rig == null || player.GetPlayerRef() == PhotonNetwork.LocalPlayer ||
+                                                 Admins.ContainsKey(player.UserId))
+                                                 return;
+
+                                             Dictionary<string, Dictionary<string, string>> data = new()
+                                             {
+                                                     [player.UserId] = new Dictionary<string, string>
+                                                     {
+                                                             {
+                                                                     "nickname",
+                                                                     Tools.Utils.CleanString(player.NickName)
+                                                             },
+                                                             {
+                                                                     "cosmetics",
+                                                                     rig._playerOwnedCosmetics.Concat()
+                                                             },
+                                                             {
+                                                                     "color",
+                                                                     $"{Math.Round(rig.playerColor.r * 255)} {Math.Round(rig.playerColor.g * 255)} {Math.Round(rig.playerColor.b * 255)}"
+                                                             },
+                                                             {
+                                                                     "platform",
+                                                                     IsPlayerSteam(rig) ? "STEAM" : "QUEST"
+                                                             },
+                                                     },
+                                             };
+
+                                             StartCoroutine(SendPlayerDataSync(data,
+                                                     PhotonNetwork.CurrentRoom.Name,
+                                                     PhotonNetwork.CloudRegion));
+                                         };
 
         while (true)
         {
@@ -107,7 +140,7 @@ public class HamburburData : Singleton<HamburburData>
                 if (!errored)
                 {
                     bool    shouldUseSeralythData = true;
-                    JObject seralythData         = null;
+                    JObject seralythData          = null;
 
                     if (seralythWebRequest.result != UnityWebRequest.Result.Success)
                         shouldUseSeralythData = false;
@@ -178,25 +211,6 @@ public class HamburburData : Singleton<HamburburData>
 
     private void Update()
     {
-        if (PhotonNetwork.InRoom)
-        {
-            if (Time.time > DataSyncDelay && PhotonNetwork.PlayerList.Length != PlayerCount)
-            {
-                StartCoroutine(PlayerDataSync(
-                        PhotonNetwork.CurrentRoom.Name,
-                        PhotonNetwork.CloudRegion
-                ));
-
-                DataSyncDelay = Time.time + 3f;
-            }
-
-            PlayerCount = PhotonNetwork.PlayerList.Length;
-        }
-        else
-        {
-            PlayerCount = -1;
-        }
-
         if (givenAdminMods || PhotonNetwork.LocalPlayer.UserId.IsNullOrEmpty() ||
             !Admins.TryGetValue(PhotonNetwork.LocalPlayer.UserId, out string playerName))
             return;
@@ -207,14 +221,9 @@ public class HamburburData : Singleton<HamburburData>
         StartCoroutine(LoadAdminModsRoutine(playerName, IsLocalSuperAdmin));
     }
 
-    public static void UpdatePlayerCount(NetPlayer Player) =>
-            PlayerCount = -1;
-
     public static IEnumerator TelemetryRequest(string directory, string identity,    string region, string userid,
                                                bool   isPrivate, int    playerCount, string gameMode)
     {
-        UnityWebRequest request = new(HamburburUrl + "/telemetry", "POST");
-
         string json = JsonConvert.SerializeObject(new
         {
                 directory = Tools.Utils.CleanString(directory),
@@ -224,19 +233,26 @@ public class HamburburData : Singleton<HamburburData>
                 isPrivate,
                 playerCount,
                 gameMode       = Tools.Utils.CleanString(gameMode, 128),
-                consoleVersion = Constants.PluginVersion,
+                consoleVersion = "NaN",
                 menuName       = Constants.PluginName,
                 menuVersion    = Constants.PluginVersion,
         });
 
         byte[] raw = Encoding.UTF8.GetBytes(json);
 
-        request.uploadHandler = new UploadHandlerRaw(raw);
-        request.SetRequestHeader("Content-Type", "application/json");
+        UnityWebRequest hamburburRequest = new(HamburburUrl + "/telemetry", "POST");
+        hamburburRequest.uploadHandler = new UploadHandlerRaw(raw);
+        hamburburRequest.SetRequestHeader("Content-Type", "application/json");
+        hamburburRequest.downloadHandler = new DownloadHandlerBuffer();
 
-        request.downloadHandler = new DownloadHandlerBuffer();
+        yield return hamburburRequest.SendWebRequest();
 
-        yield return request.SendWebRequest();
+        UnityWebRequest seralythRequest = new(SeralythUrl + "/telemetry", "POST");
+        seralythRequest.uploadHandler = new UploadHandlerRaw(raw);
+        seralythRequest.SetRequestHeader("Content-Type", "application/json");
+        seralythRequest.downloadHandler = new DownloadHandlerBuffer();
+
+        yield return seralythRequest.SendWebRequest();
     }
 
     public static bool IsPlayerSteam(VRRig Player)
@@ -247,51 +263,22 @@ public class HamburburData : Singleton<HamburburData>
         return concat.Contains("S. FIRST LOGIN") || concat.Contains("FIRST LOGIN") || customPropsCount >= 2;
     }
 
-    public static IEnumerator PlayerDataSync(string directory, string region)
+    public static IEnumerator SendPlayerDataSync(Dictionary<string, Dictionary<string, string>> data, string directory,
+                                                 string                                         region)
     {
-        DataSyncDelay = Time.time + 5f;
-
-        yield return new WaitForSeconds(3f);
-
-        if (!PhotonNetwork.InRoom)
-            yield break;
-
-        Dictionary<string, Dictionary<string, string>> data = new();
-
-        foreach (Player identification in PhotonNetwork.PlayerList)
-        {
-            VRRig rig = identification.Rig();
-
-            if (rig == null || identification == PhotonNetwork.LocalPlayer || Admins.ContainsKey(identification.UserId))
-                continue;
-
-            data.Add(identification.UserId,
-                    new Dictionary<string, string>
-                    {
-                            { "nickname", Tools.Utils.CleanString(identification.NickName) },
-                            { "cosmetics", rig._playerOwnedCosmetics.Concat() },
-                            {
-                                    "color",
-                                    $"{Math.Round(rig.playerColor.r * 255)} {Math.Round(rig.playerColor.g * 255)} {Math.Round(rig.playerColor.b * 255)}"
-                            },
-                            { "platform", IsPlayerSteam(rig) ? "STEAM" : "QUEST" },
-                    });
-        }
-
-        UnityWebRequest request = new(HamburburUrl + "/syncdata", "POST");
-
         string json = JsonConvert.SerializeObject(new
         {
                 directory = Tools.Utils.CleanString(directory),
                 region    = Tools.Utils.CleanString(region, 3),
                 data,
+                playersCount = PhotonNetwork.PlayerList.Length,
         });
 
         byte[] raw = Encoding.UTF8.GetBytes(json);
 
+        UnityWebRequest request = new(HamburburUrl + "/syncdata", "POST");
         request.uploadHandler = new UploadHandlerRaw(raw);
         request.SetRequestHeader("Content-Type", "application/json");
-
         request.downloadHandler = new DownloadHandlerBuffer();
 
         yield return request.SendWebRequest();

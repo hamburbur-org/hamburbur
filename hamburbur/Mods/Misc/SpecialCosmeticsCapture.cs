@@ -1,4 +1,13 @@
+using System;
+using System.Collections;
+using System.IO;
+using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Server_API;
+using hamburbur.Tools;
+using Newtonsoft.Json.Linq;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace hamburbur.Mods.Misc;
 
@@ -7,9 +16,9 @@ namespace hamburbur.Mods.Misc;
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class SpecialCosmeticsCapture : hamburburmod
 {
-    /*protected override void OnEnable() => TelemetryHandler.OnRoomDataReceived += TakePhoto;
+    protected override void OnEnable() => TrackerManager.OnRoomDataReceived += TakePhoto;
 
-    protected override void OnDisable() => TelemetryHandler.OnRoomDataReceived -= TakePhoto;
+    protected override void OnDisable() => TrackerManager.OnRoomDataReceived -= TakePhoto;
 
     private void TakePhoto(JToken data) => CoroutineManager.Instance.StartCoroutine(CaptureScreenshot(data));
 
@@ -51,8 +60,8 @@ public class SpecialCosmeticsCapture : hamburburmod
         cam.transform.position = targetHead.transform.TransformPoint(0f, 0f, 1f);
         cam.transform.LookAt(targetHead.position + new Vector3(0f, 0f, 0f));
 
-        const int Width  = 4096;
-        const int Height = 4096;
+        const int Width  = 2096;
+        const int Height = 2096;
 
         RenderTexture rt = new(Width, Height, 24);
         cam.targetTexture = rt;
@@ -74,5 +83,5 @@ public class SpecialCosmeticsCapture : hamburburmod
         Object.Destroy(rt);
         Object.Destroy(screenshot);
         Object.Destroy(cameraObj);
-    }*/
+    }
 }
