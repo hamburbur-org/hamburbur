@@ -1,8 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using GorillaNetworking;
+using hamburbur.GUI;
 using hamburbur.Managers;
+using hamburbur.Mods.SoundBoard;
 using hamburbur.Tools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -108,6 +112,19 @@ public class TrackerManager : MonoBehaviour
         NotificationManager.SendNotification("<color=green>Tracker</color>",
                 $"{(isUserKnown ? username : "Someone")} {(hasCosmetic ? $"with {cosmetic}" : "")} found in {(PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.Name == room ? "your code" : $"code {room}")} with {players} players. Their in game name is {inGameName} and the gamemode string is {gameMode}",
                 10f, true, false);
+
+        if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.Name == room)
+        {
+            ButtonHandler.Instance.Prompt(new PromptData(PromptType.AcceptAndDeny,
+                    $"Found {(isUserKnown ? username : "Someone")} with {cosmetic} in {room}, would you like to join them?",
+                    () => PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(room, JoinType.Solo),
+                    () =>
+                    {
+                        /*Do nothing lolz*/
+                    },
+                    $"Yes",
+                    "No"));
+        }
 
         OnRoomDataReceived?.Invoke(trackingData);
     }
