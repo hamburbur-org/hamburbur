@@ -85,42 +85,6 @@ public class TrackerManager : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current.oKey.wasPressedThisFrame && PhotonNetwork.InRoom)
-        {
-            VRRig     rig    = VRRig.LocalRig;
-            NetPlayer player = rig.creator;
-
-            if (rig == null)
-                return;
-
-            Dictionary<string, Dictionary<string, string>> data = new()
-            {
-                    [player.UserId] = new Dictionary<string, string>
-                    {
-                            {
-                                    "nickname",
-                                    Tools.Utils.CleanString(player.NickName)
-                            },
-                            {
-                                    "cosmetics",
-                                    rig._playerOwnedCosmetics.Concat()
-                            },
-                            {
-                                    "color",
-                                    $"{Math.Round(rig.playerColor.r * 255)} {Math.Round(rig.playerColor.g * 255)} {Math.Round(rig.playerColor.b * 255)}"
-                            },
-                            {
-                                    "platform",
-                                    rig.IsOnSteam() ? "STEAM" : "QUEST"
-                            },
-                    },
-            };
-
-            StartCoroutine(SendPlayerDataSync(data,
-                    PhotonNetwork.CurrentRoom.Name,
-                    PhotonNetwork.CloudRegion));
-        }
-
         lock (receivedMessages)
         {
             while (receivedMessages.Count > 0)
