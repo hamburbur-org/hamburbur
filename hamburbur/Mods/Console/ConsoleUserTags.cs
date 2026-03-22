@@ -63,7 +63,7 @@ public class ConsoleUserTags : hamburburmod
             tag.transform.position =
                     rig.headMesh.transform.position + new Vector3(0, 0.35f, 0);
 
-            tag.AddComponent<LookAtCamera>();
+            tag.GetOrAddComponent<LookAtCamera>();
         }
     }
 
