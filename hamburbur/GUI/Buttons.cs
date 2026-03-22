@@ -203,6 +203,7 @@ public static class Buttons
                     (typeof(CopyIdGun), null),
                     (typeof(SpecialCosmeticsCapture), null),
                     (typeof(VIMSpoof), null),
+                    (typeof(CompleteQuests), null),
             ],
 
             ["Rig"] =

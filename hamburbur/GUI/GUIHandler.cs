@@ -62,8 +62,10 @@ public class GUIHandler : Singleton<GUIHandler>
         Menu = Canvas.transform.TakeChild(1).gameObject;
         Menu.AddComponent<DragObject>();
         fpsText = Menu.transform.TakeChild(1, 1).GetComponent<TextMeshProUGUI>();
+        
         Menu.transform.TakeChild(4).GetComponent<Button>().onClick
             .AddListener(() => ButtonHandler.Instance.SetCategory("Main"));
+        Menu.transform.TakeChild(5).GetComponent<Button>().onClick.AddListener(() => NetworkSystem.Instance.ReturnToSinglePlayer());
 
         Menu.transform.TakeChild(3, 0, 0, 0).AddComponent<GreetingHandler>();
         

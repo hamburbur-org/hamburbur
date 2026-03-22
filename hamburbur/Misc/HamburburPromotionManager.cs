@@ -3,7 +3,6 @@ using hamburbur.Tools;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.Video;
 
 namespace hamburbur.Misc;

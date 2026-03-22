@@ -77,7 +77,7 @@ public class PlayerActivityNotifications : MonoBehaviour
                     true,
                     false);
 
-        else
+        else if (RoomNotifications.Instance.Enabled)
             NotificationManager.SendNotification(
                     "<color=yellow>Room Activity</color>",
                     $"{player.NickName} has left your code",
@@ -107,25 +107,21 @@ public class PlayerActivityNotifications : MonoBehaviour
             string userId = player.UserId;
 
             if (GorillaFriends.Main.IsFriend(userId))
-                NotificationManager.SendNotification(
-                        "<color=#1b0d4f>GorillaFriends</color>",
-                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrFriend)}>Friend</color> {player.NickName} has left your code",
-                        8f,
-                        true,
-                        false);
-
+                NotificationManager.SendNotification("<color=#1b0d4f>GorillaFriends</color>",
+                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrFriend)}>Friend</color> {player.NickName} has joined your code",
+                        8f, true, false);
             else if (GorillaFriends.Main.IsVerified(userId))
                 NotificationManager.SendNotification(
                         "<color=#1b0d4f>GorillaFriends</color>",
-                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrVerified)}>Verified</color> player {player.NickName} has left your code",
+                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrVerified)}>Verified</color> player {player.NickName} has joined your code",
                         8f,
                         true,
                         false);
-
-            else
+            else if (GorillaFriends.Main.HasPlayedWithUsRecently(userId).recentlyPlayed !=
+                     GorillaFriends.Main.eRecentlyPlayed.Never)
                 NotificationManager.SendNotification(
-                        "<color=yellow>Room Activity</color>",
-                        $"{player.NickName} has left your code",
+                        "<color=#1b0d4f>GorillaFriends</color>",
+                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrPlayedRecently)}>Recently played with</color> player {player.NickName} has joined your code",
                         8f,
                         false,
                         false);

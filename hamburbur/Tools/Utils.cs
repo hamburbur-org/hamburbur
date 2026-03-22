@@ -222,4 +222,24 @@ public class Utils : MonoBehaviour
                     (byte)Random.Range(0,     range),
                     (byte)Random.Range(0,     range),
                     alpha);
+    
+    public static string CleanString(string input, int maxLength = 12)
+    {
+        input = new string(Array.FindAll(input.ToCharArray(), global::Utils.IsASCIILetterOrDigit));
+
+        if (input.Length > maxLength)
+            input = input[..(maxLength - 1)];
+
+        input = input.ToUpper();
+        return input;
+    }
+    
+    public static string NoASCIIStringCheck(string input, int maxLength = 12)
+    {
+        if (input.Length > maxLength)
+            input = input[..(maxLength - 1)];
+
+        input = input.ToUpper();
+        return input;
+    }
 }
