@@ -52,6 +52,14 @@ public static class Extensions
             VRRigCache.m_activeRigs.Find(r => r.Creator.GetPlayerRef().Equals(player));
 
     public static VRRig Rig(this string id) => VRRigCache.m_activeRigs.Find(r => r.Creator?.UserId == id);
+    
+    public static bool IsOnSteam(this VRRig Player)
+    {
+        string concat           = Player._playerOwnedCosmetics.Concat();
+        int    customPropsCount = Player.Creator.GetPlayerRef().CustomProperties.Count;
+
+        return concat.Contains("S. FIRST LOGIN") || concat.Contains("FIRST LOGIN") || customPropsCount >= 2;
+    }
 
     public static NetPlayer OwningNetPlayer(this VRRig rig) => rig?.Creator;
     public static Vector3   Velocity(this VRRig rig) => RigUtils.RigVelocities.GetValueOrDefault(rig, Vector3.zero);

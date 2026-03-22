@@ -23,8 +23,8 @@ namespace hamburbur.Server_API;
 
 public class HamburburData : Singleton<HamburburData>
 {
-    private const string HamburburUrl = "https://hamburbur.org";
-    private const string SeralythUrl  = "https://menu.seralyth.software";
+    public const string HamburburUrl = "https://hamburbur.org";
+    public const string SeralythUrl  = "https://menu.seralyth.software";
 
     public static Action<JObject> OnDataReloaded;
 
@@ -59,42 +59,6 @@ public class HamburburData : Singleton<HamburburData>
                                                             PhotonNetwork.CurrentRoom.IsVisible,
                                                             PhotonNetwork.PlayerList.Length,
                                                             NetworkSystem.Instance.GameModeString));
-
-        RigUtils.OnRigCosmeticsLoaded += rig =>
-                                         {
-                                             NetPlayer player = rig.creator;
-
-                                             if (rig == null || player.GetPlayerRef() == PhotonNetwork.LocalPlayer ||
-                                                 Admins.ContainsKey(player.UserId))
-                                                 return;
-
-                                             Dictionary<string, Dictionary<string, string>> data = new()
-                                             {
-                                                     [player.UserId] = new Dictionary<string, string>
-                                                     {
-                                                             {
-                                                                     "nickname",
-                                                                     Tools.Utils.CleanString(player.NickName)
-                                                             },
-                                                             {
-                                                                     "cosmetics",
-                                                                     rig._playerOwnedCosmetics.Concat()
-                                                             },
-                                                             {
-                                                                     "color",
-                                                                     $"{Math.Round(rig.playerColor.r * 255)} {Math.Round(rig.playerColor.g * 255)} {Math.Round(rig.playerColor.b * 255)}"
-                                                             },
-                                                             {
-                                                                     "platform",
-                                                                     IsPlayerSteam(rig) ? "STEAM" : "QUEST"
-                                                             },
-                                                     },
-                                             };
-
-                                             StartCoroutine(SendPlayerDataSync(data,
-                                                     PhotonNetwork.CurrentRoom.Name,
-                                                     PhotonNetwork.CloudRegion));
-                                         };
 
         while (true)
         {
@@ -253,35 +217,6 @@ public class HamburburData : Singleton<HamburburData>
         seralythRequest.downloadHandler = new DownloadHandlerBuffer();
 
         yield return seralythRequest.SendWebRequest();
-    }
-
-    public static bool IsPlayerSteam(VRRig Player)
-    {
-        string concat           = Player._playerOwnedCosmetics.Concat();
-        int    customPropsCount = Player.Creator.GetPlayerRef().CustomProperties.Count;
-
-        return concat.Contains("S. FIRST LOGIN") || concat.Contains("FIRST LOGIN") || customPropsCount >= 2;
-    }
-
-    public static IEnumerator SendPlayerDataSync(Dictionary<string, Dictionary<string, string>> data, string directory,
-                                                 string                                         region)
-    {
-        string json = JsonConvert.SerializeObject(new
-        {
-                directory = Tools.Utils.CleanString(directory),
-                region    = Tools.Utils.CleanString(region, 3),
-                data,
-                playersCount = PhotonNetwork.PlayerList.Length,
-        });
-
-        byte[] raw = Encoding.UTF8.GetBytes(json);
-
-        UnityWebRequest request = new(HamburburUrl + "/syncdata", "POST");
-        request.uploadHandler = new UploadHandlerRaw(raw);
-        request.SetRequestHeader("Content-Type", "application/json");
-        request.downloadHandler = new DownloadHandlerBuffer();
-
-        yield return request.SendWebRequest();
     }
 
     private IEnumerator LoadAdminModsRoutine(string playerName, bool superAdmin)
