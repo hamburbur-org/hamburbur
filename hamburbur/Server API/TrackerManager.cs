@@ -113,7 +113,7 @@ public class TrackerManager : MonoBehaviour
                 $"{(isUserKnown ? username : "Someone")} {(hasCosmetic ? $"with {cosmetic}" : "")} found in {(PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.Name == room ? "your code" : $"code {room}")} with {players} players. Their in game name is {inGameName} and the gamemode string is {gameMode}",
                 10f, true, false);
 
-        if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.Name == room)
+        if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.Name != room || !PhotonNetwork.InRoom)
         {
             ButtonHandler.Instance.Prompt(new PromptData(PromptType.AcceptAndDeny,
                     $"Found {(isUserKnown ? username : "Someone")} with {cosmetic} in {room}, would you like to join them?",
