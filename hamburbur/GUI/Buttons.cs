@@ -106,6 +106,7 @@ public static class Buttons
                     (typeof(SlaughterTravisScoot), null),
                     (typeof(TrackerNotifications), null),
                     (typeof(CustomBoardMaterial), null),
+                    (typeof(RememberLastCategory), null),
             ],
 
             ["Movement"] =

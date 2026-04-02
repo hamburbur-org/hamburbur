@@ -15,11 +15,12 @@ namespace hamburbur.GUI;
 
 public class MenuHandler : Singleton<MenuHandler>
 {
-    public static List<(string, int)> LastCategories = [];
-    public        string              Category       = "Main";
-    public        int                 PageIndex;
-    public        GameObject          ButtonPresser;
-    public        bool                MenuOpen;
+    public static List<(string, int)>     LastCategories     = [];
+    public static Dictionary<string, int> CategoryPageMemory = new();
+    public        string                  Category           = "Main";
+    public        int                     PageIndex;
+    public        GameObject              ButtonPresser;
+    public        bool                    MenuOpen;
 
     public  bool        IsWaiting;
     public  TextMeshPro MenuName;
@@ -120,6 +121,8 @@ public class MenuHandler : Singleton<MenuHandler>
     public void SetUpMenu(GameObject menuPrefab, Transform menuParent, Vector3 position, Quaternion rotation,
                           Color      mainColour, bool      active)
     {
+        CategoryPageMemory.Clear();
+        
         if (Menu != null)
         {
             Menu.Obliterate();
@@ -180,7 +183,8 @@ public class MenuHandler : Singleton<MenuHandler>
         LastCategories.RemoveAt(LastCategories.Count - 1);
 
         ButtonHandler.Instance.SetCategory(lastCategory, false);
-        Instance.PageIndex = lastPageIndex;
+        CategoryPageMemory[lastCategory] = lastPageIndex;
+        Instance.PageIndex               = lastPageIndex;
         ButtonHandler.Instance.UpdateButtons();
     }
 

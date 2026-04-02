@@ -5,6 +5,7 @@ using System.Reflection;
 using hamburbur.Components;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Mods.Settings;
 using hamburbur.Tools;
 using TMPro;
 using UnityEngine;
@@ -142,11 +143,17 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
     public void SetCategory(string category, bool cacheLastCategory = true)
     {
+        MenuHandler.CategoryPageMemory[MenuHandler.Instance.Category] = MenuHandler.Instance.PageIndex;
+        
         if (cacheLastCategory)
             MenuHandler.LastCategories.Add((category, MenuHandler.Instance.PageIndex));
 
         MenuHandler.Instance.Category  = category;
-        MenuHandler.Instance.PageIndex = 0;
+
+        if (RememberLastCategory.IsEnabled && MenuHandler.CategoryPageMemory.TryGetValue(category, out int savedPage))
+            MenuHandler.Instance.PageIndex = savedPage;
+        else
+            MenuHandler.Instance.PageIndex = 0;
 
         if (category == "Main")
             MenuHandler.LastCategories.Clear();
