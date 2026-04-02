@@ -29,7 +29,7 @@ public class JarvisVoice : hamburburmod
         if (IncrementalValue >= Voices.Length)
             IncrementalValue = 0;
 
-        AudioLib.Instance.SpeakText($"Hello, my name is {Voices[IncrementalValue]}, nice to meet you!");
+        AudioLib.Instance.SpeakText($"Hello, my name is {Voices[IncrementalValue]}. Nice to meet you!");
     }
 
     protected override void Decrement()
@@ -38,6 +38,6 @@ public class JarvisVoice : hamburburmod
         if (IncrementalValue < 0)
             IncrementalValue = Voices.Length - 1;
 
-        AudioLib.Instance.SpeakText($"Hello, my name is {Voices[IncrementalValue]}, nice to meet you!");
+        AudioLib.Instance.SpeakText($"Hello, my name is {Voices[IncrementalValue]}. Nice to meet you!");
     }
 }

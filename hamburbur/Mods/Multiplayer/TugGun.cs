@@ -61,7 +61,14 @@ public class TugGun : hamburburmod
 
     private IEnumerator TryTagPlayer(VRRig rigToTag)
     {
-        if (rigToTag == null || rigToTag.IsTagged()) yield break;
+        if (rigToTag == null || rigToTag.IsTagged()) 
+            yield break;
+
+        if (Tools.Utils.IsMasterClient)
+        {
+            TagManager.Instance.AddInfected(rigToTag.creator);
+            yield break;
+        }
 
         RigUtils.ToggleRig(false);
 

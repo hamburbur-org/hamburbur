@@ -9,6 +9,7 @@ public class ButtonPressSound : hamburburmod
     public static string[] Sounds =
     [
             "Default", //Bark
+            "Og Sound",
             "KeyboardClick",
             "Pop",
             "Discord",

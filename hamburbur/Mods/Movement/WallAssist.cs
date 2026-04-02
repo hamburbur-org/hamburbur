@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Wall Assist", "Helps you clims up surfaces whilst holding Left Grip", ButtonType.Togglable,
+[hamburburmod("Wall Assist", "Helps you climb up surfaces whilst holding Left Grip", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class WallAssist : hamburburmod
 {

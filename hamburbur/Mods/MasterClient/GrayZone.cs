@@ -28,7 +28,6 @@ public class GrayZone : hamburburmod
 
         foreach (GreyZoneManager greyZone in greyZones)
         {
-            greyZone.greyZoneAmbienceVolume = float.MaxValue;
             greyZone.forceTimeOfDayToNight  = true;
             greyZone.greyZoneActiveDuration = float.MaxValue;
             greyZone.ActivateGreyZoneAuthority();

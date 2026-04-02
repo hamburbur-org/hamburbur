@@ -134,33 +134,46 @@ public class GunLib
             {
                 case GunType.Rope:
                 {
+                    if (!PointsDict.ContainsKey(lineToImpact))
+                    {
+                        PointsDict[lineToImpact] = (previousPoints: new Vector3[NumPoints],
+                                                    currentPoints: new Vector3[NumPoints]);
+
+                        for (int i = 0; i < NumPoints; i++)
+                        {
+                            Vector3 tPos = Vector3.Lerp(origin, end, i / (float)(NumPoints - 1));
+                            PointsDict[lineToImpact].currentPoints[i]  = tPos;
+                            PointsDict[lineToImpact].previousPoints[i] = tPos;
+                        }
+                    }
+
                     PointsDict[lineToImpact].currentPoints[0]             = origin;
                     PointsDict[lineToImpact].currentPoints[NumPoints - 1] = end;
 
                     for (int i = 1; i < NumPoints - 1; i++)
                     {
-                        Vector3 velocity = (PointsDict[lineToImpact].currentPoints[i] -
-                                            PointsDict[lineToImpact].previousPoints[i]) / Time.deltaTime;
+                        Vector3 velocity =
+                                (PointsDict[lineToImpact].currentPoints[i] -
+                                 PointsDict[lineToImpact].previousPoints[i]) / Time.deltaTime;
 
-                        PointsDict[lineToImpact].previousPoints[i] = PointsDict[lineToImpact].currentPoints[i];
-
-                        PointsDict[lineToImpact].currentPoints[i] += velocity;
+                        velocity                                   += (end - origin).normalized * 2f;
+                        PointsDict[lineToImpact].previousPoints[i] =  PointsDict[lineToImpact].currentPoints[i];
+                        PointsDict[lineToImpact].currentPoints[i]  += velocity * Time.deltaTime;
                         PointsDict[lineToImpact].currentPoints[i] +=
                                 Vector3.down * (Gravity * Time.deltaTime * Time.deltaTime);
                     }
 
-                    for (int iter = 0; iter < ConstraintIterations; iter++)
+                    for (int iter = 0; iter < 20; iter++)
                     {
                         for (int i = 0; i < NumPoints - 1; i++)
                         {
                             Vector3 delta = PointsDict[lineToImpact].currentPoints[i + 1] -
                                             PointsDict[lineToImpact].currentPoints[i];
 
-                            float   dist       = delta.magnitude;
+                            float   dist = delta.magnitude;
                             float   targetDist = Vector3.Distance(origin, end) / (NumPoints - 1);
-                            Vector3 correction = delta.normalized              * ((dist - targetDist) * 0.5f);
-
-                            if (i != 0) PointsDict[lineToImpact].currentPoints[i]                 += correction;
+                            Vector3 correction = delta.normalized * ((dist - targetDist) * 0.5f);
+                            if (i != 0) PointsDict[lineToImpact].currentPoints[i] += correction;
                             if (i != NumPoints - 2) PointsDict[lineToImpact].currentPoints[i + 1] -= correction;
                         }
                     }

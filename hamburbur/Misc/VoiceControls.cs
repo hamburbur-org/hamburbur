@@ -367,13 +367,13 @@ public class VoiceControls : Singleton<VoiceControls>
         }
         else if (lowerText is "server data status" or "console status")
         {
-            UnityWebRequest req = UnityWebRequest.Get("https://iidk.online/serverdata");
+            UnityWebRequest req = UnityWebRequest.Get("https://menu.seralyth.software/serverdata");
 
             yield return req.SendWebRequest();
 
             yield return TTSSpeak(req.result == UnityWebRequest.Result.Success
                                           ? "Console Server Data is online"
-                                          : "Console Server Data is offline");
+                                          : "Console Server Data is offline, " + req.error);
 
             hasYield = true;
         }
@@ -386,7 +386,7 @@ public class VoiceControls : Singleton<VoiceControls>
 
             hasYield = true;
         }
-        else if (GPTJarvis.IsEnabled)
+        else if (AIJarvis.IsEnabled)
         {
             yield return ProcessVoiceCommand(text);
 

@@ -16,8 +16,6 @@ public class PCPressButtons : hamburburmod
 
     protected override void Start()
     {
-        base.Start();
-
         handIndicator = GorillaTagger.Instance.rightHandTriggerCollider
                                      .GetComponent<GorillaTriggerColliderHandIndicator>();
 

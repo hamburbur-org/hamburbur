@@ -22,7 +22,7 @@ public class TagManager : Singleton<TagManager>
 
     public static bool IsTagged(VRRig rig)
     {
-        bool isInfectionTagged = rig.setMatIndex == 2 || rig.setMatIndex == 11;
+        bool isInfectionTagged = rig.setMatIndex is 2 or 11;
         bool isRockTagged      = rig.setMatIndex == 1;
 
         return isInfectionTagged || isRockTagged;

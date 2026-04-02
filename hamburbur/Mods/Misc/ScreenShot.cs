@@ -1,5 +1,6 @@
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Settings;
+using UnityEngine;
 
 namespace hamburbur.Misc;
 
@@ -7,5 +8,5 @@ namespace hamburbur.Misc;
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class ScreenShot : hamburburmod
 {
-    protected override void Pressed() => CameraCapture.Capture(ScreenShotCamera.Instance.CurrentCamera);
+    protected override void Pressed() => CameraCapture.Capture(Camera.main);
 }

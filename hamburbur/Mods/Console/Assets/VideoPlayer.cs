@@ -78,6 +78,7 @@ public class VideoPlayerType : hamburburmod
             { "Shimmy Shimmy ya", "https://files.hamburbur.org/shimmy%20shimmy%20ya%20but%20high%20quality%20(full).mp4"},
             { "You got me jumping like", "https://files.hamburbur.org/YouGotMeJumpingLike.mov"},
             { "Guardians of the Galaxy Vol 2", "https://files.hamburbur.org/Guardians%20of%20the%20Galaxy%20Vol.%202%20(2017)%20(Awafim.tv).mp4" },
+            { "Five Nights at Freddy's 2", "https://files.hamburbur.org/FNaF2_UnityReady.mp4" },
     };
 
     private static readonly List<string> Keys = Videos.Keys.ToList();

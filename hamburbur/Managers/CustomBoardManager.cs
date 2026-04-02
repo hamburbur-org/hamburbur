@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GorillaNetworking;
 using hamburbur.Components;
+using hamburbur.Mods.Settings;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -28,9 +30,9 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
                     ),
                     ["Mountain"] = new BoardInformation(
                             "Mountain/MountainScoreboardAnchor/GorillaScoreBoard",
-                            Vector3.zero,
-                            Vector3.zero,
-                            Vector3.one
+                            new Vector3(-21.2764f, -32.1928f, 0f),
+                            new Vector3(270.2987f, 0.2f,      359.9f),
+                            new Vector3(21.6f,     0.1f,      20.4909f)
                     ),
                     ["Metropolis"] = new BoardInformation(
                             "MetroMain/ComputerArea/Scoreboard/GorillaScoreBoard",
@@ -84,14 +86,15 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
 
     private readonly Dictionary<string, GameObject> objectBoards = new();
 
-    private Renderer computerMonitor;
+    private Renderer   computerMonitor;
+    private GameObject board;
 
     private void Start()
     {
         ReloadAllBoards();
         SceneManager.sceneLoaded += SceneLoaded;
 
-        GameObject board = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        board = GameObject.CreatePrimitive(PrimitiveType.Plane);
         board.transform.parent = GameObject
                                 .Find(
                                          "Environment Objects/LocalObjects_Prefab/Forest/ForestScoreboardAnchor/GorillaScoreBoard")
@@ -102,15 +105,18 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
         board.transform.localScale    = new Vector3(21.2f, 2f, 21.6f);
 
         Destroy(board.GetComponent<Collider>());
-        board.GetComponent<Renderer>().material = Plugin.Instance.MainMaterial;
+        board.GetComponent<Renderer>().material = CustomBoardMaterial.Current;
     }
 
-    private void Update() => computerMonitor.material = Plugin.Instance.MainMaterial;
+    private void Update() => computerMonitor.material = CustomBoardMaterial.Current;
 
-    private void ReloadAllBoards()
+    public void ReloadAllBoards()
     {
         try
         {
+            if (board != null)
+                board.GetComponent<Renderer>().material = CustomBoardMaterial.Current;
+            
             Transform[] stumpChildren = GameObject.Find("Environment Objects/LocalObjects_Prefab/TreeRoom").transform
                                                   .GetComponentsInChildren<Transform>(true)
                                                   .Where(t => t.name.Contains("UnityTempFile")).ToArray();
@@ -119,7 +125,7 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
             {
                 Transform stumpBoard = stumpChildren[StumpLeaderboardIndex];
                 if (stumpBoard != null)
-                    stumpBoard.GetComponent<Renderer>().material = Plugin.Instance.MainMaterial;
+                    stumpBoard.GetComponent<Renderer>().material = CustomBoardMaterial.Current;
             }
 
             foreach (GorillaNetworkJoinTrigger joinTrigger in PhotonNetworkController.Instance.allJoinTriggers)
@@ -129,14 +135,14 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
                     JoinTriggerUI         ui   = joinTrigger.ui;
                     JoinTriggerUITemplate temp = ui.template;
 
-                    temp.ScreenBG_AbandonPartyAndSoloJoin  = Plugin.Instance.MainMaterial;
-                    temp.ScreenBG_AlreadyInRoom            = Plugin.Instance.MainMaterial;
-                    temp.ScreenBG_ChangingGameModeSoloJoin = Plugin.Instance.MainMaterial;
-                    temp.ScreenBG_Error                    = Plugin.Instance.MainMaterial;
-                    temp.ScreenBG_InPrivateRoom            = Plugin.Instance.MainMaterial;
-                    temp.ScreenBG_LeaveRoomAndGroupJoin    = Plugin.Instance.MainMaterial;
-                    temp.ScreenBG_LeaveRoomAndSoloJoin     = Plugin.Instance.MainMaterial;
-                    temp.ScreenBG_NotConnectedSoloJoin     = Plugin.Instance.MainMaterial;
+                    temp.ScreenBG_AbandonPartyAndSoloJoin  = CustomBoardMaterial.Current;
+                    temp.ScreenBG_AlreadyInRoom            = CustomBoardMaterial.Current;
+                    temp.ScreenBG_ChangingGameModeSoloJoin = CustomBoardMaterial.Current;
+                    temp.ScreenBG_Error                    = CustomBoardMaterial.Current;
+                    temp.ScreenBG_InPrivateRoom            = CustomBoardMaterial.Current;
+                    temp.ScreenBG_LeaveRoomAndGroupJoin    = CustomBoardMaterial.Current;
+                    temp.ScreenBG_LeaveRoomAndSoloJoin     = CustomBoardMaterial.Current;
+                    temp.ScreenBG_NotConnectedSoloJoin     = CustomBoardMaterial.Current;
                 }
                 catch
                 {
@@ -152,9 +158,10 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
                                           "Environment Objects/LocalObjects_Prefab/TreeRoom/TreeRoomInteractables/GorillaComputerObject/ComputerUI/monitor/monitorScreen")
                                  .GetComponent<Renderer>();
         }
-        catch
+        catch (Exception e)
         {
-            ReloadAllBoards();
+            //ReloadAllBoards();
+            Debug.LogError(e);
         }
     }
 
@@ -187,7 +194,7 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
             board.transform.localScale    = scale ?? new Vector3(21.6f, 2.4f, 22f);
 
             Destroy(board.GetComponent<Collider>());
-            board.GetComponent<Renderer>().material = Plugin.Instance.MainMaterial;
+            board.GetComponent<Renderer>().material = CustomBoardMaterial.Current;
 
             objectBoards.Add(scene, board);
         }

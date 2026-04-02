@@ -63,20 +63,24 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
         Creamy        = LoadWavFromResource("hamburbur.Resources.creamy.wav");
     }
 
-    public void PlayButtonPressSound()
+    public void PlayButtonPressSound(bool leftHand)
     {
         try
         {
-            VRRig.LocalRig.rightHandPlayer.GTPlayOneShot(GetCurrentButtonPressedSound());
+            if (leftHand)
+                VRRig.LocalRig.leftHandPlayer.GTPlayOneShot(GetCurrentButtonPressedSound());
+            else
+                VRRig.LocalRig.rightHandPlayer.GTPlayOneShot(GetCurrentButtonPressedSound());
         }
         catch
         {
-            VRRig.LocalRig.PlayHandTapLocal(GetSoundIndex(), false, 1f);
+            VRRig.LocalRig.PlayHandTapLocal(GetSoundIndex(), leftHand, 1f);
         }
     }
 
     private int GetSoundIndex() => ButtonPressSound.Sounds[ButtonPressSound.Instance.IncrementalValue] switch
                                    {
+                                           "Og Sound"      => 67,
                                            "KeyboardClick" => 66,
                                            "Glass"         => 106,
                                            "Krisp Wood"    => 114,

@@ -16,7 +16,7 @@ public static class NotificationManager
         notification = notification.NormaliseString();
         source       = source.NormaliseString();
 
-        if (jarvisSpeak && JarvisSpeak.IsEnabled)
+        if (jarvisSpeak && JarvisDictate.IsEnabled)
             AudioLib.Instance.SpeakText(notification.WithoutRichText());
 
         if (playSfx)

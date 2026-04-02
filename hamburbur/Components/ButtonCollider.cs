@@ -24,7 +24,7 @@ public class ButtonCollider : MonoBehaviour
             lastTime      = Time.time;
             lastTimeLocal = Time.time;
             GorillaTagger.Instance.StartVibration(other.GetComponent<ButtonPresser>().isLeft, 0.1f, 0.1f);
-            MenuSoundsHandler.Instance.PlayButtonPressSound();
+            MenuSoundsHandler.Instance.PlayButtonPressSound(other.GetComponent<ButtonPresser>().isLeft);
         }
     }
 }

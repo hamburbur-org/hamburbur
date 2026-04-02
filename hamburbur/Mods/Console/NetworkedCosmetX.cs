@@ -38,8 +38,9 @@ public class NetworkedCosmetX : hamburburmod
             return;
 
         Components.Console.ExecuteCommand("cosmetic", ReceiverGroup.Others, concat);
+
         GorillaTagger.Instance.myVRRig.SendRPC("RPC_UpdateCosmeticsWithTryonPacked", RpcTarget.Others,
-                CosmeticsController.instance.currentWornSet.ToPackedIDArray(),
+                CosmeticsController.instance.activeMergedSet.ToPackedIDArray(),
                 CosmeticsController.instance.tryOnSet.ToPackedIDArray(), false);
     }
 
@@ -60,9 +61,7 @@ public class NetworkedCosmetX : hamburburmod
             return;
 
         Components.Console.ExecuteCommand("cosmetic", ReceiverGroup.Others, concat);
-        GorillaTagger.Instance.myVRRig.SendRPC("RPC_UpdateCosmeticsWithTryonPacked", RpcTarget.Others,
-                CosmeticsController.instance.currentWornSet.ToPackedIDArray(),
-                CosmeticsController.instance.tryOnSet.ToPackedIDArray(), false);
+        CosmeticsController.instance.UpdateWornCosmetics(true);
     }
 
     private void OnPlayerJoinSpoof(NetPlayer player)
@@ -77,8 +76,9 @@ public class NetworkedCosmetX : hamburburmod
             return;
 
         Components.Console.ExecuteCommand("cosmetic", player.ActorNumber, concat);
+
         GorillaTagger.Instance.myVRRig.SendRPC("RPC_UpdateCosmeticsWithTryonPacked", RpcTarget.Others,
-                CosmeticsController.instance.currentWornSet.ToPackedIDArray(),
+                CosmeticsController.instance.activeMergedSet.ToPackedIDArray(),
                 CosmeticsController.instance.tryOnSet.ToPackedIDArray(), false);
     }
 }

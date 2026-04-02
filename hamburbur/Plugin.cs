@@ -387,7 +387,6 @@ public class Plugin : MonoBehaviour
 
                                             ComponentHolder.AddComponent<InputManager>();
                                             ComponentHolder.AddComponent<MenuSoundsHandler>();
-                                            ComponentHolder.AddComponent<CustomBoardManager>();
                                             ComponentHolder.AddComponent<HamburburPromotionManager>();
                                             ComponentHolder.AddComponent<PlayerActivityNotifications>();
                                             ComponentHolder.AddComponent<KeyboardManager>();
@@ -407,6 +406,7 @@ public class Plugin : MonoBehaviour
                                                                     false);
 
                                             ComponentHolder.AddComponent<FileManager>();
+                                            ComponentHolder.AddComponent<CustomBoardManager>();
 
                                             rBall = CreateBall(realRight);
                                             lBall = CreateBall(realLeft);
@@ -416,6 +416,8 @@ public class Plugin : MonoBehaviour
                                                     Recorder.InputSourceType.Factory;
 
                                             GorillaTagger.Instance.myRecorder.RestartRecording();
+
+                                            GTPlayerTransform.UseNetRotation = true;
 
                                             PlayedStartAnim = true;
                                         };

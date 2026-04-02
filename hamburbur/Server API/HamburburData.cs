@@ -39,6 +39,8 @@ public class HamburburData : Singleton<HamburburData>
     private static bool         hasSubscribedToAddingSuperAdminMods;
     private static bool         givenAdminMods;
 
+    public static bool shouldUseSeralythData;
+
     public static          ClientWebSocket SeralythUserCountWebsocket;
     public static readonly string          SeralythServerWebsocket = "wss://menu.seralyth.software";
 
@@ -103,8 +105,8 @@ public class HamburburData : Singleton<HamburburData>
 
                 if (!errored)
                 {
-                    bool    shouldUseSeralythData = true;
-                    JObject seralythData          = null;
+                    shouldUseSeralythData = true;
+                    JObject seralythData = null;
 
                     if (seralythWebRequest.result != UnityWebRequest.Result.Success)
                         shouldUseSeralythData = false;
@@ -158,13 +160,12 @@ public class HamburburData : Singleton<HamburburData>
             }
             else
             {
-                if (ServerStatusNotifications.IsEnabled)
                     NotificationManager.SendNotification(
                             "<color=red>Error</color>",
-                            $"Failed to fetch necessary data from {Constants.HamburburDataUrl}, retrying in 1 minute.",
+                            $"Failed to fetch necessary data from {Constants.HamburburDataUrl}: {hamburburWebRequest.error}",
                             5f,
                             true,
-                            false);
+                            true);
 
                 Debug.LogError($"Failed to fetch data from {Constants.HamburburDataUrl}: {hamburburWebRequest.error}");
             }

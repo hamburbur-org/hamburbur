@@ -6,13 +6,14 @@ using hamburbur.Mod_Backend;
 using hamburbur.Mods.Categories;
 using hamburbur.Mods.Console;
 using hamburbur.Mods.Console.Assets;
+using hamburbur.Mods.Console.Fun;
 using hamburbur.Mods.Credits;
-using hamburbur.Mods.Credits.Contributors;
 using hamburbur.Mods.CustomMaps;
 using hamburbur.Mods.CustomMaps.ChimpCombat;
 using hamburbur.Mods.CustomMaps.CrownTag;
 using hamburbur.Mods.Fun;
 using hamburbur.Mods.Macros;
+using hamburbur.Mods.MapLoader;
 using hamburbur.Mods.MasterClient;
 using hamburbur.Mods.Misc;
 using hamburbur.Mods.Movement;
@@ -50,6 +51,7 @@ public static class Buttons
                     (typeof(SoundBoard), null),
                     (typeof(OP), null),
                     (typeof(MasterClient), null),
+                    (typeof(MapLoader), null),
                     (typeof(CustomMaps), null),
                     (typeof(Scoreboard), null),
                     (typeof(Console), null),
@@ -67,20 +69,21 @@ public static class Buttons
                     (typeof(RightHanded), null),
                     (typeof(DoLoadingScreen), null),
                     (typeof(DisableJarvis), null),
-                    (typeof(JarvisSpeak), null),
+                    (typeof(JarvisDictate), null),
                     (typeof(JarvisNotifications), null),
                     (typeof(ModNotifications), null),
                     (typeof(RoomNotifications), null),
                     (typeof(JarvisVoice), null),
-                    (typeof(GPTJarvis), null),
+                    (typeof(AIJarvis), null),
                     (typeof(AntiReportType), null),
                     (typeof(ScreenShotCamera), null),
                     (typeof(FirstPersonVisuals), null),
                     (typeof(ChangePullStrength), null),
                     (typeof(WallAssistStrength), null),
                     (typeof(SpeedBoostMultiplier), null),
-                    (typeof(ChangeGunType), null),
                     (typeof(NotificationFont), null),
+                    (typeof(BlankGun), null),
+                    (typeof(ChangeGunType), null),
                     (typeof(AlwaysAnimateGun), null),
                     (typeof(ChangePCRig), null),
                     (typeof(FPSChangerHighest), null),
@@ -101,6 +104,8 @@ public static class Buttons
                     (typeof(ChangeMenuSize), null),
                     (typeof(ChangePointerSize), null),
                     (typeof(SlaughterTravisScoot), null),
+                    (typeof(TrackerNotifications), null),
+                    (typeof(CustomBoardMaterial), null),
             ],
 
             ["Movement"] =
@@ -115,6 +120,7 @@ public static class Buttons
                     (typeof(Speedboost), null),
                     (typeof(WallAssist), null),
                     (typeof(Fly), null),
+                    (typeof(NoClipFly), null),
                     (typeof(DrStrangeFly), null),
                     (typeof(BarkFly), null),
                     (typeof(WalkerMovement), null),
@@ -134,11 +140,16 @@ public static class Buttons
 
             ["Room"] =
             [
+                    (typeof(Reauthenticate), null),
                     (typeof(JoinHamburburCode), null),
+                    (typeof(JoinRandom), null),
                     (typeof(JoinPeakest), null),
                     (typeof(NoNetworkTriggers), null),
                     (typeof(CreatePublic), null),
                     (typeof(BadPublicRoomCode), null),
+                    (typeof(USRegion), null),
+                    (typeof(USWRegion), null),
+                    (typeof(EURegion), null),
             ],
 
             ["Macros"] =
@@ -153,6 +164,7 @@ public static class Buttons
                     (typeof(AntiReport), null),
                     (typeof(TugGun), null),
                     (typeof(TagAll), null),
+                    (typeof(TagSelf), null),
                     (typeof(TagAura), null),
                     (typeof(BetterTagAura), null),
                     (typeof(TagFix), null),
@@ -180,7 +192,6 @@ public static class Buttons
                     (typeof(RestartJarvis), null),
                     (typeof(ScreenShot), null),
                     (typeof(PCPressButtons), null),
-                    (typeof(MonkeClick), null),
                     (typeof(HoverboardsAnywhere), null),
                     (typeof(GorillaFriendsGun), null),
                     (typeof(MuteGun), null),
@@ -204,6 +215,7 @@ public static class Buttons
                     (typeof(SpecialCosmeticsCapture), null),
                     (typeof(VIMSpoof), null),
                     (typeof(CompleteQuests), null),
+                    (typeof(FasterRemoveFriendDelay), null),
             ],
 
             ["Rig"] =
@@ -222,6 +234,7 @@ public static class Buttons
                     (typeof(GhostAnimations), null),
                     (typeof(SmoothRig), null),
                     (typeof(CopyMovementGun), null),
+                    (typeof(Beyblade), null),
             ],
 
             ["Fun"] =
@@ -237,7 +250,6 @@ public static class Buttons
                     //(typeof(FuckWithGShirtsNetworking), null),
                     //(typeof(FuckWithGChatBoxNetworking), null),
                     (typeof(ReportGun), null),
-                    (typeof(Beyblade), null),
             ],
 
             ["SoundBoard"] =
@@ -264,6 +276,12 @@ public static class Buttons
                     (typeof(SpamGrayZone), null),
                     (typeof(GrayZone), null),
                     (typeof(SpamTagGun), null),
+            ],
+
+            ["Map Loader"] =
+            [
+                    (typeof(Forest), null),
+                    (typeof(City), null),
             ],
 
             ["Custom Maps"] =
@@ -298,15 +316,11 @@ public static class Buttons
             ["Credits"] =
             [
                     (typeof(ZlothY), null),
+                    (typeof(Kormakur), null),
                     (typeof(GorillaN0t), null),
-                    (typeof(Contributors), null),
-            ],
-
-            ["Contributors"] =
-            [
                     (typeof(baggZ), null),
             ],
-            
+
             ["Console"] =
             [
                     (typeof(RemoveConsoleBlock), null),
@@ -329,11 +343,13 @@ public static class Buttons
                     (typeof(TortureStupidPeople), null),
                     (typeof(NotifyPresence), null),
                     (typeof(DontDestroyOtherConsoleInstances), null),
+                    (typeof(SeralythServerDataNotifier), null),
                     (typeof(ConsoleAssets), null),
             ],
 
             ["Console Assets"] =
             [
+                    (typeof(TheEnd), null),
                     (typeof(LogAssets), null),
                     (typeof(CleanupAssets), null),
                     (typeof(BigAssets), null),
@@ -379,6 +395,7 @@ public static class Buttons
                     (typeof(Television), null),
                     //(typeof(Astronomical), null),
                     (typeof(RatGun), null),
+                    (typeof(Nuke), null),
                     (typeof(ChangeAsset), null),
                     (typeof(ChangeAssetScale), null),
                     (typeof(AssetGun), null),

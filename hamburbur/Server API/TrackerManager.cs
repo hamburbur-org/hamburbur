@@ -6,6 +6,7 @@ using System.Text;
 using GorillaNetworking;
 using hamburbur.GUI;
 using hamburbur.Managers;
+using hamburbur.Mods.Settings;
 using hamburbur.Mods.SoundBoard;
 using hamburbur.Tools;
 using Newtonsoft.Json;
@@ -100,6 +101,11 @@ public class TrackerManager : MonoBehaviour
     {
         JObject trackingData = JObject.Parse(data);
         
+        OnRoomDataReceived?.Invoke(trackingData);
+
+        if (!TrackerNotifications.IsEnabled)
+            return;
+        
         bool   isUserKnown = trackingData["isUserKnown"]?.ToObject<bool>() ?? false;
         string username    = trackingData["username"]?.ToString()          ?? "Someone";
         bool   hasCosmetic = !string.IsNullOrEmpty(trackingData["specialCosmetic"]?.ToString());
@@ -125,8 +131,6 @@ public class TrackerManager : MonoBehaviour
                     $"Yes",
                     "No"));
         }
-
-        OnRoomDataReceived?.Invoke(trackingData);
     }
 
     public static IEnumerator SendPlayerDataSync(Dictionary<string, Dictionary<string, string>> data, string directory,

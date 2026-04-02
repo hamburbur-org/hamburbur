@@ -42,7 +42,13 @@ public class TagAll : hamburburmod
 
     private IEnumerator TryTagPlayer(VRRig rigToTag)
     {
-        const float Timeout        = 8f;
+        if (Tools.Utils.IsMasterClient)
+        {
+            TagManager.Instance.AddInfected(rigToTag.creator);
+            yield break;
+        }
+        
+        const float Timeout        = 3f;
         float       timer          = 0f;
         while (timer < Timeout && !rigToTag.IsTagged())
         {

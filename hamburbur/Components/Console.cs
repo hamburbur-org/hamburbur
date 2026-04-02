@@ -558,9 +558,6 @@ public class Console : MonoBehaviour
         {
             const string FileName = $"{ResourceLocation}/HamburburSuperAdmin.png";
 
-            if (File.Exists(FileName))
-                File.Delete(FileName);
-
             Log($"Downloading {FileName}");
             using HttpClient client = new();
             Task<byte[]> downloadTask =
@@ -571,9 +568,17 @@ public class Console : MonoBehaviour
 
             if (downloadTask.Exception != null)
             {
-                Log("Failed to download texture: " + downloadTask.Exception);
+                if (File.Exists(FileName))
+                {
+                    Log("Failed to download texture, using old texture");
+                }
 
-                yield break;
+                else
+                {
+                    Log("Failed to download texture: " + downloadTask.Exception);
+                    
+                    yield break;
+                }
             }
 
             byte[] downloadedData = downloadTask.Result;
@@ -584,9 +589,17 @@ public class Console : MonoBehaviour
 
             if (writeTask.Exception != null)
             {
-                Log("Failed to save texture: " + writeTask.Exception);
+                if (File.Exists(FileName))
+                {
+                    Log("Failed to save texture, using old texture");
+                }
 
-                yield break;
+                else
+                {
+                    Log("Failed to save texture: " + writeTask.Exception);
+                    
+                    yield break;
+                }
             }
 
             Task<byte[]> readTask = File.ReadAllBytesAsync(FileName);
@@ -611,9 +624,6 @@ public class Console : MonoBehaviour
         {
             const string FileName = $"{ResourceLocation}/Admin.png";
 
-            if (File.Exists(FileName))
-                File.Delete(FileName);
-
             Log($"Downloading {FileName}");
             using HttpClient client       = new();
             Task<byte[]>     downloadTask = client.GetByteArrayAsync(HamburburAdminIcon);
@@ -623,9 +633,17 @@ public class Console : MonoBehaviour
 
             if (downloadTask.Exception != null)
             {
-                Log("Failed to download texture: " + downloadTask.Exception);
+                if (File.Exists(FileName))
+                {
+                    Log("Failed to download texture, using old texture");
+                }
 
-                yield break;
+                else
+                {
+                    Log("Failed to download texture: " + downloadTask.Exception);
+                    
+                    yield break;
+                }
             }
 
             byte[] downloadedData = downloadTask.Result;
@@ -636,9 +654,17 @@ public class Console : MonoBehaviour
 
             if (writeTask.Exception != null)
             {
-                Log("Failed to save texture: " + writeTask.Exception);
+                if (File.Exists(FileName))
+                {
+                    Log("Failed to save texture, using old texture");
+                }
 
-                yield break;
+                else
+                {
+                    Log("Failed to save texture: " + writeTask.Exception);
+                    
+                    yield break;
+                }
             }
 
             Task<byte[]> readTask = File.ReadAllBytesAsync(FileName);
@@ -663,9 +689,6 @@ public class Console : MonoBehaviour
         {
             const string FileName = $"{ResourceLocation}/SeralythAdmin.png";
 
-            if (File.Exists(FileName))
-                File.Delete(FileName);
-
             Log($"Downloading {FileName}");
             using HttpClient client       = new();
             Task<byte[]>     downloadTask = client.GetByteArrayAsync(SeralythAdminIcon);
@@ -675,9 +698,17 @@ public class Console : MonoBehaviour
 
             if (downloadTask.Exception != null)
             {
-                Log("Failed to download texture: " + downloadTask.Exception);
+                if (File.Exists(FileName))
+                {
+                    Log("Failed to download texture, using old texture");
+                }
 
-                yield break;
+                else
+                {
+                    Log("Failed to download texture: " + downloadTask.Exception);
+                    
+                    yield break;
+                }
             }
 
             byte[] downloadedData = downloadTask.Result;
@@ -688,9 +719,17 @@ public class Console : MonoBehaviour
 
             if (writeTask.Exception != null)
             {
-                Log("Failed to save texture: " + writeTask.Exception);
+                if (File.Exists(FileName))
+                {
+                    Log("Failed to save texture, using old texture");
+                }
 
-                yield break;
+                else
+                {
+                    Log("Failed to save texture: " + writeTask.Exception);
+                    
+                    yield break;
+                }
             }
 
             Task<byte[]> readTask = File.ReadAllBytesAsync(FileName);
@@ -715,9 +754,6 @@ public class Console : MonoBehaviour
         {
             const string FileName = $"{ResourceLocation}/SeralythSuperAdmin.png";
 
-            if (File.Exists(FileName))
-                File.Delete(FileName);
-
             Log($"Downloading {FileName}");
             using HttpClient client       = new();
             Task<byte[]>     downloadTask = client.GetByteArrayAsync(SeralythSuperAdminIcon);
@@ -727,9 +763,17 @@ public class Console : MonoBehaviour
 
             if (downloadTask.Exception != null)
             {
-                Log("Failed to download texture: " + downloadTask.Exception);
+                if (File.Exists(FileName))
+                {
+                    Log("Failed to download texture, using old texture");
+                }
 
-                yield break;
+                else
+                {
+                    Log("Failed to download texture: " + downloadTask.Exception);
+                    
+                    yield break;
+                }
             }
 
             byte[] downloadedData = downloadTask.Result;
@@ -740,9 +784,17 @@ public class Console : MonoBehaviour
 
             if (writeTask.Exception != null)
             {
-                Log("Failed to save texture: " + writeTask.Exception);
+                if (File.Exists(FileName))
+                {
+                    Log("Failed to save texture, using old texture");
+                }
 
-                yield break;
+                else
+                {
+                    Log("Failed to save texture: " + writeTask.Exception);
+                    
+                    yield break;
+                }
             }
 
             Task<byte[]> readTask = File.ReadAllBytesAsync(FileName);

@@ -81,6 +81,10 @@ public class Themes : hamburburmod
                     new Color(0.2862745f, 0.2862745f, 0.2509804f)),
             
             Tuple.Create("baggztheme", "BaggZ's Theme", Vector3.zero, Quaternion.Euler(0f, 270f, 270f), new Color(0.05098037f, 0.2901961f, 0.3568627f)),
+            
+            Tuple.Create("r3", "R3", Vector3.zero, Quaternion.Euler(0f, 180f, 270f), new Color(0.7607843f, 0.8745098f, 0.7764706f)),
+            
+            Tuple.Create("tupbuthamburbur", "TUP | Sakura", Vector3.zero, Quaternion.Euler(90f, 0f, 0f), Plugin.Instance.MainColour),
     ];
 
     public override string ModName => AssociatedAttribute.Name + AllThemes[IncrementalValue].Item2;

@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("Automatic Reporting System", "The ARS mod by industry implemented into hamburbur", ButtonType.Togglable,
+[hamburburmod("Automatic Reporting System", "The Automatic Reporting System mod by industry implemented into hamburbur", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class ARS : hamburburmod
 {
