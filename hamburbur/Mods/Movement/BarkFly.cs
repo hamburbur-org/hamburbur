@@ -25,9 +25,13 @@ public class BarkFly : hamburburmod
         Vector3 playerRight = GTPlayer.Instance.bodyCollider.transform.right;
         playerRight.y = 0;
 
+        float bob = 0f;
+        if (BarkFlyBob.IsEnabled && xz == Vector2.zero)
+            bob = Mathf.Sin(Time.time * 2.5f) * 0.03f;
+
         Vector3 velocity =
                 inputDirection.x * playerRight +
-                y                * Vector3.up  +
+                (y + bob)        * Vector3.up  +
                 inputDirection.z * playerForward;
 
         velocity *= ChangeFlySpeed.Instance.IncrementalValue;

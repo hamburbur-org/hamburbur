@@ -1,98 +1,125 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using ExitGames.Client.Photon;
 using hamburbur.Mod_Backend;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 
 namespace hamburbur.Mods.Fun;
 
-[hamburburmod("Fuck With GShirts Networking", "A mod to fuck with gorilla shirts networking because fuck dev",
+[hamburburmod("Fuck With GShirts Networking", "A mod to fuck with gorilla shirts networking",
         ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class FuckWithGShirtsNetworking : hamburburmod
 {
     private const float PropertyChangeCooldown = 0.1f;
+    private const byte  EventCode              = 176;
 
-    private const string GorillaShirtsVersion = "2.4.3";
-    private const string GorillaShirtsKey     = "GorillaShirts";
+    private static readonly int EventId = ComputeHash("GorillaShirts");
 
-    private static readonly List<Dictionary<string, object>> GorillaShirtsPresets =
+    private static readonly List<Hashtable> Presets =
     [
             new()
             {
-                    { "Version", GorillaShirtsVersion },
+                    { "TagOffset", 0 },
                     { "Fallbacks", new[] { 0, } },
                     { "Colours", new[] { -1, } },
                     { "Shirts", new[] { "Custom/Abstracted Gorilla", } },
-                    { "TagOffset", 0 },
             },
 
             new()
             {
-                    { "Version", GorillaShirtsVersion },
+                    { "TagOffset", 0 },
                     { "Fallbacks", new[] { 0, } },
                     { "Colours", new[] { -1, } },
                     { "Shirts", new[] { "Custom/Pibby Gorilla", } },
-                    { "TagOffset", 0 },
             },
 
             new()
             {
-                    { "Version", GorillaShirtsVersion },
+                    { "TagOffset", 0 },
                     { "Fallbacks", new[] { 0, } },
                     { "Colours", new[] { -1, } },
                     { "Shirts", new[] { "Custom/Polygon Figher", } },
-                    { "TagOffset", 0 },
             },
 
             new()
             {
-                    { "Version", GorillaShirtsVersion },
+                    { "TagOffset", 0 },
                     { "Fallbacks", new[] { 0, } },
                     { "Colours", new[] { -1, } },
                     { "Shirts", new[] { "Custom/Scummy Gorilla", } },
-                    { "TagOffset", 0 },
             },
 
             new()
             {
-                    { "Version", GorillaShirtsVersion },
+                    { "TagOffset", 0 },
                     { "Fallbacks", new[] { 0, } },
                     { "Colours", new[] { -1, } },
                     { "Shirts", new[] { "Custom/OJ's StyledSnail", } },
-                    { "TagOffset", 0 },
             },
 
             new()
             {
-                    { "Version", GorillaShirtsVersion },
+                    { "TagOffset", 0 },
                     { "Fallbacks", new[] { 0, } },
                     { "Colours", new[] { -1, } },
                     { "Shirts", new[] { "Custom/Animatronic Suit", } },
-                    { "TagOffset", 0 },
             },
     ];
 
-    private int currentPreset;
-
+    private int   currentPreset;
     private float lastTime;
 
     protected override void Update()
     {
+        if (!PhotonNetwork.InRoom)
+            return;
+
         if (Time.time - lastTime < PropertyChangeCooldown)
             return;
 
         currentPreset++;
-        if (currentPreset >= GorillaShirtsPresets.Count)
+        if (currentPreset >= Presets.Count)
             currentPreset = 0;
 
         lastTime = Time.time;
-        PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable
-                { { GorillaShirtsKey, GorillaShirtsPresets[currentPreset] }, });
+
+        Send(Presets[currentPreset]);
+    }
+
+    private void Send(Hashtable properties)
+    {
+        object[] content = [EventId, properties,];
+
+        RaiseEventOptions options = new()
+        {
+                Receivers = ReceiverGroup.Others,
+        };
+
+        PhotonNetwork.RaiseEvent(EventCode, content, options, SendOptions.SendReliable);
     }
 
     protected override void OnDisable()
     {
-        if (PhotonNetwork.LocalPlayer.CustomProperties.ContainsKey(GorillaShirtsKey))
-            PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable { { GorillaShirtsKey, null }, });
+        if (!PhotonNetwork.InRoom)
+            return;
+
+        Send(new Hashtable
+        {
+                { "Shirts", Array.Empty<string>() },
+                { "Colours", Array.Empty<int>() },
+                { "Fallbacks", Array.Empty<int>() },
+                { "TagOffset", 0 },
+        });
+    }
+
+    private static int ComputeHash(string input)
+    {
+        unchecked
+        {
+            return input.Aggregate(23, (current, c) => current * 31 + c);
+        }
     }
 }

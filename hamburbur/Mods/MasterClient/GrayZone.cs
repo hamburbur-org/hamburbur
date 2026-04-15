@@ -37,6 +37,9 @@ public class GrayZone : hamburburmod
 
     protected override void OnDisable()
     {
+        if (!Tools.Utils.IsMasterClient)
+            return;
+        
         foreach (GreyZoneManager greyZone in greyZones)
         {
             greyZone.greyZoneAmbienceVolume = 1f;

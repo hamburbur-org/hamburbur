@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using BepInEx;
@@ -14,6 +15,7 @@ using hamburbur.Tools;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 namespace hamburbur.Managers;
 
@@ -26,30 +28,31 @@ public class FileManager : Singleton<FileManager>
     public        string SoundsFolder;
     public        string MacrosFolder;
     public        string EventLoggerFolder;
+    public        string PlayerLoggerFolder;
 
     public          List<string> AnsweredPolls       = [];
     public readonly string       RootHamburburFolder = Path.Combine(Paths.GameRootPath, "hamburbur");
 
+    private bool firstTimeUsingHamburbur;
+
     private bool    hasLoadedSavedData;
     private float   lastTime;
     public  JObject SaveData;
-
-    private bool firstTimeUsingHamburbur;
 
     private void Start()
     {
         if (!Directory.Exists(RootHamburburFolder))
         {
             firstTimeUsingHamburbur = true;
-            Debug.Log("Im potentially tutorialing it");
             CoroutineManager.Instance.StartCoroutine(LoadingScreenManager.Instance.TutorialScreen());
-                                 
+
             Directory.CreateDirectory(RootHamburburFolder);
-        }        
-        
-        SoundsFolder      = Path.Combine(RootHamburburFolder, "Sounds");
-        MacrosFolder      = Path.Combine(RootHamburburFolder, "Macros");
-        EventLoggerFolder = Path.Combine(RootHamburburFolder, "Logged Events");
+        }
+
+        SoundsFolder       = Path.Combine(RootHamburburFolder, "Sounds");
+        MacrosFolder       = Path.Combine(RootHamburburFolder, "Macros");
+        EventLoggerFolder  = Path.Combine(RootHamburburFolder, "Logged Events");
+        PlayerLoggerFolder = Path.Combine(RootHamburburFolder, "Logged Players");
 
         if (!Directory.Exists(SoundsFolder))
         {
@@ -62,6 +65,13 @@ public class FileManager : Singleton<FileManager>
 
         if (!Directory.Exists(EventLoggerFolder))
             Directory.CreateDirectory(EventLoggerFolder);
+
+        if (!Directory.Exists(EventLoggerFolder))
+            Directory.CreateDirectory(EventLoggerFolder);
+
+        RigUtils.OnRigCosmeticsLoaded += rig => SavePlayerData(rig.creator.UserId,   rig.creator.SanitizedNickName,
+                                                 rig._playerOwnedCosmetics.Concat(), rig.IsOnSteam(),
+                                                 rig.creator.GetPlayerRef().CustomProperties);
     }
 
     private void Update()
@@ -122,6 +132,7 @@ public class FileManager : Singleton<FileManager>
                 {
                     // ignored
                 }
+
                 CheckVoteEligibility(HamburburData.Data);
 
 #endregion
@@ -249,6 +260,49 @@ public class FileManager : Singleton<FileManager>
         File.Create(fileDir).Dispose();
 
         return fileDir;
+    }
+
+    public void SavePlayerData(string    userId, string username, string rawCosmeticsString, bool isPc,
+                               Hashtable customProperties)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(PlayerLoggerFolder))
+            {
+                PlayerLoggerFolder = Path.Combine(RootHamburburFolder, "Logged Players");
+
+                if (!Directory.Exists(PlayerLoggerFolder))
+                    Directory.CreateDirectory(PlayerLoggerFolder);
+            }
+
+            username = Path.GetInvalidFileNameChars()
+                           .Aggregate(username, (current, c) => current.Replace(c.ToString(), ""));
+
+            string filePath = Path.Combine(PlayerLoggerFolder, $"{username}-{userId}.json");
+
+            Dictionary<string, object> convertedProps = new();
+
+            if (customProperties != null)
+                foreach (DictionaryEntry entry in customProperties)
+                    convertedProps[entry.Key.ToString()] = entry.Value;
+
+            JObject json = new()
+            {
+                    ["userId"]             = userId,
+                    ["name"]               = username,
+                    ["rawCosmeticsString"] = rawCosmeticsString,
+                    ["isPc"]               = isPc,
+                    ["customProperties"]   = JObject.FromObject(convertedProps),
+            };
+
+            File.WriteAllText(filePath, json.ToString());
+
+            Debug.Log($"[FileManager] Saved player data: {filePath}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[FileManager] Failed to save player data: {e}");
+        }
     }
 
     public List<string> GetSoundFiles()

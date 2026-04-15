@@ -22,7 +22,7 @@ public static class AntiCheat
                 $"MonkeAgent reported {susNick} for: {susReason}",
                 8f,
                 true,
-                true);
+                false);
 
         LastLoggedReport[susId] = Time.time + PlayerReportLogCooldown;
 

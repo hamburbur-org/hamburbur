@@ -1,4 +1,3 @@
-/*
 using HarmonyLib;
 using UnityEngine.Video;
 
@@ -9,24 +8,27 @@ public class GTvVodPlayerPatches
 {
     private const string ForcedVideoURL = "https://files.hamburbur.org/hamburbur-screensaver.mp4";
 
+    private static VODPlayer.VODStream.VODStreamChannel DefaultChannel => VODPlayer.VODStream.VODStreamChannel.DEFAULT;
+
     [HarmonyPostfix]
-    [HarmonyPatch("OnEnable")]
+    [HarmonyPatch(nameof(VODPlayer.OnEnable))]
     public static void OnEnable_Postfix(VODPlayer __instance)
     {
         VODPlayer.state = VODPlayer.State.RUNNING;
 
-        __instance.StartVideoPlayback(ForcedVideoURL);
+        __instance.StartVideoPlayback(ForcedVideoURL, DefaultChannel);
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch("Player_loopPointReached")]
+    [HarmonyPatch(nameof(VODPlayer.Player_loopPointReached))]
     public static bool PlayerLoopPointReachedPrefix(VODPlayer __instance, VideoPlayer source)
     {
-        __instance.StartVideoPlayback(ForcedVideoURL);
+        __instance.StartVideoPlayback(ForcedVideoURL, DefaultChannel);
 
         return false;
     }
 
+    // correct way to patch interface method
     [HarmonyPrefix]
     [HarmonyPatch("IGorillaSliceableSimple.SliceUpdate")]
     public static bool SliceUpdatePrefix(VODPlayer __instance)
@@ -37,31 +39,31 @@ public class GTvVodPlayerPatches
         if (__instance.player != null && __instance.player.isPlaying)
             __instance.PositionAudio();
         else if (!__instance.playerBusy)
-            __instance.StartVideoPlayback(ForcedVideoURL);
+            __instance.StartVideoPlayback(ForcedVideoURL, DefaultChannel);
 
         return false;
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch("StartPlayback")]
+    [HarmonyPatch(nameof(VODPlayer.StartPlayback))]
     public static bool StartPlaybackPrefix(VODPlayer __instance, ref VODPlayer.VODStream str, ref double time)
     {
-        __instance.StartVideoPlayback(ForcedVideoURL);
+        __instance.StartVideoPlayback(ForcedVideoURL, DefaultChannel);
 
         return false;
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch("PlayPreviouStream")]
+    [HarmonyPatch(nameof(VODPlayer.PlayPreviouStream))]
     public static bool PlayPreviouStreamPrefix(VODPlayer __instance)
     {
-        __instance.StartVideoPlayback(ForcedVideoURL);
+        __instance.StartVideoPlayback(ForcedVideoURL, DefaultChannel);
 
         return false;
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch("NextStream")]
+    [HarmonyPatch(nameof(VODPlayer.NextStream))]
     public static bool NextStreamPrefix(ref VODPlayer.VODNextStream __result)
     {
         __result = null;
@@ -70,20 +72,19 @@ public class GTvVodPlayerPatches
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch("StartImagePlayback")]
+    [HarmonyPatch(nameof(VODPlayer.StartImagePlayback))]
     public static bool StartImagePlaybackPrefix(VODPlayer __instance)
     {
-        __instance.StartVideoPlayback(ForcedVideoURL);
+        __instance.StartVideoPlayback(ForcedVideoURL, DefaultChannel);
 
         return false;
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch("StartVideoPlayback")]
+    [HarmonyPatch(nameof(VODPlayer.StartVideoPlayback))]
     public static void StartVideoPlaybackPrefix(VODPlayer __instance)
     {
         if (__instance.player != null)
             __instance.player.aspectRatio = VideoAspectRatio.Stretch;
     }
 }
-*/

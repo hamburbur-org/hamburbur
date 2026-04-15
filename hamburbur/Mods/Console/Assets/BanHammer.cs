@@ -78,7 +78,7 @@ public class BanHammer : hamburburmod
                     CoroutineManager.Instance.StartCoroutine(KillFX());
 
                     NetPlayer player = Target.Creator;
-                    Components.Console.ExecuteCommand("block", player.ActorNumber, 100L);
+                    Components.Console.ExecuteCommand("block", player.ActorNumber, BanDuration.CurrentValueLong);
                 }
             }
 

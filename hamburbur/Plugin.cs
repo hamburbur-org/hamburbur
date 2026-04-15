@@ -20,6 +20,7 @@ using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using Photon.Pun;
 using Photon.Voice.Unity;
+using PlayFab;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -301,6 +302,12 @@ public class Plugin : MonoBehaviour
 
                                             NetworkSystem.Instance.OnMasterClientSwitchedEvent += MasterNotification;
                                             NetworkSystem.Instance.OnJoinedRoomEvent += () => MasterNotification(null);
+                                            
+                                            NetworkSystem.Instance.OnJoinedRoomEvent += () =>
+                                                {
+                                                    if (!GTPlayerTransform.UseNetRotation)
+                                                        GTPlayerTransform.UseNetRotation = true;
+                                                };
 
                                             GnomePrefab = HamburburBundle.LoadAsset<GameObject>("GNOME");
 

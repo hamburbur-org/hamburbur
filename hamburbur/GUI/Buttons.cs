@@ -60,21 +60,49 @@ public static class Buttons
 
             ["Settings"] =
             [
+                    (typeof(MenuSettings), null),
+                    (typeof(GunSettings), null),
+                    (typeof(JarvisSettings), null),
+            ],
+
+            ["Menu Settings"] =
+            [
                     (typeof(Themes), null),
+                    (typeof(ToggleMenu), null),
+                    (typeof(ChangeMenuSize), null),
+                    (typeof(ChangePointerSize), null),
+                    (typeof(RightHanded), null),
+                    (typeof(DynamicMenuSounds), null),
+                    (typeof(ButtonPressSound), null),
+                    (typeof(DoLoadingScreen), null),
+                    (typeof(RememberLastCategory), null),
+                    (typeof(CustomBoardMaterial), null),
                     (typeof(ArrayList), null),
                     (typeof(DiscordRpc), null),
-                    (typeof(DynamicMenuSounds), null),
-                    (typeof(DynamicNotificationSounds), null),
-                    (typeof(ButtonPressSound), null),
-                    (typeof(RightHanded), null),
-                    (typeof(DoLoadingScreen), null),
+            ],
+
+            ["Gun Settings"] =
+            [
+                    (typeof(BlankGun), null),
+                    (typeof(ChangeGunType), null),
+                    (typeof(AlwaysAnimateGun), null),
+            ],
+
+            ["Jarvis Settings"] =
+            [
                     (typeof(DisableJarvis), null),
                     (typeof(JarvisDictate), null),
                     (typeof(JarvisNotifications), null),
-                    (typeof(ModNotifications), null),
-                    (typeof(RoomNotifications), null),
                     (typeof(JarvisVoice), null),
                     (typeof(AIJarvis), null),
+            ],
+
+            ["Settings Old"] =
+            [
+                    (typeof(DynamicNotificationSounds), null),
+                    (typeof(ButtonPressSound), null),
+                    (typeof(ModNotifications), null),
+                    (typeof(RoomNotifications), null),
                     (typeof(AntiReportType), null),
                     (typeof(ScreenShotCamera), null),
                     (typeof(FirstPersonVisuals), null),
@@ -82,9 +110,6 @@ public static class Buttons
                     (typeof(WallAssistStrength), null),
                     (typeof(SpeedBoostMultiplier), null),
                     (typeof(NotificationFont), null),
-                    (typeof(BlankGun), null),
-                    (typeof(ChangeGunType), null),
-                    (typeof(AlwaysAnimateGun), null),
                     (typeof(ChangePCRig), null),
                     (typeof(FPSChangerHighest), null),
                     (typeof(FPSChangerLowest), null),
@@ -100,13 +125,9 @@ public static class Buttons
                     (typeof(GravityModifierType), null),
                     (typeof(ChangeFlySpeed), null),
                     (typeof(BlackBackgroundNotifs), null),
-                    (typeof(ToggleMenu), null),
-                    (typeof(ChangeMenuSize), null),
-                    (typeof(ChangePointerSize), null),
                     (typeof(SlaughterTravisScoot), null),
                     (typeof(TrackerNotifications), null),
-                    (typeof(CustomBoardMaterial), null),
-                    (typeof(RememberLastCategory), null),
+                    (typeof(BarkFlyBob), null),
             ],
 
             ["Movement"] =
@@ -248,8 +269,7 @@ public static class Buttons
                     (typeof(HoverboardGun), null),
                     (typeof(Ungrabbable), null),
                     (typeof(PayGornMenuConsoleSpoof), null),
-                    //(typeof(FuckWithGShirtsNetworking), null),
-                    //(typeof(FuckWithGChatBoxNetworking), null),
+                    (typeof(FuckWithGShirtsNetworking), null),
                     (typeof(ReportGun), null),
             ],
 
@@ -359,6 +379,7 @@ public static class Buttons
                     (typeof(SamsungPhone), null),
                     (typeof(SpawnTravisAsset), null),
                     (typeof(SpawnMiniTravisAsset), null),
+                    (typeof(BanDuration), null),
                     (typeof(BanHammer), null),
                     (typeof(FlashTrailType), null),
                     (typeof(SpawnFlashEffectsAsset), null),
@@ -370,15 +391,11 @@ public static class Buttons
                     (typeof(SpawnPistolAsset), null),
                     (typeof(RobloxSword), null),
                     (typeof(SpawnDonationNukeAsset), null),
-                    //(typeof(Btools), null),
                     (typeof(CoinFlip), null),
                     (typeof(DarkFade), null),
                     (typeof(FullBright), null),
                     (typeof(PhysicsGun), null),
                     (typeof(CherryBomb), null),
-                    //(typeof(BrSword), null),
-                    //(typeof(Karambit), null),
-                    //(typeof(LeviathanAxe), null),
                     (typeof(RubberDuckGun), null),
                     (typeof(BurgerGun), null),
                     (typeof(ModMenu), null),
@@ -394,7 +411,6 @@ public static class Buttons
                     (typeof(VideoPlayerType), null),
                     (typeof(VideoPlayer), null),
                     (typeof(Television), null),
-                    //(typeof(Astronomical), null),
                     (typeof(RatGun), null),
                     (typeof(Nuke), null),
                     (typeof(ChangeAsset), null),

@@ -108,22 +108,14 @@ public class PlayerActivityNotifications : MonoBehaviour
 
             if (GorillaFriends.Main.IsFriend(userId))
                 NotificationManager.SendNotification("<color=#1b0d4f>GorillaFriends</color>",
-                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrFriend)}>Friend</color> {player.NickName} has joined your code",
+                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrFriend)}>Friend</color> {player.NickName} is in your code",
                         8f, true, false);
             else if (GorillaFriends.Main.IsVerified(userId))
                 NotificationManager.SendNotification(
                         "<color=#1b0d4f>GorillaFriends</color>",
-                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrVerified)}>Verified</color> player {player.NickName} has joined your code",
+                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrVerified)}>Verified</color> player {player.NickName} is in your code",
                         8f,
                         true,
-                        false);
-            else if (GorillaFriends.Main.HasPlayedWithUsRecently(userId).recentlyPlayed !=
-                     GorillaFriends.Main.eRecentlyPlayed.Never)
-                NotificationManager.SendNotification(
-                        "<color=#1b0d4f>GorillaFriends</color>",
-                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrPlayedRecently)}>Recently played with</color> player {player.NickName} has joined your code",
-                        8f,
-                        false,
                         false);
         }
     }

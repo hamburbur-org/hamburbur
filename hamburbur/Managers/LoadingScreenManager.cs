@@ -64,8 +64,6 @@ public class LoadingScreenManager : Singleton<LoadingScreenManager>
 
     public IEnumerator TutorialScreen()
     {
-        Debug.Log("Im tutorial screening it");
-        
         GTPlayer.Instance.disableMovement = true;
         
         GameObject tutorialScreen = Instantiate(Plugin.Instance.HamburburBundle.LoadAsset<GameObject>("TutorialScreen"));

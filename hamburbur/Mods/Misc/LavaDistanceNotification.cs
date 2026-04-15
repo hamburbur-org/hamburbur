@@ -86,5 +86,5 @@ public class LavaDistanceNotification : hamburburmod
         }
     }
 
-    protected override void OnDisable() => activeNotification.RemoveNotification();
+    protected override void OnDisable() => activeNotification?.RemoveNotification();
 }
