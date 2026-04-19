@@ -1,3 +1,4 @@
+using System;
 using HarmonyLib;
 using UnityEngine.Video;
 
@@ -15,7 +16,6 @@ public class GTvVodPlayerPatches
     public static void OnEnable_Postfix(VODPlayer __instance)
     {
         VODPlayer.state = VODPlayer.State.RUNNING;
-
         __instance.StartVideoPlayback(ForcedVideoURL, DefaultChannel);
     }
 
@@ -28,7 +28,6 @@ public class GTvVodPlayerPatches
         return false;
     }
 
-    // correct way to patch interface method
     [HarmonyPrefix]
     [HarmonyPatch("IGorillaSliceableSimple.SliceUpdate")]
     public static bool SliceUpdatePrefix(VODPlayer __instance)
@@ -63,10 +62,10 @@ public class GTvVodPlayerPatches
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(VODPlayer.NextStream))]
-    public static bool NextStreamPrefix(ref VODPlayer.VODNextStream __result)
+    [HarmonyPatch(typeof(VODPlayer), nameof(VODPlayer.GetNextStream), typeof(VODPlayer.VODStream.VODStreamChannel[]))]
+    public static bool GetNextStreamPrefix(ref VODPlayer.VODNextStreamData __result)
     {
-        __result = null;
+        __result = new VODPlayer.VODNextStreamData("", DateTime.MinValue);
 
         return false;
     }
