@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Scoreboard;
 
-[hamburburmod(                "Mute", "Mute the selected player", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                nameof(Mute), "Mute the selected player", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class Mute : hamburburmod
 {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using hamburbur.GUI;
 using hamburbur.Managers;
 using hamburbur.Mods.Settings;
@@ -9,204 +8,255 @@ using UnityEngine;
 
 namespace hamburbur.Mod_Backend;
 
+// ReSharper disable once InconsistentNaming
 public class hamburburmod
 {
-    public         hamburburmodAttribute AssociatedAttribute;
-    public         GameObject            AssociatedGUIButton;
-    public         bool                  Enabled;
-    public         int                   IncrementalValue;
-    public         bool                  LoadSavedDataWhenStartCalled;
-    public         string                PreferencesKey   => AssociatedAttribute.Name;
-    public virtual string                ModName          => AssociatedAttribute.Name;
-    public virtual Type[]                Dependencies     => [];
-    public virtual Type[]                IncompatibleMods => [];
-    
+    public hamburburmodAttribute AssociatedAttribute;
+    public GameObject AssociatedGUIButton;
+
+    public bool Enabled { get; private set; }
+    public int IncrementalValue;
+    public bool LoadSavedDataWhenStartCalled;
+
+    public            string PreferencesKey   => AssociatedAttribute?.Name ?? GetType().Name;
+    public virtual    string ModName          => AssociatedAttribute.Name;
+    protected virtual Type[] Dependencies     => [];
+    protected virtual Type[] IncompatibleMods => [];
+
+    internal ModTickPhase TickPhases { get; private set; }
+
     private readonly HashSet<Type> modsDisabledByCompatibilitySystem = [];
-    private readonly HashSet<Type> modsEnabledByCompatibilitySystem  = [];
+    private readonly HashSet<Type> modsEnabledByCompatibilitySystem = [];
+
+    private bool hasStarted;
+    private ModSaveInfo pendingSavedData;
 
     public void InvokeStart()
     {
-        Enabled          = AssociatedAttribute.EnabledType is EnabledType.AlwaysEnabled or EnabledType.Enabled;
-        IncrementalValue = AssociatedAttribute.IncrementalValue;
+        if (hasStarted)
+            return;
 
-        if (LoadSavedDataWhenStartCalled)
-            LoadSavedData(ButtonHandler.SavedModInfo.TryGetValue(PreferencesKey, out ModSaveInfo modSaveInfo)
-                                  ? modSaveInfo
-                                  : new ModSaveInfo
-                                  {
-                                          Enabled = Enabled, IncrementalValue = IncrementalValue,
-                                  });
+        if (AssociatedAttribute == null)
+        {
+            Debug.LogError($"[hamburbur] Missing hamburburmodAttribute on {GetType().FullName}");
+            return;
+        }
+
+        Enabled = false;
+        IncrementalValue = AssociatedAttribute.IncrementalValue;
+        TickPhases = ModRuntime.GetTickPhases(GetType());
 
         Start();
 
-        if (Enabled)
-            OnEnable();
-    }
+        hasStarted = true;
 
-    protected virtual void Start()       { }
-    protected virtual void OnEnable()    { }
-    protected virtual void OnDisable()   { }
-    protected virtual void Update()      { }
-    protected virtual void LateUpdate()  { }
-    protected virtual void FixedUpdate() { }
-    protected virtual void OnGUI()       { }
-    protected virtual void Pressed()     { }
-    protected virtual void Increment()   { }
-    protected virtual void Decrement()   { }
+        if (LoadSavedDataWhenStartCalled &&
+            ButtonHandler.SavedModInfo.TryGetValue(PreferencesKey, out ModSaveInfo savedModInfo))
+        {
+            pendingSavedData = savedModInfo;
+        }
+
+        if (pendingSavedData != null)
+        {
+            LoadSavedData(pendingSavedData);
+            pendingSavedData = null;
+        }
+        else
+        {
+            SetEnabled(GetDefaultEnabledState(), false, false);
+        }
+    }
 
     public void LoadSavedData(ModSaveInfo savedModInfo)
     {
-        if (AssociatedAttribute.EnabledType is EnabledType.AlwaysEnabled or EnabledType.AlwaysDisabled &&
-            AssociatedAttribute.ButtonType == ButtonType.Togglable)
+        if (savedModInfo == null)
             return;
 
-        if (Enabled != savedModInfo.Enabled && AssociatedAttribute.ButtonType == ButtonType.Togglable)
-            Toggle(ButtonState.Normal, false, false);
+        if (!hasStarted)
+        {
+            pendingSavedData = savedModInfo;
+            return;
+        }
 
         IncrementalValue = savedModInfo.IncrementalValue;
         OnIncrementalStateLoaded();
+
+        if (!CanLoadSavedEnabledState())
+            return;
+
+        SetEnabled(savedModInfo.Enabled, false, false);
     }
 
-    protected virtual void OnIncrementalStateLoaded() { }
-
-    public void Toggle(ButtonState buttonState, bool playNotification = true,
-                       bool        careAboutDependenciesAndIncompatibleMods = true)
+    public void Toggle(
+            ButtonState buttonState,
+            bool playNotification = true,
+            bool careAboutDependenciesAndIncompatibleMods = true)
     {
         switch (AssociatedAttribute.ButtonType)
         {
             case ButtonType.Togglable:
-            {
-                Enabled = !Enabled;
-
-                if (careAboutDependenciesAndIncompatibleMods)
-                    foreach ((Type modType, hamburburmod mod) in Buttons.Categories.Values.SelectMany(x => x))
-                    {
-                        if (mod.AssociatedAttribute.ButtonType != ButtonType.Togglable) 
-                            continue;
-
-                        switch (Enabled)
-                        {
-                            case true when (Dependencies?.Contains(modType) == true && !mod.Enabled):
-                                mod.Toggle(ButtonState.Normal, false, false);
-                                modsEnabledByCompatibilitySystem.Add(modType);
-
-                                break;
-
-                            case false when (Dependencies?.Contains(modType) == true && modsEnabledByCompatibilitySystem.Contains(modType)):
-                                mod.Toggle(ButtonState.Normal, false, false);
-                                modsEnabledByCompatibilitySystem.Remove(modType);
-
-                                break;
-                        }
-
-                        switch (Enabled)
-                        {
-                            case true when (IncompatibleMods?.Contains(modType) == true && mod.Enabled):
-                                mod.Toggle(ButtonState.Normal, false, false);
-                                modsDisabledByCompatibilitySystem.Add(modType);
-
-                                break;
-
-                            case false when (IncompatibleMods?.Contains(modType) == true && modsDisabledByCompatibilitySystem.Contains(modType)):
-                                mod.Toggle(ButtonState.Normal, false, false);
-                                modsDisabledByCompatibilitySystem.Remove(modType);
-
-                                break;
-                        }
-                    }
-
-                if (Enabled)
-                {
-                    OnEnable();
-                    Tools.Utils.OnUpdate      += Update;
-                    Tools.Utils.OnLateUpdate  += LateUpdate;
-                    Tools.Utils.OnFixedUpdate += FixedUpdate;
-                    Tools.Utils.OnOnGUI       += OnGUI;
-                }
-                else
-                {
-                    OnDisable();
-                    Tools.Utils.OnUpdate      -= Update;
-                    Tools.Utils.OnLateUpdate  -= LateUpdate;
-                    Tools.Utils.OnFixedUpdate -= FixedUpdate;
-                    Tools.Utils.OnOnGUI       -= OnGUI;
-                }
-
-                if (playNotification && ModNotifications.Instance.Enabled)
-                    NotificationManager.SendNotification(
-                            Enabled
-                                    ? "<color=green>Enabled</color>"
-                                    : "<color=red>Disabled</color>",
-                            Enabled
-                                    ? $"{ModName}: {AssociatedAttribute.Description}"
-                                    : $"{ModName}",
-                            5f,
-                            false,
-                            false);
-
+                SetEnabled(!Enabled, playNotification, careAboutDependenciesAndIncompatibleMods);
                 break;
-            }
 
             case ButtonType.Category:
             case ButtonType.Fixed:
-            {
                 Pressed();
-
-                if (playNotification && ModNotifications.Instance.Enabled)
-                    NotificationManager.SendNotification(
-                            "<color=yellow>Pressed</color>",
-                            $"{ModName}: {AssociatedAttribute.Description}",
-                            5f,
-                            false,
-                            false);
-
+                Notify("Pressed", "yellow", playNotification);
                 break;
-            }
 
             case ButtonType.Incremental:
-            {
-                switch (buttonState)
-                {
-                    case ButtonState.Increment:
-                        Increment();
-
-                        if (playNotification && ModNotifications.Instance.Enabled)
-                            NotificationManager.SendNotification(
-                                    "<color=yellow>Incremented</color>",
-                                    $"{ModName}: {AssociatedAttribute.Description}",
-                                    5f,
-                                    false,
-                                    false);
-
-                        break;
-
-                    case ButtonState.Decrement:
-                        Decrement();
-
-                        if (playNotification && ModNotifications.Instance.Enabled)
-                            NotificationManager.SendNotification(
-                                    "<color=yellow>Decremented</color>",
-                                    $"{ModName}: {AssociatedAttribute.Description}",
-                                    5f,
-                                    false,
-                                    false);
-
-                        break;
-
-                    case ButtonState.Normal:
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(buttonState), buttonState, null);
-                }
-
+                HandleIncrementalButton(buttonState, playNotification);
                 break;
-            }
 
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
-        ButtonHandler.Instance.UpdateButtons();
+        ButtonHandler.Instance?.UpdateButtons();
     }
+
+    private void SetEnabled(
+            bool enabled,
+            bool playNotification = true,
+            bool careAboutDependenciesAndIncompatibleMods = true)
+    {
+        if (AssociatedAttribute.ButtonType != ButtonType.Togglable)
+            return;
+
+        if (Enabled == enabled)
+            return;
+
+        switch (enabled)
+        {
+            case true when careAboutDependenciesAndIncompatibleMods:
+                EnableRequiredMods();
+
+                break;
+
+            case false when careAboutDependenciesAndIncompatibleMods:
+                RestoreCompatibilityChanges();
+
+                break;
+        }
+
+        Enabled = enabled;
+
+        if (Enabled)
+        {
+            OnEnable();
+            ModRuntime.Register(this);
+        }
+        else
+        {
+            ModRuntime.Unregister(this);
+            OnDisable();
+        }
+
+        Notify(
+                Enabled ? "Enabled" : "Disabled",
+                Enabled ? "green" : "red",
+                playNotification);
+    }
+
+    private void HandleIncrementalButton(ButtonState buttonState, bool playNotification)
+    {
+        switch (buttonState)
+        {
+            case ButtonState.Increment:
+                Increment();
+                Notify("Incremented", "yellow", playNotification);
+                break;
+
+            case ButtonState.Decrement:
+                Decrement();
+                Notify("Decremented", "yellow", playNotification);
+                break;
+
+            case ButtonState.Normal:
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(buttonState), buttonState, null);
+        }
+    }
+
+    private void EnableRequiredMods()
+    {
+        foreach (Type dependencyType in Dependencies)
+        {
+            if (!ModRegistry.TryGet(dependencyType, out hamburburmod mod))
+                continue;
+
+            if (mod.Enabled)
+                continue;
+
+            mod.SetEnabled(true, false, false);
+            modsEnabledByCompatibilitySystem.Add(dependencyType);
+        }
+
+        foreach (Type incompatibleType in IncompatibleMods)
+        {
+            if (!ModRegistry.TryGet(incompatibleType, out hamburburmod mod))
+                continue;
+
+            if (!mod.Enabled)
+                continue;
+
+            mod.SetEnabled(false, false, false);
+            modsDisabledByCompatibilitySystem.Add(incompatibleType);
+        }
+    }
+
+    private void RestoreCompatibilityChanges()
+    {
+        foreach (Type dependencyType in modsEnabledByCompatibilitySystem)
+            if (ModRegistry.TryGet(dependencyType, out hamburburmod mod))
+                mod.SetEnabled(false, false, false);
+
+        foreach (Type incompatibleType in modsDisabledByCompatibilitySystem)
+            if (ModRegistry.TryGet(incompatibleType, out hamburburmod mod))
+                mod.SetEnabled(true, false, false);
+
+        modsEnabledByCompatibilitySystem.Clear();
+        modsDisabledByCompatibilitySystem.Clear();
+    }
+
+    private bool GetDefaultEnabledState() =>
+            AssociatedAttribute.EnabledType is EnabledType.Enabled or EnabledType.AlwaysEnabled;
+
+    private bool CanLoadSavedEnabledState() =>
+            AssociatedAttribute.ButtonType == ButtonType.Togglable &&
+            AssociatedAttribute.EnabledType is not EnabledType.AlwaysEnabled and not EnabledType.AlwaysDisabled;
+
+    private void Notify(string state, string colour, bool playNotification)
+    {
+        if (!playNotification || ModNotifications.Instance?.Enabled != true)
+            return;
+
+        NotificationManager.SendNotification(
+                $"<color={colour}>{state}</color>",
+                state == "Disabled"
+                        ? ModName
+                        : $"{ModName}: {AssociatedAttribute.Description}",
+                5f,
+                false,
+                false);
+    }
+
+    protected virtual void Start() { }
+    protected virtual void OnEnable() { }
+    protected virtual void OnDisable() { }
+    protected virtual void Update() { }
+    protected virtual void LateUpdate() { }
+    protected virtual void FixedUpdate() { }
+    protected virtual void OnGUI() { }
+    protected virtual void Pressed() { }
+    protected virtual void Increment() { }
+    protected virtual void Decrement() { }
+    protected virtual void OnIncrementalStateLoaded() { }
+
+    internal void InvokeUpdate() => Update();
+    internal void InvokeLateUpdate() => LateUpdate();
+    internal void InvokeFixedUpdate() => FixedUpdate();
+    internal void InvokeOnGUI() => OnGUI();
 }

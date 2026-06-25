@@ -6,24 +6,20 @@ using System.Net.Http;
 using System.Reflection;
 using GorillaLocomotion;
 using GorillaNetworking;
-using hamburbur.Components;
 using hamburbur.GUI;
 using hamburbur.Libs;
 using hamburbur.Managers;
 using hamburbur.Misc;
 using hamburbur.Mod_Backend;
-using hamburbur.Mods.Scoreboard;
 using hamburbur.Mods.Settings;
-using hamburbur.Server_API;
+using hamburbur.Server_Api_Communicator;
 using hamburbur.Tools;
 using HarmonyLib;
 using Newtonsoft.Json.Linq;
 using Photon.Pun;
 using Photon.Voice.Unity;
-using PlayFab;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Video;
 
 namespace hamburbur;
@@ -45,7 +41,10 @@ public class Plugin : MonoBehaviour
     public readonly Quaternion MenuLocalRotationRight = Quaternion.Euler(315f, 0f, 0f);
 
     public readonly Color SecondaryColour = new(0.03906193f, 0.0252314f, 0.1981132f);
-    private         int   amountOfMods;
+
+    public readonly Dictionary<string, string> SpecialCosmetics         = new();
+    public readonly Dictionary<string, string> SpecialCosmeticsDetailed = new();
+    private         int                        amountOfMods;
 
     private TextMeshPro cocHeadingText;
     private TextMeshPro cocText;
@@ -60,17 +59,10 @@ public class Plugin : MonoBehaviour
     private AudioSource menuAudioSource;
     private TextMeshPro motdBodyText;
 
-    private TextMeshPro motdHeadingText;
+    private       TextMeshPro motdHeadingText;
+    private       bool        versionOkay;
+    public static Plugin      Instance { get; private set; }
 
-    private GameObject rBall, lBall;
-
-    public        Dictionary<string, string> specialCosmetics         = new();
-    public        Dictionary<string, string> specialCosmeticsDetailed = new();
-    private       GameObject                 stumpObj;
-    private       bool                       versionOkay;
-    public static Plugin                     Instance { get; private set; }
-
-    public Shader      UberShader      { get; private set; }
     public AssetBundle HamburburBundle { get; private set; }
     public GameObject  ComponentHolder { get; private set; }
     public AudioClip   HamburgerSound  { get; private set; }
@@ -83,8 +75,7 @@ public class Plugin : MonoBehaviour
     public Camera FirstPersonCamera { get; private set; }
     public Camera ThirdPersonCamera { get; private set; }
 
-    public GameObject GnomePrefab            { get; private set; }
-    public GameObject ConsoleIndicatorPrefab { get; private set; }
+    public GameObject GnomePrefab { get; private set; }
 
     public bool IsSteam { get; private set; }
 
@@ -155,8 +146,9 @@ public class Plugin : MonoBehaviour
             cocText.lineSpacing         = LineSpacing;
         }
 
-        if (motdBodyText != null && motdBodyText.text != HamburburData.Data["messageOfTheDayText"].ToObject<string>())
-            motdBodyText.text = HamburburData.Data["messageOfTheDayText"].ToObject<string>();
+        if (motdBodyText      != null &&
+            motdBodyText.text != HamburburOrgData.Data["messageOfTheDayText"].ToObject<string>())
+            motdBodyText.text = HamburburOrgData.Data["messageOfTheDayText"].ToObject<string>();
 
         Transform realRight = Tools.Utils.RealRightController;
         Transform realLeft  = Tools.Utils.RealLeftController;
@@ -181,13 +173,6 @@ public class Plugin : MonoBehaviour
                             GTPlayer.Instance.leftHand.handRotOffset;
 
         realLeft.localScale = gtPlayerControllerScaleThingy * Vector3.one;
-
-        bool isRigEnabled = VRRig.LocalRig.enabled;
-        rBall.SetActive(!isRigEnabled);
-        lBall.SetActive(!isRigEnabled);
-        if (!isRigEnabled && Tools.Utils.InVR)
-            GorillaTagger.Instance.rightHandTriggerCollider.transform.position =
-                    MenuHandler.Instance.ButtonPresser.transform.position;
     }
 
     private void OnGameInitialized()
@@ -195,7 +180,7 @@ public class Plugin : MonoBehaviour
         Debug.Log(Constants.HamburgerAscii + Constants.HamburburTextAscii + Constants.PluginDescription);
 
         PlatformTagJoin platform =
-                (PlatformTagJoin)Traverse.Create(PlayFabAuthenticator.instance).Field("platform").GetValue();
+                (PlatformTagJoin)Traverse.Create(PlayFabAuthenticator.instance).Field(nameof(platform)).GetValue();
 
         IsSteam = platform.PlatformTag.Contains("Steam");
 
@@ -205,11 +190,8 @@ public class Plugin : MonoBehaviour
         HamburburBundle = AssetBundle.LoadFromStream(bundleStream);
         bundleStream?.Close();
 
-        // ReSharper disable once ShaderLabShaderReferenceNotResolved
-        UberShader = Shader.Find("GorillaTag/UberShader");
-
-        MainMaterial      = new Material(UberShader) { color = MainColour, };
-        SecondaryMaterial = new Material(UberShader) { color = SecondaryColour, };
+        MainMaterial      = new Material(Shaders.UberShader) { color = MainColour, };
+        SecondaryMaterial = new Material(Shaders.UberShader) { color = SecondaryColour, };
 
         ComponentHolder = new GameObject("hamburbur components");
         ComponentHolder.AddComponent<CoroutineManager>();
@@ -225,7 +207,7 @@ public class Plugin : MonoBehaviour
         ErrorIcon     = LoadEmbeddedImage("hamburbur.Resources.error.png");
 
         FirstPersonCamera = GTPlayer.Instance.mainCamera;
-        ThirdPersonCamera = GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0).GetComponent<Camera>();
+        ThirdPersonCamera = GorillaTagger.Instance.thirdPersonCamera?.transform.GetChild(0)?.GetComponent<Camera>();
 
         if (PlayerPrefsExtensions.GetBool(DoLoadingScreen.PlayerPrefsKey, true))
         {
@@ -243,191 +225,188 @@ public class Plugin : MonoBehaviour
     {
         bool hasDoneDelayedStart = false;
 
-        ComponentHolder.AddComponent<HamburburData>();
-        HamburburData.OnDataReloaded += data =>
-                                        {
-                                            JObject cosmetics = data["specialCosmetics"]!
-                                                   .ToObject<JObject>();
+        ComponentHolder.AddComponent<HamburburOrgData>();
+        HamburburOrgData.OnDataReloaded += data =>
+                                           {
+                                               JObject cosmetics = data["specialCosmetics"]!
+                                                      .ToObject<JObject>();
+                                               
+                                               foreach (JProperty prop in cosmetics.Properties())
+                                                   SpecialCosmetics[prop.Name] = prop.Value.ToString();
+                                               
+                                               JObject cosmeticsDetailed = data["specialCosmeticsDetailed"]!
+                                                      .ToObject<JObject>();
+                                               
+                                               foreach (JProperty prop in cosmeticsDetailed.Properties())
+                                                   SpecialCosmeticsDetailed[prop.Name] = prop.Value.ToString();
 
-                                            foreach (JProperty prop in cosmetics.Properties())
-                                                specialCosmetics[prop.Name] = prop.Value.ToString();
+                                               if (!Constants.BetaBuild)
+                                               {
+                                                   string hamburburStatus = (string)data[nameof(hamburburStatus)];
+                                                   Version latestMenuVersion =
+                                                           new((string)data[nameof(latestMenuVersion)] ?? string.Empty);
 
-                                            JObject cosmeticsDetailed = data["specialCosmeticsDetailed"]!
-                                                   .ToObject<JObject>();
+                                                   Version minimumMenuVersion =
+                                                           new((string)data[nameof(minimumMenuVersion)] ??
+                                                               string.Empty);
 
-                                            foreach (JProperty prop in cosmeticsDetailed.Properties())
-                                                specialCosmeticsDetailed[prop.Name] = prop.Value.ToString();
+                                                   Version currentVersion = new(Constants.PluginVersion);
 
-                                            if (!Constants.BetaBuild)
-                                            {
-                                                string hamburburStatus = (string)data["hamburburStatus"];
-                                                Version latestMenuVersion =
-                                                        new((string)data["latestMenuVersion"] ?? string.Empty);
+                                                   if (hamburburStatus != "Undetected")
+                                                   {
+                                                       HamburburPromotionManager.Instance.CreateStumpStatus(
+                                                               $"Hamburbur currently isn't available.\nReason: {hamburburStatus}",
+                                                               ErrorIcon);
 
-                                                Version minimumMenuVersion =
-                                                        new((string)data["minimumMenuVersion"] ?? string.Empty);
+                                                       return;
+                                                   }
 
-                                                Version currentVersion = new(Constants.PluginVersion);
+                                                   if (currentVersion < minimumMenuVersion)
+                                                   {
+                                                       HamburburPromotionManager.Instance.CreateStumpStatus(
+                                                               $"You are using an outdated version of hamburbur.\nLatest version: {data[nameof(latestMenuVersion)]}\nMinimum version: {data[nameof(minimumMenuVersion)]}\nCurrent version: {Constants.PluginVersion}",
+                                                               HamburburIcon);
 
-                                                if (hamburburStatus != "Undetected")
-                                                {
-                                                    CreateStumpStatus(
-                                                            $"Hamburbur currently isn't available.\nReason: {hamburburStatus}",
-                                                            ErrorIcon);
+                                                       return;
+                                                   }
 
-                                                    return;
-                                                }
+                                                   if (currentVersion < latestMenuVersion)
+                                                       HamburburPromotionManager.Instance.CreateStumpStatus(
+                                                               $"You are not on the latest version of hamburbur ({data[nameof(latestMenuVersion)]})\nYou are currently on version {Constants.PluginVersion}. We recommend updating.",
+                                                               HamburburIcon);
+                                               }
+                                               
+                                               versionOkay = true;
 
-                                                if (currentVersion < minimumMenuVersion)
-                                                {
-                                                    CreateStumpStatus(
-                                                            $"You are using an outdated version of hamburbur.\nLatest version: {data["latestMenuVersion"]}\nMinimum version: {data["minimumMenuVersion"]}\nCurrent version: {Constants.PluginVersion}",
-                                                            HamburburIcon);
+                                               if (hasDoneDelayedStart)
+                                                   return;
 
-                                                    return;
-                                                }
+                                               hasDoneDelayedStart = true;
+                                               
+                                               NetworkSystem.Instance.OnMasterClientSwitchedEvent += MasterNotification;
+                                               NetworkSystem.Instance.OnJoinedRoomEvent +=
+                                                       () => MasterNotification(null);
+                                               
+                                               GnomePrefab = HamburburBundle.LoadAsset<GameObject>("GNOME");
 
-                                                if (currentVersion < latestMenuVersion)
-                                                    CreateStumpStatus(
-                                                            $"You are not on the latest version of hamburbur ({data["latestMenuVersion"]})\nYou are currently on version {Constants.PluginVersion}. We recommend updating.",
-                                                            HamburburIcon);
-                                            }
+                                               if (GnomePrefab.TryGetComponent(out Renderer gnomeRenderer))
+                                               {
+                                                   gnomeRenderer.material.shader = Shaders.UberShader;
+                                                   gnomeRenderer.material.EnableKeyword("_USE_TEXTURE");
+                                               }
+                                               
+                                               using HttpClient httpClient = new();
 
-                                            versionOkay = true;
+                                               HttpResponseMessage beeMovieScriptValResponse = httpClient
+                                                      .GetAsync(
+                                                               "https://gist.githubusercontent.com/MattIPv4/045239bc27b16b2bcf7a3a9a4648c08a/raw/2411e31293a35f3e565f61e7490a806d4720ea7e/bee%2520movie%2520script")
+                                                      .Result;
 
-                                            if (hasDoneDelayedStart)
-                                                return;
+                                               using Stream beeMovieScriptValStream = beeMovieScriptValResponse.Content
+                                                      .ReadAsStreamAsync().Result;
 
-                                            hasDoneDelayedStart = true;
+                                               using StreamReader beeMovieScriptValReader =
+                                                       new(beeMovieScriptValStream);
 
-                                            NetworkSystem.Instance.OnMasterClientSwitchedEvent += MasterNotification;
-                                            NetworkSystem.Instance.OnJoinedRoomEvent += () => MasterNotification(null);
-                                            
-                                            NetworkSystem.Instance.OnJoinedRoomEvent += () =>
-                                                {
-                                                    if (!GTPlayerTransform.UseNetRotation)
-                                                        GTPlayerTransform.UseNetRotation = true;
-                                                };
-
-                                            GnomePrefab = HamburburBundle.LoadAsset<GameObject>("GNOME");
-
-                                            if (GnomePrefab.TryGetComponent(out Renderer gnomeRenderer))
-                                            {
-                                                gnomeRenderer.material.shader = UberShader;
-                                                gnomeRenderer.material.EnableKeyword("_USE_TEXTURE");
-                                            }
-
-                                            using HttpClient httpClient = new();
-
-                                            HttpResponseMessage beeMovieScriptValResponse = httpClient
-                                                   .GetAsync(
-                                                            "https://gist.githubusercontent.com/MattIPv4/045239bc27b16b2bcf7a3a9a4648c08a/raw/2411e31293a35f3e565f61e7490a806d4720ea7e/bee%2520movie%2520script")
-                                                   .Result;
-
-                                            using Stream beeMovieScriptValStream = beeMovieScriptValResponse.Content
-                                                   .ReadAsStreamAsync().Result;
-
-                                            using StreamReader beeMovieScriptValReader = new(beeMovieScriptValStream);
-                                            BeeMovieScript = beeMovieScriptValReader.ReadToEnd().Trim();
-
-                                            motdBodyText = GameObject
-                                                          .Find(
-                                                                   "Environment Objects/LocalObjects_Prefab/TreeRoom/motdBodyText")
-                                                          .GetComponent<TextMeshPro>();
-
-                                            motdBodyText.GetComponent<PlayFabTitleDataTextDisplay>().enabled = false;
-                                            motdBodyText.text = (string)data["messageOfTheDayText"];
-                                            motdHeadingText = GameObject
+                                               BeeMovieScript = beeMovieScriptValReader.ReadToEnd().Trim();
+                                               
+                                               motdBodyText = GameObject
                                                              .Find(
-                                                                      "Environment Objects/LocalObjects_Prefab/TreeRoom/motdHeadingText")
+                                                                      "Environment Objects/LocalObjects_Prefab/TreeRoom/motdBodyText")
                                                              .GetComponent<TextMeshPro>();
 
-                                            motdHeadingText.text = "Thank you for using hamburbur!";
+                                               motdBodyText.GetComponent<PlayFabTitleDataTextDisplay>().enabled = false;
+                                               motdBodyText.text = (string)data["messageOfTheDayText"];
+                                               motdHeadingText = GameObject
+                                                                .Find(
+                                                                         "Environment Objects/LocalObjects_Prefab/TreeRoom/motdHeadingText")
+                                                                .GetComponent<TextMeshPro>();
 
-                                            cocHeadingText = GameObject
-                                                            .Find(
-                                                                     "Environment Objects/LocalObjects_Prefab/TreeRoom/CodeOfConductHeadingText")
-                                                            .GetComponent<TextMeshPro>();
+                                               motdHeadingText.text = "Thank you for using hamburbur!";
+                                               
+                                               cocHeadingText = GameObject
+                                                               .Find(
+                                                                        "Environment Objects/LocalObjects_Prefab/TreeRoom/CodeOfConductHeadingText")
+                                                               .GetComponent<TextMeshPro>();
 
-                                            cocHeadingText.text     = "<size=175%><b>hamburbur menu</b></size>";
-                                            cocHeadingText.richText = true;
-                                            cocText = GameObject
-                                                     .Find(
-                                                              "Environment Objects/LocalObjects_Prefab/TreeRoom/COCBodyText_TitleData")
-                                                     .GetComponent<TextMeshPro>();
+                                               cocHeadingText.text     = "<size=175%><b>hamburbur menu</b></size>";
+                                               cocHeadingText.richText = true;
+                                               cocText = GameObject
+                                                        .Find(
+                                                                 "Environment Objects/LocalObjects_Prefab/TreeRoom/COCBodyText_TitleData")
+                                                        .GetComponent<TextMeshPro>();
 
-                                            cocText.richText = true;
+                                               cocText.richText = true;
+                                               
+                                               foreach (KeyValuePair<string, (Type, hamburburmod)[]> kvp in Buttons
+                                                               .Categories)
+                                                   amountOfMods += kvp.Value.Length;
+                                               
+                                               DiloWorldFont =
+                                                       HamburburBundle.LoadAsset<TMP_FontAsset>("DiloWorld SDF");
+                                               
+                                               gtPlayerControllerToRealRatio =
+                                                       1 / GTPlayer.Instance.leftHand.controllerTransform.lossyScale
+                                                                   .magnitude;
+                                               
+                                               Transform realRight = new GameObject("RealRightController").transform;
+                                               Tools.Utils.RealRightController = realRight;
+                                               
+                                               Transform realLeft =
+                                                       new GameObject("RealLeftController")
+                                                              .transform;
 
-                                            foreach (KeyValuePair<string, (Type, hamburburmod)[]> kvp in Buttons
-                                                            .Categories)
-                                                amountOfMods += kvp.Value.Length;
+                                               Tools.Utils.RealLeftController = realLeft;
+                                               
+                                               GameObject menuParent = new("hamburbur menu parent");
 
-                                            ConsoleIndicatorPrefab =
-                                                    HamburburBundle.LoadAsset<GameObject>("ConsoleIndicator");
+                                               menuParent.transform.SetParent(realLeft);
+                                               menuParent.transform.localPosition = MenuLocalPositionLeft;
+                                               menuParent.transform.localRotation = MenuLocalRotationLeft;
+                                               menuParent.transform.localScale    = Vector3.one;
+                                               
+                                               GameObject menuPrefab =
+                                                       HamburburBundle.LoadAsset<GameObject>("hamburburv2");
 
-                                            DiloWorldFont = HamburburBundle.LoadAsset<TMP_FontAsset>("DiloWorld SDF");
+                                               Themes.ThemesDict["hamburburv2"] = menuPrefab;
 
-                                            gtPlayerControllerToRealRatio =
-                                                    1 / GTPlayer.Instance.leftHand.controllerTransform.lossyScale
-                                                                .magnitude;
+                                               ComponentHolder.AddComponent<InputManager>();
+                                               ComponentHolder.AddComponent<MenuSoundsHandler>();
+                                               ComponentHolder.AddComponent<HamburburPromotionManager>();
+                                               ComponentHolder.AddComponent<PlayerActivityNotifications>();
+                                               ComponentHolder.AddComponent<SpecialUserActivityNotifications>();
+                                               ComponentHolder.AddComponent<KeyboardManager>();
+                                               ComponentHolder.AddComponent<VoiceControls>();
+                                               ComponentHolder.AddComponent<AudioLib>();
+                                               ComponentHolder.AddComponent<TagManager>();
+                                               //ComponentHolder.AddComponent<PlayerAdderHandler>();
+                                               ComponentHolder.AddComponent<PUNErrors>();
+                                               ComponentHolder.AddComponent<RigUtils>();
+                                               ComponentHolder.AddComponent<PingLogger>();
+                                               ComponentHolder.AddComponent<AccountBanLogger>();
+                                               ComponentHolder.AddComponent<TrackerManager>();
+                                               ComponentHolder.AddComponent<Tools.Utils>();
+                                               ComponentHolder.AddComponent<MenuHandler>()
+                                                              .SetUpMenu(menuPrefab, menuParent.transform, Vector3.zero,
+                                                                       Quaternion.identity, MainColour,
+                                                                       false);
 
-                                            Transform realRight = new GameObject("RealRightController").transform;
-                                            Tools.Utils.RealRightController = realRight;
+                                               ComponentHolder.AddComponent<FileManager>();
+                                               ComponentHolder.AddComponent<CustomBoardManager>();
+                                               ComponentHolder.AddComponent<NotificationManager>();
+                                               ComponentHolder.AddComponent<MenuWebsocket>();
+                                               ComponentHolder.AddComponent<SeralythFriendManager>();
 
-                                            Transform realLeft =
-                                                    new GameObject("RealLeftController")
-                                                           .transform;
+                                               GorillaTagger.Instance.myRecorder.InputFactory =
+                                                       () => VoiceManager.Get();
 
-                                            Tools.Utils.RealLeftController = realLeft;
+                                               GorillaTagger.Instance.myRecorder.SourceType =
+                                                       Recorder.InputSourceType.Factory;
 
-                                            GameObject menuParent = new("hamburbur menu parent");
+                                               GorillaTagger.Instance.myRecorder.RestartRecording();
 
-                                            menuParent.transform.SetParent(realLeft);
-                                            menuParent.transform.localPosition = MenuLocalPositionLeft;
-                                            menuParent.transform.localRotation = MenuLocalRotationLeft;
-                                            menuParent.transform.localScale    = Vector3.one;
-
-                                            GameObject menuPrefab =
-                                                    HamburburBundle.LoadAsset<GameObject>("hamburburv2");
-
-                                            Themes.ThemesDict["hamburburv2"] = menuPrefab;
-
-                                            ComponentHolder.AddComponent<InputManager>();
-                                            ComponentHolder.AddComponent<MenuSoundsHandler>();
-                                            ComponentHolder.AddComponent<HamburburPromotionManager>();
-                                            ComponentHolder.AddComponent<PlayerActivityNotifications>();
-                                            ComponentHolder.AddComponent<KeyboardManager>();
-                                            ComponentHolder.AddComponent<VoiceControls>();
-                                            ComponentHolder.AddComponent<AudioLib>();
-                                            ComponentHolder.AddComponent<TagManager>();
-                                            ComponentHolder.AddComponent<PlayerAdderHandler>();
-                                            ComponentHolder.AddComponent<PUNErrors>();
-                                            ComponentHolder.AddComponent<RigUtils>();
-                                            ComponentHolder.AddComponent<PingLogger>();
-                                            ComponentHolder.AddComponent<AccountBanLogger>();
-                                            ComponentHolder.AddComponent<TrackerManager>();
-                                            ComponentHolder.AddComponent<Tools.Utils>();
-                                            ComponentHolder.AddComponent<MenuHandler>()
-                                                           .SetUpMenu(menuPrefab, menuParent.transform, Vector3.zero,
-                                                                    Quaternion.identity, MainColour,
-                                                                    false);
-
-                                            ComponentHolder.AddComponent<FileManager>();
-                                            ComponentHolder.AddComponent<CustomBoardManager>();
-
-                                            rBall = CreateBall(realRight);
-                                            lBall = CreateBall(realLeft);
-
-                                            GorillaTagger.Instance.myRecorder.InputFactory = () => VoiceManager.Get();
-                                            GorillaTagger.Instance.myRecorder.SourceType =
-                                                    Recorder.InputSourceType.Factory;
-
-                                            GorillaTagger.Instance.myRecorder.RestartRecording();
-
-                                            GTPlayerTransform.UseNetRotation = true;
-
-                                            PlayedStartAnim = true;
-                                        };
+                                               PlayedStartAnim = true;
+                                           };
     }
 
     private static readonly Queue<float> MasterNotifTimes = new();
@@ -462,79 +441,6 @@ public class Plugin : MonoBehaviour
                 8f,
                 true,
                 false);
-    }
-
-    private GameObject CreateBall(Transform parent)
-    {
-        GameObject ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-
-        if (ball.TryGetComponent(out Renderer rend))
-        {
-            rend.material.shader = UberShader;
-            rend.material.color  = MainColour;
-        }
-
-        if (ball.TryGetComponent(out SphereCollider coll))
-            coll.Obliterate();
-
-        ball.transform.SetParent(parent);
-        ball.transform.localPosition = Vector3.zero;
-        ball.transform.localRotation = Quaternion.identity;
-        ball.transform.localScale    = Vector3.one * 0.1f;
-
-        return ball;
-    }
-
-    private void CreateStumpStatus(string text, Texture2D icon)
-    {
-        if (stumpObj != null)
-            return;
-
-        stumpObj = new GameObject("HamburburStatusStump");
-        Canvas canvas = stumpObj.AddComponent<Canvas>();
-        canvas.renderMode = RenderMode.WorldSpace;
-        CanvasScaler scaler = stumpObj.AddComponent<CanvasScaler>();
-        scaler.dynamicPixelsPerUnit = 10f;
-        stumpObj.AddComponent<GraphicRaycaster>();
-
-        RectTransform canvasRect = stumpObj.GetComponent<RectTransform>();
-        canvasRect.sizeDelta          = new Vector2(2f, 2f);
-        stumpObj.transform.position   = new Vector3(-64.3f, 12.4f, -82.7f);
-        stumpObj.transform.localScale = Vector3.one * 0.003f;
-        stumpObj.transform.Rotate(0f, 180f, 0f);
-
-        TextMeshProUGUI textObj = new GameObject("StatusText").AddComponent<TextMeshProUGUI>();
-        textObj.transform.SetParent(stumpObj.transform, false);
-        textObj.text = $"<mark=#{ColorUtility.ToHtmlStringRGB(MainColour)}>{text}</mark>";
-
-        textObj.fontSize  = 30f;
-        textObj.fontStyle = FontStyles.Bold;
-        textObj.color     = Color.white;
-        textObj.alignment = TextAlignmentOptions.Center;
-        RectTransform textRect = textObj.GetComponent<RectTransform>();
-        textRect.anchoredPosition = new Vector2(0f,   -50f);
-        textRect.sizeDelta        = new Vector2(400f, 200f);
-
-        if (icon == null)
-            return;
-
-        GameObject imageObj = new("StatusIcon");
-        imageObj.transform.SetParent(stumpObj.transform, false);
-        Image uiImage = imageObj.AddComponent<Image>();
-
-        RectTransform imgRect = imageObj.GetComponent<RectTransform>();
-
-        const float TargetHeight = 100f;
-        float       aspect       = (float)icon.width / icon.height;
-        float       targetWidth  = TargetHeight      * aspect * 1f; // zlothy multiplying by one T-T
-
-        imgRect.sizeDelta        = new Vector2(targetWidth, TargetHeight);
-        imgRect.anchoredPosition = new Vector2(0f,          80f);
-
-        Sprite sprite = Sprite.Create(icon, new Rect(0, 0, icon.width, icon.height), new Vector2(0.5f, 0.5f));
-        uiImage.sprite = sprite;
-
-        stumpObj.AddComponent<LookAtCamera>();
     }
 
     public void PlayTutorialVideo(string videoUrl) => StartCoroutine(ZlothyStupid(videoUrl));

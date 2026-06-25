@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Rig;
 
-[hamburburmod("Griddy", "Makes you do the right foot creep, ooh, walkin' with that heater", ButtonType.Togglable,
+[hamburburmod(nameof(Griddy), "Makes you do the right foot creep, ooh, walkin' with that heater", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class Griddy : hamburburmod
 {

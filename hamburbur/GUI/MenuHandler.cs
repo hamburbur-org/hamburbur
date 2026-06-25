@@ -17,13 +17,13 @@ public class MenuHandler : Singleton<MenuHandler>
 {
     public static List<(string, int)>     LastCategories     = [];
     public static Dictionary<string, int> CategoryPageMemory = new();
-    public        string                  Category           = "Main";
+    public        string                  Category           = nameof(Main);
     public        int                     PageIndex;
     public        GameObject              ButtonPresser;
     public        bool                    MenuOpen;
 
     public  bool        IsWaiting;
-    public  TextMeshPro MenuName;
+    public  TMP_Text MenuName;
     private Coroutine   typingCoroutine;
 
     public GameObject Menu { get; private set; }
@@ -42,7 +42,7 @@ public class MenuHandler : Singleton<MenuHandler>
 
         if (ButtonPresser.TryGetComponent(out MeshRenderer meshRenderer))
         {
-            meshRenderer.material.shader = Plugin.Instance.UberShader;
+            meshRenderer.material.shader = Shaders.UberShader;
             meshRenderer.material.color  = Plugin.Instance.MainColour;
         }
 
@@ -52,33 +52,56 @@ public class MenuHandler : Singleton<MenuHandler>
 
         List<hamburburmod> toRemove = [];
 
+        ModRegistry.Clear();
+
         foreach (KeyValuePair<string, ValueTuple<Type, hamburburmod>[]> category in Buttons.Categories)
-            for (int button = 0; button < Buttons.Categories[category.Key].Length; button++)
+        {
+            for (int button = 0; button < category.Value.Length; button++)
             {
-                ValueTuple<Type, hamburburmod> mod = Buttons.Categories[category.Key][button];
+                Type modType = category.Value[button].Item1;
 
-                object modComponent = Activator.CreateInstance(mod.Item1);
-
-                if (modComponent is not hamburburmod hamburburMod)
+                if (Activator.CreateInstance(modType) is not hamburburmod hamburburMod)
                     continue;
 
-                hamburburMod.AssociatedAttribute         = mod.Item1.GetCustomAttribute<hamburburmodAttribute>();
+                hamburburmodAttribute attribute = modType.GetCustomAttribute<hamburburmodAttribute>();
+
+                if (attribute == null)
+                {
+                    Debug.LogError($"[hamburbur] {modType.FullName} is missing hamburburmodAttribute");
+                    continue;
+                }
+
+                hamburburMod.AssociatedAttribute = attribute;
+
+                ValueTuple<Type, hamburburmod> mod = category.Value[button];
                 mod.Item2                                = hamburburMod;
-                hamburburMod.IncrementalValue            = hamburburMod.AssociatedAttribute.IncrementalValue;
                 Buttons.Categories[category.Key][button] = mod;
-                mod.Item2.InvokeStart();
 
-                if (mod.Item2.AssociatedAttribute.AccessSetting.IsCurrentlyAccessible())
+                ModRegistry.Register(modType, hamburburMod);
+            }
+        }
+
+        foreach (KeyValuePair<string, ValueTuple<Type, hamburburmod>[]> category in Buttons.Categories)
+        {
+            foreach ((Type modType, hamburburmod modComp) in category.Value)
+            {
+                if (modComp == null)
                     continue;
 
-                if (!ButtonHandler.InaccessibleButtons.ContainsKey(mod.Item2.AssociatedAttribute.AccessSetting))
-                    ButtonHandler.InaccessibleButtons.Add(mod.Item2.AssociatedAttribute.AccessSetting, []);
+                modComp.InvokeStart();
 
-                ButtonHandler.InaccessibleButtons[mod.Item2.AssociatedAttribute.AccessSetting]
-                             .Add((category.Key, mod.Item1));
+                if (modComp.AssociatedAttribute.AccessSetting.IsCurrentlyAccessible())
+                    continue;
 
-                toRemove.Add(mod.Item2);
+                if (!ButtonHandler.InaccessibleButtons.ContainsKey(modComp.AssociatedAttribute.AccessSetting))
+                    ButtonHandler.InaccessibleButtons.Add(modComp.AssociatedAttribute.AccessSetting, []);
+
+                ButtonHandler.InaccessibleButtons[modComp.AssociatedAttribute.AccessSetting]
+                             .Add((category.Key, modType));
+
+                toRemove.Add(modComp);
             }
+        }
 
         foreach (hamburburmod modComp in toRemove)
             ButtonHandler.RemoveButton(modComp);
@@ -143,16 +166,16 @@ public class MenuHandler : Singleton<MenuHandler>
         menu.transform.localRotation = rotation;
 
         Menu = menu;
-        Menu.transform.Find("Version").GetComponent<TextMeshPro>().text = $"v{Constants.PluginVersion}";
-        MenuName = Menu.transform.Find("Title").GetComponent<TextMeshPro>();
+        Menu.transform.Find(nameof(Version)).GetComponent<TMP_Text>().text = $"v{Constants.PluginVersion}";
+        MenuName = Menu.transform.Find("Title").GetComponent<TMP_Text>();
 
         Transform miscButtons = Menu.transform.Find("MiscButtons");
         miscButtons.Find("Disconnect").AddComponent<ButtonCollider>().OnPress =
                 () => NetworkSystem.Instance.ReturnToSinglePlayer();
 
-        miscButtons.Find("LastPage").AddComponent<ButtonCollider>().OnPress = LastPage;
-        miscButtons.Find("NextPage").AddComponent<ButtonCollider>().OnPress = NextPage;
-        miscButtons.Find("Return").AddComponent<ButtonCollider>().OnPress   = ReturnToLastCategory;
+        miscButtons.Find(nameof(LastPage)).AddComponent<ButtonCollider>().OnPress = LastPage;
+        miscButtons.Find(nameof(NextPage)).AddComponent<ButtonCollider>().OnPress = NextPage;
+        miscButtons.Find("Return").AddComponent<ButtonCollider>().OnPress         = ReturnToLastCategory;
 
         Menu.transform.Find("ModButtons").AddComponent<ButtonHandler>().Initialize();
 
@@ -164,7 +187,7 @@ public class MenuHandler : Singleton<MenuHandler>
     {
         if (LastCategories.Count < 2)
         {
-            ButtonHandler.Instance.SetCategory("Main", false);
+            ButtonHandler.Instance.SetCategory(nameof(Main), false);
 
             return;
         }
@@ -188,10 +211,14 @@ public class MenuHandler : Singleton<MenuHandler>
         ButtonHandler.Instance.UpdateButtons();
     }
 
+    public static bool IsInitialised;
+
     private IEnumerator SetActiveAfterAFrame()
     {
         yield return new WaitForEndOfFrame();
         Menu.SetActive(true);
+        
+        IsInitialised = true;
     }
 
     private IEnumerator OnStart()

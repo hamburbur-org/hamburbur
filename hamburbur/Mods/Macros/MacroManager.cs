@@ -112,7 +112,7 @@ public static class MacroManager
     {
         Macros.Clear();
 
-        hamburburmod[] toRemove = Buttons.Categories["Macros"].Where(t => t.Item1 == typeof(MacroMod))
+        hamburburmod[] toRemove = Buttons.Categories[nameof(Macros)].Where(t => t.Item1 == typeof(MacroMod))
                                          .Select(t => t.Item2).ToArray();
 
         foreach (hamburburmod modComp in toRemove)
@@ -132,7 +132,7 @@ public static class MacroManager
 
         foreach ((string _, Macro macro) in Macros)
         {
-            MacroMod mod = (MacroMod)ButtonHandler.AddButton("Macros", typeof(MacroMod));
+            MacroMod mod = (MacroMod)ButtonHandler.AddButton(nameof(Macros), typeof(MacroMod));
             mod.AssociatedMacro              = macro;
             mod.HasAssignedMacro             = true;
             mod.LoadSavedDataWhenStartCalled = true;

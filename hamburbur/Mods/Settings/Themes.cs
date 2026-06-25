@@ -19,10 +19,10 @@ public class Themes : hamburburmod
 
     public static readonly List<Tuple<string, string, Vector3, Quaternion, Color>> AllThemes =
     [
-            Tuple.Create("hamburburv2", "hamburbur", Vector3.zero, Quaternion.identity,
+            Tuple.Create("hamburburv2", nameof(hamburbur), Vector3.zero, Quaternion.identity,
                     Plugin.Instance.MainColour),
             
-            Tuple.Create("hamburbur", "hamburbur OG", Vector3.zero, Quaternion.Euler(0f, 0f, 90f),
+            Tuple.Create(nameof(hamburbur), "hamburbur OG", Vector3.zero, Quaternion.Euler(0f, 0f, 90f),
                     Plugin.Instance.MainColour),
 
             Tuple.Create("hansoloschoice", "HanSolo's Choice", new Vector3(0f, 0f, -0.02f),
@@ -85,6 +85,8 @@ public class Themes : hamburburmod
             Tuple.Create("r3", "R3", Vector3.zero, Quaternion.Euler(0f, 180f, 270f), new Color(0.7607843f, 0.8745098f, 0.7764706f)),
             
             Tuple.Create("tupbuthamburbur", "TUP | Sakura", Vector3.zero, Quaternion.Euler(90f, 0f, 0f), Plugin.Instance.MainColour),
+            
+            //Tuple.Create("burgerking", "Burbur King", Vector3.zero, Quaternion.Euler(0f, 0f, 0f), new Color(0.8431372f, 0.1372548f, 0f)),
     ];
 
     public override string ModName => AssociatedAttribute.Name + AllThemes[IncrementalValue].Item2;

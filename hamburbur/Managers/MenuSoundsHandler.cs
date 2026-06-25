@@ -80,33 +80,33 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
 
     private int GetSoundIndex() => ButtonPressSound.Sounds[ButtonPressSound.Instance.IncrementalValue] switch
                                    {
-                                           "Og Sound"      => 67,
-                                           "KeyboardClick" => 66,
-                                           "Glass"         => 106,
-                                           "Krisp Wood"    => 114,
-                                           "Rustic Click"  => 271,
-                                           "Drip"          => 311,
-                                           "Jman Okay"     => 336,
-                                           "Jman Ahhhh"    => 337,
-                                           var _           => 67,
+                                           "Og Sound"            => 67,
+                                           nameof(KeyboardClick) => 66,
+                                           "Glass"               => 106,
+                                           "Krisp Wood"          => 114,
+                                           "Rustic Click"        => 271,
+                                           "Drip"                => 311,
+                                           "Jman Okay"           => 336,
+                                           "Jman Ahhhh"          => 337,
+                                           var _                 => 67,
                                    };
 
     private AudioClip GetCurrentButtonPressedSound() =>
             ButtonPressSound.Sounds[ButtonPressSound.Instance.IncrementalValue] switch
             {
-                    "Default"     => Default,
-                    "Pop"         => Pop,
-                    "Discord"     => Discord,
-                    "SmoothClick" => SmoothClick,
-                    "HardClick"   => HardClick,
-                    "UiEnter"     => UiEnter,
-                    "Wii"         => Wii,
-                    "Minecraft"   => Minecraft,
-                    "Untitled"    => Untitled,
-                    "Destiny"     => Destiny,
-                    "Watch"       => Watch,
-                    "Creamy"      => Creamy,
-                    var _         => throw new ArgumentOutOfRangeException(),
+                    nameof(Default)     => Default,
+                    nameof(Pop)         => Pop,
+                    nameof(Discord)     => Discord,
+                    nameof(SmoothClick) => SmoothClick,
+                    nameof(HardClick)   => HardClick,
+                    nameof(UiEnter)     => UiEnter,
+                    nameof(Wii)         => Wii,
+                    nameof(Minecraft)   => Minecraft,
+                    nameof(Untitled)    => Untitled,
+                    nameof(Destiny)     => Destiny,
+                    nameof(Watch)       => Watch,
+                    nameof(Creamy)      => Creamy,
+                    var _               => throw new ArgumentOutOfRangeException(),
             };
 
     public static AudioClip LoadWavFromResource(string resourcePath)

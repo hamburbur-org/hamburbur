@@ -8,6 +8,7 @@ using hamburbur.GUI;
 using hamburbur.Libs;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Mods.Misc;
 using hamburbur.Mods.Rig;
 using hamburbur.Mods.Settings;
 using UnityEngine;
@@ -381,8 +382,7 @@ public class VoiceControls : Singleton<VoiceControls>
         {
             yield return TTSSpeak("Restarting Gorilla Tag now");
 
-            Process.Start("steam://run/1533390");
-            Application.Quit();
+            RestartGame.Restart();
 
             hasYield = true;
         }

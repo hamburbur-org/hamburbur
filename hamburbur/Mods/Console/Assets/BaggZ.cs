@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("BaggZ", "Summons the bag asset",
+[hamburburmod(nameof(BaggZ), "Summons the bag asset",
     ButtonType.Togglable,
     AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class BaggZ : hamburburmod

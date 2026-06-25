@@ -34,7 +34,7 @@ public static class Buttons
 {
     public static readonly Dictionary<string, (Type, hamburburmod)[]> Categories = new()
     {
-            ["Main"] =
+            [nameof(Main)] =
             [
                     (typeof(JoinDiscord), null),
                     (typeof(Search), null),
@@ -53,16 +53,18 @@ public static class Buttons
                     (typeof(MasterClient), null),
                     (typeof(MapLoader), null),
                     (typeof(CustomMaps), null),
-                    (typeof(Scoreboard), null),
+                    //(typeof(Scoreboard), null),
                     (typeof(Console), null),
                     (typeof(Credits), null),
             ],
 
-            ["Settings"] =
+            [nameof(Settings)] =
             [
                     (typeof(MenuSettings), null),
+                    (typeof(NotificationSettings), null),
                     (typeof(GunSettings), null),
                     (typeof(JarvisSettings), null),
+                    (typeof(LegacySettings), null),
             ],
 
             ["Menu Settings"] =
@@ -80,10 +82,25 @@ public static class Buttons
                     (typeof(ArrayList), null),
                     (typeof(DiscordRpc), null),
             ],
+            
+            ["Notification Settings"] =
+            [
+                            (typeof(DisableNotifications), null),
+                            (typeof(NotificationFont), null),
+                            (typeof(BlackBackgroundNotifs), null),
+                            (typeof(DynamicNotificationSounds), null),
+                            (typeof(ModNotifications), null),
+                            (typeof(RoomNotifications), null),
+                            (typeof(MasterNotification), null),
+                            (typeof(SpecialUserNotification), null),
+                            (typeof(AntiCheatNotification), null),
+                            (typeof(ServerStatusNotifications), null),
+            ],
 
             ["Gun Settings"] =
             [
                     (typeof(BlankGun), null),
+                    (typeof(LeftHandedGun), null),
                     (typeof(ChangeGunType), null),
                     (typeof(AlwaysAnimateGun), null),
             ],
@@ -97,40 +114,32 @@ public static class Buttons
                     (typeof(AIJarvis), null),
             ],
 
-            ["Settings Old"] =
+            ["Legacy Settings"] =
             [
-                    (typeof(DynamicNotificationSounds), null),
-                    (typeof(ButtonPressSound), null),
-                    (typeof(ModNotifications), null),
-                    (typeof(RoomNotifications), null),
                     (typeof(AntiReportType), null),
                     (typeof(ScreenShotCamera), null),
                     (typeof(FirstPersonVisuals), null),
                     (typeof(ChangePullStrength), null),
                     (typeof(WallAssistStrength), null),
                     (typeof(SpeedBoostMultiplier), null),
-                    (typeof(NotificationFont), null),
                     (typeof(ChangePCRig), null),
                     (typeof(FPSChangerHighest), null),
                     (typeof(FPSChangerLowest), null),
                     (typeof(ChangeLavaPingDistance), null),
                     (typeof(TagAuraRG), null),
-                    (typeof(MasterNotification), null),
                     (typeof(MoveHands), null),
                     (typeof(StickyPlatforms), null),
                     (typeof(PredRG), null),
                     (typeof(ChangePredStrength), null),
-                    (typeof(ServerStatusNotifications), null),
                     (typeof(ChangeArmLength), null),
                     (typeof(GravityModifierType), null),
                     (typeof(ChangeFlySpeed), null),
-                    (typeof(BlackBackgroundNotifs), null),
                     (typeof(SlaughterTravisScoot), null),
-                    (typeof(TrackerNotifications), null),
                     (typeof(BarkFlyBob), null),
+                    (typeof(UseRigManager), null),
             ],
 
-            ["Movement"] =
+            [nameof(Movement)] =
             [
                     (typeof(Platforms), null),
                     (typeof(Predictions), null),
@@ -160,7 +169,7 @@ public static class Buttons
                     (typeof(IronMan), null),
             ],
 
-            ["Room"] =
+            [nameof(Room)] =
             [
                     (typeof(Reauthenticate), null),
                     (typeof(JoinHamburburCode), null),
@@ -174,14 +183,14 @@ public static class Buttons
                     (typeof(EURegion), null),
             ],
 
-            ["Macros"] =
+            [nameof(Macros)] =
             [
                     (typeof(MacroRecorder), null),
                     (typeof(MacroGun), null),
                     (typeof(ReloadMacros), null),
             ],
 
-            ["Multiplayer"] =
+            [nameof(Multiplayer)] =
             [
                     (typeof(AntiReport), null),
                     (typeof(TugGun), null),
@@ -200,16 +209,17 @@ public static class Buttons
                     (typeof(RareCosmeticEsp), null),
             ],
 
-            ["Visual"] =
+            [nameof(Visual)] =
             [
                     //(typeof(GhostVision), null),
                     (typeof(ResetTime), null),
                     (typeof(TimeSetter), null),
                     (typeof(NoRain), null),
                     (typeof(CleanUpForest), null),
+                    (typeof(DisableLeaves), null),
             ],
 
-            ["Misc"] =
+            [nameof(Misc)] =
             [
                     (typeof(RestartJarvis), null),
                     (typeof(ScreenShot), null),
@@ -238,12 +248,14 @@ public static class Buttons
                     (typeof(VIMSpoof), null),
                     (typeof(CompleteQuests), null),
                     (typeof(FasterRemoveFriendDelay), null),
+                    (typeof(RestartGame), null),
             ],
 
-            ["Rig"] =
+            [nameof(Rig)] =
             [
                     (typeof(PCRig), null),
                     (typeof(RigTweaks), null),
+                    (typeof(RigTweaksV2), null),
                     (typeof(RecRoomRig), null),
                     (typeof(ZlothYRecRoomRig), null),
                     (typeof(SpinBot), null),
@@ -259,7 +271,7 @@ public static class Buttons
                     (typeof(Beyblade), null),
             ],
 
-            ["Fun"] =
+            [nameof(Fun)] =
             [
                     (typeof(HamburburSpam), null),
                     (typeof(AlwaysGrabOwnership), null),
@@ -273,12 +285,13 @@ public static class Buttons
                     (typeof(ReportGun), null),
             ],
 
-            ["SoundBoard"] =
+            [nameof(SoundBoard)] =
             [
                     (typeof(GliderVisualizer), null),
+                    (typeof(AudioOrbsVisualizer), null),
             ],
 
-            ["OP"] =
+            [nameof(OP)] =
             [
                     (typeof(EmojiName), null),
                     (typeof(ElevatorKickAll), null),
@@ -290,6 +303,8 @@ public static class Buttons
                     (typeof(JmanAnnoyGun), null),
                     (typeof(SoundSpam), null),
                     (typeof(ChangeSpamSound), null),
+                    (typeof(GRDrawGun), null),
+                    (typeof(GRTrail), null),
             ],
 
             ["Master Client"] =
@@ -297,6 +312,7 @@ public static class Buttons
                     (typeof(SpamGrayZone), null),
                     (typeof(GrayZone), null),
                     (typeof(SpamTagGun), null),
+                    (typeof(SpamTagAll), null),
             ],
 
             ["Map Loader"] =
@@ -332,9 +348,9 @@ public static class Buttons
                     (typeof(Report), null),
             ],
 
-            ["Scoreboard"] = [],
+            [nameof(Scoreboard)] = [],
 
-            ["Credits"] =
+            [nameof(Credits)] =
             [
                     (typeof(ZlothY), null),
                     (typeof(Kormakur), null),
@@ -342,7 +358,7 @@ public static class Buttons
                     (typeof(baggZ), null),
             ],
 
-            ["Console"] =
+            [nameof(Console)] =
             [
                     (typeof(RemoveConsoleBlock), null),
                     (typeof(AutoGetConsoleUsers), null),

@@ -7,6 +7,7 @@ using hamburbur.Components;
 using hamburbur.GUI;
 using hamburbur.Mods.Movement;
 using hamburbur.Mods.Settings;
+using hamburbur.Tools;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -75,7 +76,7 @@ public class KeyboardManager : Singleton<KeyboardManager>
 
     private void Start()
     {
-        GameObject keyboardPrefab = Plugin.Instance.HamburburBundle.LoadAsset<GameObject>("Keyboard");
+        GameObject keyboardPrefab = Plugin.Instance.HamburburBundle.LoadAsset<GameObject>(nameof(Keyboard));
         Keyboard = Instantiate(keyboardPrefab, MenuHandler.Instance.Menu.transform.parent);
 
         Keyboard.transform.localScale    = Vector3.one * 0.3f;
@@ -96,7 +97,7 @@ public class KeyboardManager : Singleton<KeyboardManager>
 
         if (nonDominantButtonPresser.TryGetComponent(out MeshRenderer meshRenderer))
         {
-            meshRenderer.material.shader = Plugin.Instance.UberShader;
+            meshRenderer.material.shader = Shaders.UberShader;
             meshRenderer.material.color  = Plugin.Instance.MainColour;
         }
 

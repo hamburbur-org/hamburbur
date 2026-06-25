@@ -1,7 +1,7 @@
 using System.Linq;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Settings;
-using hamburbur.Server_API;
+using hamburbur.Server_Api_Communicator;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -17,10 +17,10 @@ public class CleanUpForest : hamburburmod
     {
         ChangeObjectVisibility(FirstPersonVisuals.FirstPersonOnly);
         FirstPersonVisuals.OnFirstPersonOnlyChange += ChangeObjectVisibility;
-        HamburburData.OnDataReloaded               += UpdateObjects;
+        HamburburOrgData.OnDataReloaded               += UpdateObjects;
 
-        if (HamburburData.DataLoaded)
-            UpdateObjects(HamburburData.Data);
+        if (HamburburOrgData.DataLoaded)
+            UpdateObjects(HamburburOrgData.Data);
     }
 
     private void UpdateObjects(JObject newData)
@@ -32,7 +32,7 @@ public class CleanUpForest : hamburburmod
     protected override void OnDisable()
     {
         FirstPersonVisuals.OnFirstPersonOnlyChange -= ChangeObjectVisibility;
-        HamburburData.OnDataReloaded               -= UpdateObjects;
+        HamburburOrgData.OnDataReloaded               -= UpdateObjects;
 
         foreach (Transform child in GameObject.Find("Environment Objects/LocalObjects_Prefab/Forest").transform)
             if (objectNames.Contains(child.gameObject.name))

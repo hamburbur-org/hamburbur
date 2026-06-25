@@ -12,20 +12,20 @@ public class ChangeAsset : hamburburmod
     public static readonly List<(string file, string prefabName, string displayName, Vector3 position, Quaternion
             rotation, Vector3 scale)> Assets =
     [
-            ("consolehamburburassets", "Axe", "Axe", new Vector3(0.05f, 0.03f, 0f), Quaternion.Euler(0f, 0f, 90f),
+            ("consolehamburburassets", nameof(Axe), nameof(Axe), new Vector3(0.05f, 0.03f, 0f), Quaternion.Euler(0f, 0f, 90f),
              new Vector3(5,                                             5,     5)),
             ("consolehamburburassets", "bag", "Bag", new Vector3(0.05f, 0.03f, 0f), Quaternion.Euler(0f, 0f, 90f),
              new Vector3(5,                                             5,     5)),
-            ("banhammer", "BanHammer", "Ban Hammer(dont work)", Vector3.zero, Quaternion.Euler(0f, 0f, 90f),
+            ("banhammer", nameof(BanHammer), "Ban Hammer(dont work)", Vector3.zero, Quaternion.Euler(0f, 0f, 90f),
              new Vector3(5, 5, 5)),
             ("iphone", "iPhone", "Iphone", Vector3.zero, Quaternion.identity, new Vector3(5, 5, 5)),
-            ("consolehamburburassets", "KormakurSign", "Kormakur Sign", new Vector3(0.29f, -0.2f, -0.1272f),
+            ("consolehamburburassets", nameof(KormakurSign), "Kormakur Sign", new Vector3(0.29f, -0.2f, -0.1272f),
              Quaternion.Euler(355f, 275f, 265f), Vector3.one),
             ("clickbaitmenu‎", "Mod Menu", "Mod Menu", new Vector3(-0.09f, 0.125f, 0f), Quaternion.Euler(0f, 110f, 80f),
              Vector3.one),
-            ("console.main1", "PhysicsGun", "Physics Gun", Vector3.zero, Quaternion.identity, new Vector3(5, 5, 5)),
-            ("console.main1", "Sword", "Roblox Sword", Vector3.zero, Quaternion.identity, new Vector3(5,     5, 5)),
-            ("consolehamburburassets", "Sword", "Sword", new Vector3(0.1f, 0.1f, 0.2f), Quaternion.Euler(0f, 90f, 90f),
+            ("console.main1", nameof(PhysicsGun), "Physics Gun", Vector3.zero, Quaternion.identity, new Vector3(5, 5, 5)),
+            ("console.main1", nameof(Sword), "Roblox Sword", Vector3.zero, Quaternion.identity, new Vector3(5,     5, 5)),
+            ("consolehamburburassets", nameof(Sword), nameof(Sword), new Vector3(0.1f, 0.1f, 0.2f), Quaternion.Euler(0f, 90f, 90f),
              new Vector3(0.1f,                                             0.1f, 0.1f)),
     ];
 

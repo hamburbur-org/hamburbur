@@ -3,7 +3,6 @@ using System.Collections;
 using System.IO;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
-using hamburbur.Server_API;
 using hamburbur.Tools;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -16,9 +15,9 @@ namespace hamburbur.Mods.Misc;
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class SpecialCosmeticsCapture : hamburburmod
 {
-    protected override void OnEnable() => TrackerManager.OnRoomDataReceived += TakePhoto;
+    //protected override void OnEnable() => TrackerManager.OnRoomDataReceived += TakePhoto;
 
-    protected override void OnDisable() => TrackerManager.OnRoomDataReceived -= TakePhoto;
+    //protected override void OnDisable() => TrackerManager.OnRoomDataReceived -= TakePhoto;
 
     private void TakePhoto(JToken data) => CoroutineManager.Instance.StartCoroutine(CaptureScreenshot(data));
 

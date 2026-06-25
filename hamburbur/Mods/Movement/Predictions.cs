@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Predictions", "Controller predictions", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled,
+[hamburburmod(nameof(Predictions), "Controller predictions", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled,
         0)]
 public class Predictions : hamburburmod
 {

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Car", "Makes you drive around", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(nameof(Car), "Makes you drive around", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class Car : hamburburmod
 {
     private static Vector2 driveLerpDirection = Vector2.zero;

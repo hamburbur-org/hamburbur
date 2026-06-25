@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Rig;
 
-[hamburburmod("Dance", "Makes you boogie", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(nameof(Dance), "Makes you boogie", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class Dance : hamburburmod
 {
     protected override void Update()

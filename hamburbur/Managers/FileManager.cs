@@ -10,7 +10,7 @@ using hamburbur.Components;
 using hamburbur.GUI;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Macros;
-using hamburbur.Server_API;
+using hamburbur.Server_Api_Communicator;
 using hamburbur.Tools;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -23,6 +23,9 @@ public class FileManager : Singleton<FileManager>
 {
     private const string RootSoundUrl =
             "https://files.hamburbur.org/Maniacs_of_Noise.mp3";
+    
+    private const string GorillaNotificationsUrl =
+            "https://github.com/hamburbur-org/Gorilla-Notifications/releases/latest/download/GorillaNotifications.dll";
 
     private const string RootSoundFileName = "Maniacs of Noise.mp3";
     public        string SoundsFolder;
@@ -31,7 +34,7 @@ public class FileManager : Singleton<FileManager>
     public        string PlayerLoggerFolder;
 
     public          List<string> AnsweredPolls       = [];
-    public readonly string       RootHamburburFolder = Path.Combine(Paths.GameRootPath, "hamburbur");
+    public readonly string       RootHamburburFolder = Path.Combine(Paths.GameRootPath, nameof(hamburbur));
 
     private bool firstTimeUsingHamburbur;
 
@@ -133,7 +136,7 @@ public class FileManager : Singleton<FileManager>
                     // ignored
                 }
 
-                CheckVoteEligibility(HamburburData.Data);
+                CheckVoteEligibility(HamburburOrgData.Data);
 
 #endregion
 
@@ -151,7 +154,7 @@ public class FileManager : Singleton<FileManager>
             }
         }
 
-        HamburburData.OnDataReloaded += CheckVoteEligibility;
+        HamburburOrgData.OnDataReloaded += CheckVoteEligibility;
         MacroManager.LoadAllMacros();
     }
 
@@ -169,7 +172,7 @@ public class FileManager : Singleton<FileManager>
     private void CheckVoteEligibility(JObject data)
     {
         JToken currentPollData = data["pollData"];
-        string currentPollName = currentPollData["name"].ToObject<string>();
+        string currentPollName = currentPollData[nameof(name)].ToObject<string>();
 
         if (AnsweredPolls.Contains(currentPollName))
             return;
@@ -189,8 +192,8 @@ public class FileManager : Singleton<FileManager>
         UnityWebRequest webRequest = new("https://hamburbur.org/polls/vote", "POST");
         string json = new JObject
         {
-                ["userId"]   = NetworkSystem.Instance.LocalPlayer.UserId,
-                ["voteForA"] = voteForA,
+                ["userId"]         = NetworkSystem.Instance.LocalPlayer.UserId,
+                [nameof(voteForA)] = voteForA,
         }.ToString();
 
         byte[] body = Encoding.UTF8.GetBytes(json);
@@ -246,6 +249,23 @@ public class FileManager : Singleton<FileManager>
         }
     }
 
+    public void DownloadGorillaNotifications()
+    {
+        try
+        {
+            string filePath = Path.Combine(Paths.PluginPath, "GorillaNotifications.dll");
+
+            WebClient client = new();
+            client.DownloadFile(GorillaNotificationsUrl, filePath);
+
+            Debug.Log($"[FileManager] Downloaded GorillaNotifications.dll to {filePath}");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[FileManager] Failed to download GorillaNotifications.dll: {ex.Message}");
+        }
+    }
+
     public string CreateEventLoggerFile()
     {
         if (string.IsNullOrEmpty(EventLoggerFolder))
@@ -288,11 +308,11 @@ public class FileManager : Singleton<FileManager>
 
             JObject json = new()
             {
-                    ["userId"]             = userId,
-                    ["name"]               = username,
-                    ["rawCosmeticsString"] = rawCosmeticsString,
-                    ["isPc"]               = isPc,
-                    ["customProperties"]   = JObject.FromObject(convertedProps),
+                    [nameof(userId)]             = userId,
+                    [nameof(name)]               = username,
+                    [nameof(rawCosmeticsString)] = rawCosmeticsString,
+                    [nameof(isPc)]               = isPc,
+                    [nameof(customProperties)]   = JObject.FromObject(convertedProps),
             };
 
             File.WriteAllText(filePath, json.ToString());

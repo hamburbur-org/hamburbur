@@ -4,7 +4,7 @@ using hamburbur.Mods.Settings;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Speedboost", "Gives you a speedboost", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled,
+[hamburburmod(nameof(Speedboost), "Gives you a speedboost", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled,
         0)]
 public class Speedboost : hamburburmod
 {

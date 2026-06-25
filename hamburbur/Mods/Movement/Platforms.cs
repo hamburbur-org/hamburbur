@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Platforms", "Show platforms when you press the grip buttons", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(nameof(Platforms), "Show platforms when you press the grip buttons", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class Platforms : hamburburmod
 {
@@ -97,7 +97,7 @@ public class Platforms : hamburburmod
 
         if (platform.TryGetComponent(out Renderer renderer))
         {
-            renderer.material.shader = Plugin.Instance.UberShader;
+            renderer.material.shader = Shaders.UberShader;
             renderer.material.color  = Plugin.Instance.MainColour;
         }
 

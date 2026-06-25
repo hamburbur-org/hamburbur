@@ -1,5 +1,4 @@
 using System.Globalization;
-using GorillaNotifications.Core;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Settings;
@@ -12,7 +11,7 @@ namespace hamburbur.Mods.Misc;
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class LavaDistanceNotification : hamburburmod
 {
-    private NotificationEntry activeNotification;
+    private object activeNotification;
     private VRRig             closestLava;
     private string            formatted;
 
@@ -24,7 +23,7 @@ public class LavaDistanceNotification : hamburburmod
             if (activeNotification == null)
                 return;
 
-            activeNotification.RemoveNotification();
+            NotificationManager.RemoveNotificationEntry(activeNotification);
             activeNotification = null;
             closestLava        = null;
 
@@ -66,7 +65,8 @@ public class LavaDistanceNotification : hamburburmod
                         $"Lava Detected - distance: {closestDistance.ToString("F1", CultureInfo.InvariantCulture)}m",
                         9999f, false, false);
             else
-                activeNotification.UpdateNotification(
+                NotificationManager.UpdateNotificationEntry(
+                        activeNotification,
                         closestDistance <= ChangeLavaPingDistance.Instance.IncrementalValue / 3
                                 ? "<color=red>Comp</color>"
                                 : "<color=orange>Comp</color>",
@@ -80,11 +80,11 @@ public class LavaDistanceNotification : hamburburmod
             if (activeNotification == null)
                 return;
 
-            activeNotification.RemoveNotification();
+            NotificationManager.RemoveNotificationEntry(activeNotification);
             activeNotification = null;
             closestLava        = null;
         }
     }
 
-    protected override void OnDisable() => activeNotification?.RemoveNotification();
+    protected override void OnDisable() =>             NotificationManager.RemoveNotificationEntry(activeNotification);
 }

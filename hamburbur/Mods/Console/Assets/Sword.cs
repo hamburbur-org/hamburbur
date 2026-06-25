@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Sword", "Summons the sword asset",
+[hamburburmod(nameof(Sword), "Summons the sword asset",
     ButtonType.Togglable,
     AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class Sword : hamburburmod
@@ -14,7 +14,7 @@ public class Sword : hamburburmod
     protected override void OnEnable()
     {
         assetId = Components.Console.GetFreeAssetID();
-        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "consolehamburburassets", "Sword",
+        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "consolehamburburassets", nameof(Sword),
             assetId);
 
         Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, assetId, 2);

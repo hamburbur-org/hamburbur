@@ -11,7 +11,7 @@ namespace hamburbur.Managers;
 
 public class CustomBoardManager : Singleton<CustomBoardManager>
 {
-    private const int StumpLeaderboardIndex = 3;
+    private const int StumpLeaderboardIndex = 4;
 
     private static readonly Dictionary<string, BoardInformation> BoardInformations =
             new()

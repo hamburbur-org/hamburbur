@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ExitGames.Client.Photon;
 using GorillaExtensions;
 using hamburbur.Components;
@@ -11,7 +12,7 @@ namespace hamburbur.Managers;
 public class SeralythFriendManager : Singleton<SeralythFriendManager>
 {
     private const byte  FriendByte     = 53;
-    private const float RigDespawnTime = 0.3f;
+    private const float RigDespawnTime = 0.5f;
 
     private readonly Dictionary<VRRig, FakeRig> fakeRigs = [];
 
@@ -39,13 +40,13 @@ public class SeralythFriendManager : Singleton<SeralythFriendManager>
 
     private void Update()
     {
-        List<VRRig> toRemove = [];
+        List<VRRig> toRemoveRig = [];
 
         foreach ((VRRig rig, FakeRig fakeRig) in fakeRigs)
         {
             if (Time.time - fakeRig.LastUpdateTime > RigDespawnTime)
             {
-                toRemove.Add(rig);
+                toRemoveRig.Add(rig);
 
                 continue;
             }
@@ -53,7 +54,7 @@ public class SeralythFriendManager : Singleton<SeralythFriendManager>
             fakeRig.Tick();
         }
 
-        foreach (VRRig rig in toRemove)
+        foreach (VRRig rig in toRemoveRig)
         {
             fakeRigs[rig].Destroy();
             fakeRigs.Remove(rig);

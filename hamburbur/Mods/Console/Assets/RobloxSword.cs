@@ -18,7 +18,7 @@ public class RobloxSword : hamburburmod
         if (allocatedSwordId < 0)
         {
             allocatedSwordId = Components.Console.GetFreeAssetID();
-            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "console.main1", "Sword",
+            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "console.main1", nameof(Sword),
                     allocatedSwordId);
 
             if (BigAssets.isEnabled)

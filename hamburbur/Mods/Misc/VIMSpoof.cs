@@ -8,5 +8,6 @@ namespace hamburbur.Mods.Misc;
 public class VIMSpoof : hamburburmod
 {
     protected override void OnEnable()  => SubscriptionPatches.enabled = true;
+    
     protected override void OnDisable() => SubscriptionPatches.enabled = false;
 }

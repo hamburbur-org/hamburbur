@@ -5,7 +5,7 @@ using hamburbur.Mods.Settings;
 
 namespace hamburbur.Mods.Scoreboard;
 
-[hamburburmod(                "Report", "Report the selected player", ButtonType.Fixed, AccessSetting.Public,
+[hamburburmod(                nameof(Report), "Report the selected player", ButtonType.Fixed, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class Report : hamburburmod
 {

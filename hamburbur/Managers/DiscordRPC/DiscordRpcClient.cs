@@ -453,7 +453,7 @@ public sealed class DiscordRpcClient : IDisposable
     {
         //Make sure appID is NOT null.
         if (string.IsNullOrEmpty(applicationID))
-            throw new ArgumentNullException("applicationID");
+            throw new ArgumentNullException(nameof(applicationID));
 
         //Store the properties
         ApplicationID          = applicationID.Trim();

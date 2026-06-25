@@ -15,7 +15,7 @@ public class VideoPlayer : hamburburmod
     protected override void OnEnable()
     {
         assetId = Components.Console.GetFreeAssetID();
-        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "console.main1", "VideoPlayer", assetId);
+        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "console.main1", nameof(VideoPlayer), assetId);
 
         Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, assetId, 1);
         Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, assetId,
@@ -79,6 +79,7 @@ public class VideoPlayerType : hamburburmod
             { "You got me jumping like", "https://files.hamburbur.org/YouGotMeJumpingLike.mov"},
             { "Guardians of the Galaxy Vol 2", "https://files.hamburbur.org/Guardians%20of%20the%20Galaxy%20Vol.%202%20(2017)%20(Awafim.tv).mp4" },
             { "Five Nights at Freddy's 2", "https://files.hamburbur.org/FNaF2_UnityReady.mp4" },
+            { "Cloudy with a Chance of Meatballs", "https://files.hamburbur.org/Cloudy-With-A-Chance-Of-Meatballs-2009-1080p-BluRay.mp4" },
     };
 
     private static readonly List<string> Keys = Videos.Keys.ToList();

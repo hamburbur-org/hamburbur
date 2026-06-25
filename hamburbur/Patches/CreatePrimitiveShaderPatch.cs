@@ -1,3 +1,4 @@
+using hamburbur.Tools;
 using HarmonyLib;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ public class CreatePrimitiveShaderPatch : MonoBehaviour
 {
     private static void Postfix(GameObject __result)
     {
-        __result.GetComponent<Renderer>().material.shader = Plugin.Instance.UberShader;
+        __result.GetComponent<Renderer>().material.shader = Shaders.UberShader;
         __result.GetComponent<Renderer>().material.color  = Plugin.Instance.MainColour;
     }
 }

@@ -1,7 +1,7 @@
 using System.Collections;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
-using hamburbur.Server_API;
+using hamburbur.Server_Api_Communicator;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -54,7 +54,7 @@ public class SeralythServerDataNotifier : hamburburmod
 
     private IEnumerator CheckStatus()
     {
-        using UnityWebRequest req = UnityWebRequest.Get(HamburburData.SeralythUrl + "/serverdata");
+        using UnityWebRequest req = UnityWebRequest.Get(HamburburOrgData.SeralythUrl + "/serverdata");
         yield return req.SendWebRequest();
 
         bool   isUp        = req.result == UnityWebRequest.Result.Success;

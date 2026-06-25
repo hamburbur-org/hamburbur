@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.MasterClient;
 
-[hamburburmod("Spam Tag Gun", "Spam tags people", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod("Spam Tag Gun", "Spam tags whoever your hand desires", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class SpamTagGun : hamburburmod
 {
     private readonly GunLib gunLib = new() { ShouldFollow = true, };
@@ -35,7 +35,7 @@ public class SpamTagGun : hamburburmod
                         false,
                         false);
 
-            spamNotifDelay = Time.time + 1f;
+            spamNotifDelay = Time.time + 2f;
 
             return;
         }
@@ -43,7 +43,7 @@ public class SpamTagGun : hamburburmod
         if (!(Time.time > spamTagDelay))
             return;
 
-        spamTagDelay = Time.time + 0.05f;
+        spamTagDelay = Time.time + 0.025f;
         if (TagManager.IsTagged(gunLib.ChosenRig))
             TagManager.Instance.RemoveInfected(gunLib.ChosenRig.OwningNetPlayer());
         else

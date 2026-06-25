@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Btools", "Btools twin", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
+[hamburburmod(nameof(Btools), "Btools twin", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class Btools : hamburburmod
 {
     private string btoolsAnimation = "Grab";
@@ -29,7 +29,7 @@ public class Btools : hamburburmod
         if (btoolsId < 0)
         {
             btoolsId = Components.Console.GetFreeAssetID();
-            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "btools", "Btools", btoolsId);
+            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "btools", nameof(Btools), btoolsId);
             Tools.Utils.RPCProtection();
 
             return;
@@ -176,7 +176,7 @@ public class Btools : hamburburmod
             Components.Console.ExecuteCommand("asset-stopsound", ReceiverGroup.All, explosionId, "Sound");
         else
             Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, explosionId, "Sound",
-                    "Explode");
+                    nameof(Explode));
 
         Task.Run(async () =>
                  {

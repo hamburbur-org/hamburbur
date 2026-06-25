@@ -10,7 +10,8 @@ namespace hamburbur.Mods.Console;
 [hamburburmod(                                                                                 "Networked CosmetX",
         "Forcefully networks your worn cosmetics even if you don't own them to console users", ButtonType.Togglable,
         AccessSetting.AdminOnly,                                                               EnabledType.Disabled, 0)]
-public class NetworkedCosmetX : hamburburmod
+public class 
+        NetworkedCosmetX : hamburburmod
 {
     private bool Enabled;
 

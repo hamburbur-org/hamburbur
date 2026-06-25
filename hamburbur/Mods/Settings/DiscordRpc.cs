@@ -16,62 +16,105 @@ public class DiscordRpc : hamburburmod
     private static DiscordRpcClient discord;
     private static DateTime?        startTime;
     private static DateTime?        endTime;
-    private static float            updateTime;
+    private        Action           onJoinedRoomEvent;
+
+    private Action<NetPlayer> onPlayerJoined;
+    private Action<NetPlayer> onPlayerLeft;
+    private Action            onReturnedToSinglePlayer;
 
     protected override void OnEnable()
     {
-        NetworkSystem.Instance.OnPlayerJoined           += _ => UpdatePresence();
-        NetworkSystem.Instance.OnPlayerLeft             += _ => UpdatePresence();
-        NetworkSystem.Instance.OnReturnedToSinglePlayer += UpdatePresence;
-        NetworkSystem.Instance.OnJoinedRoomEvent        += UpdatePresence;
-
         discord = new DiscordRpcClient("1476272482821607594")
         {
                 Logger = new DiscordDebug(),
         };
 
         discord.Initialize();
+
+        onPlayerJoined           = _ => UpdatePresence();
+        onPlayerLeft             = _ => UpdatePresence();
+        onReturnedToSinglePlayer = UpdatePresence;
+        onJoinedRoomEvent        = UpdatePresence;
+
+        if (NetworkSystem.Instance != null)
+        {
+            NetworkSystem.Instance.OnPlayerJoined           += onPlayerJoined;
+            NetworkSystem.Instance.OnPlayerLeft             += onPlayerLeft;
+            NetworkSystem.Instance.OnReturnedToSinglePlayer += onReturnedToSinglePlayer;
+            NetworkSystem.Instance.OnJoinedRoomEvent        += onJoinedRoomEvent;
+        }
+
+        UpdatePresence();
     }
 
     protected override void OnDisable()
     {
-        NetworkSystem.Instance.OnPlayerJoined           -= _ => UpdatePresence();
-        NetworkSystem.Instance.OnPlayerLeft             -= _ => UpdatePresence();
-        NetworkSystem.Instance.OnReturnedToSinglePlayer -= UpdatePresence;
-        NetworkSystem.Instance.OnJoinedRoomEvent        -= UpdatePresence;
+        if (NetworkSystem.Instance != null)
+        {
+            if (onPlayerJoined != null)
+                NetworkSystem.Instance.OnPlayerJoined -= onPlayerJoined;
 
-        discord.ClearPresence();
-        discord.Dispose();
+            if (onPlayerLeft != null)
+                NetworkSystem.Instance.OnPlayerLeft -= onPlayerLeft;
+
+            if (onReturnedToSinglePlayer != null)
+                NetworkSystem.Instance.OnReturnedToSinglePlayer -= onReturnedToSinglePlayer;
+
+            if (onJoinedRoomEvent != null)
+                NetworkSystem.Instance.OnJoinedRoomEvent -= onJoinedRoomEvent;
+        }
+
+        discord?.ClearPresence();
+        discord?.Dispose();
         discord = null;
     }
 
-    private void UpdatePresence()
+    private static void UpdatePresence()
     {
-        bool   inRoom      = NetworkSystem.Instance.InRoom;
-        string roomName    = NetworkSystem.Instance.RoomName ?? "NaN";
-        int    enabledMods = Buttons.GetEnabledMods().Length;
+        if (discord == null || NetworkSystem.Instance == null)
+            return;
+
+        bool inRoom = NetworkSystem.Instance.InRoom;
+
+        string roomName = string.IsNullOrEmpty(NetworkSystem.Instance.RoomName)
+                                  ? "NaN"
+                                  : NetworkSystem.Instance.RoomName;
+
+        int enabledMods = Buttons.GetEnabledMods().Length;
+
+        string gameType = "unknown";
+
+        if (GorillaGameManager.instance != null)
+            gameType = GorillaGameManager.instance.GameType().ToString().ToLower();
+
+        int currentPlayers = PhotonNetwork.PlayerList?.Length      ?? 0;
+        int maxPlayers     = PhotonNetwork.CurrentRoom?.MaxPlayers ?? 0;
 
         discord.SetPresence(new RichPresence
         {
                 Details = $"Using Hamburbur. Enabled Mods: {enabledMods}. " + (inRoom
-                                                                                       ? $"Playing {GorillaGameManager.instance.GameType().ToString().ToLower()}"
+                                                                                       ? $"Playing {gameType}"
                                                                                        : "Playing alone"),
+
                 State = inRoom
-                                ? $"Room: {roomName} ({PhotonNetwork.PlayerList.Length}/{PhotonNetwork.CurrentRoom.MaxPlayers})"
+                                ? $"Room: {roomName} ({currentPlayers}/{maxPlayers})"
                                 : "Not in a room",
+
                 Assets = new DiscordRpcAssets
                 {
-                        LargeImageKey  = "hamburbur",
+                        LargeImageKey  = nameof(hamburbur),
                         LargeImageText = "hamburbur Menu",
                         SmallImageKey  = inRoom ? "online" : "offline",
                         SmallImageText = inRoom ? "Online" : "Offline",
                 },
+
                 Timestamps = inRoom
                                      ? new Timestamps
                                      {
                                              Start = startTime ?? endTime ?? DateTime.UtcNow,
                                      }
                                      : null,
+
                 Buttons =
                 [
                         new Button

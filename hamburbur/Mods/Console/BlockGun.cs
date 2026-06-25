@@ -12,7 +12,7 @@ namespace hamburbur.Mods.Console;
         AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class BlockGun : hamburburmod
 {
-    public static string BlockedPath = Path.Combine(Path.Combine(Paths.GameRootPath, "Console"), "blocked.txt");
+    public static string BlockedPath = Path.Combine(Path.Combine(Paths.GameRootPath, nameof(Console)), "blocked.txt");
 
     private readonly GunLib gunLib = new()
     {

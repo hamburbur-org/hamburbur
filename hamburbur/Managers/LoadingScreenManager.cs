@@ -66,7 +66,7 @@ public class LoadingScreenManager : Singleton<LoadingScreenManager>
     {
         GTPlayer.Instance.disableMovement = true;
         
-        GameObject tutorialScreen = Instantiate(Plugin.Instance.HamburburBundle.LoadAsset<GameObject>("TutorialScreen"));
+        GameObject tutorialScreen = Instantiate(Plugin.Instance.HamburburBundle.LoadAsset<GameObject>(nameof(TutorialScreen)));
         
         //Already contains the video url and play on awake is true in the asset bundle
         VideoPlayer player = tutorialScreen.GetComponent<VideoPlayer>();

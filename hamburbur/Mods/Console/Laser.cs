@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod(                   "Laser", "Shoot a laser out of your palm that kicks people", ButtonType.Togglable,
+[hamburburmod(                   nameof(Laser), "Shoot a laser out of your palm that kicks people", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class Laser : hamburburmod
 {

@@ -8,7 +8,7 @@ using hamburburmod = hamburbur.Mod_Backend.hamburburmod;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Extenders", "Makes your arm longer when you hold down the left joystick", ButtonType.Togglable,
+[hamburburmod(nameof(Extenders), "Makes your arm longer when you hold down the left joystick", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class Extenders : hamburburmod
 {

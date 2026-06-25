@@ -19,6 +19,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Networking;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using ArrayList = System.Collections.ArrayList;
 
@@ -37,8 +38,8 @@ public class GUIHandler : Singleton<GUIHandler>
 
     public bool Open;
 
-    private TextMeshProUGUI fpsText;
-    public TextMeshProUGUI arrayListText;
+    private                                        TextMeshProUGUI fpsText;
+    public TextMeshProUGUI ArrayListText;
 
     private float lastFpsUpdate;
     private float lastTimeDataStreamed;
@@ -56,7 +57,7 @@ public class GUIHandler : Singleton<GUIHandler>
         CategoryButtonPrefab = Plugin.Instance.HamburburBundle.LoadAsset<GameObject>("CategoryButton");
         ModButtonPrefab      = Plugin.Instance.HamburburBundle.LoadAsset<GameObject>("ModButton");
 
-        NotificationText      = Canvas.transform.Find("NotificationText").GetComponent<TextMeshProUGUI>();
+        NotificationText      = Canvas.transform.Find(nameof(NotificationText)).GetComponent<TextMeshProUGUI>();
         NotificationText.text = "";
 
         Menu = Canvas.transform.TakeChild(1).gameObject;
@@ -64,12 +65,12 @@ public class GUIHandler : Singleton<GUIHandler>
         fpsText = Menu.transform.TakeChild(1, 1).GetComponent<TextMeshProUGUI>();
         
         Menu.transform.TakeChild(4).GetComponent<Button>().onClick
-            .AddListener(() => ButtonHandler.Instance.SetCategory("Main"));
+            .AddListener(() => ButtonHandler.Instance.SetCategory(nameof(Main)));
         Menu.transform.TakeChild(5).GetComponent<Button>().onClick.AddListener(() => NetworkSystem.Instance.ReturnToSinglePlayer());
 
         Menu.transform.TakeChild(3, 0, 0, 0).AddComponent<GreetingHandler>();
         
-        arrayListText = Canvas.transform.TakeChild(3).GetComponent<TextMeshProUGUI>();
+        ArrayListText = Canvas.transform.TakeChild(3).GetComponent<TextMeshProUGUI>();
 
         //Text input field
         Menu.transform.TakeChild(3, 0, 0, 1, 0).GetComponent<TMP_InputField>().onSelect
@@ -203,7 +204,7 @@ public class GUIHandler : Singleton<GUIHandler>
 
     private void Update()
     {
-        if (Mods.Settings.ArrayList.IsEnabled && arrayListText != false)
+        if (Mods.Settings.ArrayList.IsEnabled && ArrayListText != false)
         {
             ValueTuple<Type, hamburburmod>[] enabledMods = Buttons.GetEnabledMods();
 
@@ -214,7 +215,7 @@ public class GUIHandler : Singleton<GUIHandler>
             foreach ((Type, hamburburmod) mod in enabledMods)
                 sb.AppendLine(mod.Item2.ModName);
 
-            arrayListText.text = sb.ToString();
+            ArrayListText.text = sb.ToString();
         }
         
         if (KeyboardManager.Instance.KeyboardOpen)
@@ -299,7 +300,7 @@ public class GUIHandler : Singleton<GUIHandler>
         foreach (KeyValuePair<string, ValueTuple<Type, hamburburmod>[]> category in Buttons.Categories)
         {
             foreach (ValueTuple<Type, hamburburmod> mod in category.Value)
-                if (category.Key == "Main")
+                if (category.Key == nameof(Main))
                 {
                     GameObject categoryButton = Instantiate(CategoryButtonPrefab, categoryContent);
                     categoryButton.GetComponentInChildren<TextMeshProUGUI>().text = mod.Item2.ModName;
@@ -341,7 +342,7 @@ public class GUIHandler : Singleton<GUIHandler>
     {
         foreach ((string category, (Type, hamburburmod)[] buttons) in Buttons.Categories)
         {
-            if (category == "Main")
+            if (category == nameof(Main))
             {
                 foreach ((Type _, hamburburmod modComp) in buttons)
                     modComp.AssociatedGUIButton.GetComponentInChildren<TextMeshProUGUI>().text = modComp.ModName;
@@ -403,8 +404,8 @@ public class GUIHandler : Singleton<GUIHandler>
                            .SetActive(modComp.AssociatedAttribute.ButtonType != ButtonType.Fixed && modComp.Enabled);
                 }
 
-            Menu.transform.TakeChild(2).gameObject.SetActive(MenuHandler.Instance.Category != "Main");
-            Menu.transform.TakeChild(3).gameObject.SetActive(MenuHandler.Instance.Category == "Main");
+            Menu.transform.TakeChild(2).gameObject.SetActive(MenuHandler.Instance.Category != nameof(Main));
+            Menu.transform.TakeChild(3).gameObject.SetActive(MenuHandler.Instance.Category == nameof(Main));
         }
     }
 }

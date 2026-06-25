@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using hamburbur.Managers;
+using hamburbur.Mods.Settings;
 using HarmonyLib;
 using Photon.Pun;
 using UnityEngine;
@@ -14,8 +15,11 @@ public static class AntiCheat
 
     private static bool Prefix(string susReason, string susId, string susNick)
     {
+        if (!AntiCheatNotification.IsEnabled)
+            return true;
+        
         if (LastLoggedReport.ContainsKey(susId) && LastLoggedReport[susId] > Time.time)
-            return susId                                                   != PhotonNetwork.LocalPlayer.UserId;
+            return susId != PhotonNetwork.LocalPlayer.UserId;
 
         NotificationManager.SendNotification(
                 "<color=red>Anti Cheat</color>",

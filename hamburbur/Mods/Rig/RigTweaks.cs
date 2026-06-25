@@ -3,6 +3,7 @@ using System.Linq;
 using BepInEx;
 using ExitGames.Client.Photon;
 using GorillaLocomotion;
+using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using HarmonyLib;
 using Photon.Pun;
@@ -24,22 +25,22 @@ public class RigTweaks : hamburburmod
 
         float speed = 90f;
 
-        if (UnityInput.Current.GetKey(KeyCode.UpArrow))
+        if (UnityInput.Current.GetKey(KeyCode.UpArrow) || InputManager.Instance.LeftJoystick.Axis.y > 0.5f)
             RigRotation *= Quaternion.Euler(speed * Time.deltaTime, 0, 0);
 
-        if (UnityInput.Current.GetKey(KeyCode.DownArrow))
+        if (UnityInput.Current.GetKey(KeyCode.DownArrow) || InputManager.Instance.LeftJoystick.Axis.y < -0.5f)
             RigRotation *= Quaternion.Euler(-speed * Time.deltaTime, 0, 0);
 
-        if (UnityInput.Current.GetKey(KeyCode.LeftArrow))
+        if (UnityInput.Current.GetKey(KeyCode.LeftArrow) || InputManager.Instance.LeftJoystick.Axis.x < -0.5f)
             RigRotation *= Quaternion.Euler(0, speed * Time.deltaTime, 0);
 
-        if (UnityInput.Current.GetKey(KeyCode.RightArrow))
+        if (UnityInput.Current.GetKey(KeyCode.RightArrow) || InputManager.Instance.LeftJoystick.Axis.x > 0.5f)
             RigRotation *= Quaternion.Euler(0, -speed * Time.deltaTime, 0);
 
-        if (UnityInput.Current.GetKey(KeyCode.RightControl))
+        if (UnityInput.Current.GetKey(KeyCode.RightControl) || InputManager.Instance.RightJoystick.Axis.x > 0.5f)
             RigRotation *= Quaternion.Euler(0, 0, speed * Time.deltaTime);
 
-        if (UnityInput.Current.GetKey(KeyCode.RightShift))
+        if (UnityInput.Current.GetKey(KeyCode.RightShift) || InputManager.Instance.RightJoystick.Axis.x < -0.5f)
             RigRotation *= Quaternion.Euler(0, 0, -speed * Time.deltaTime);
 
         if (UnityInput.Current.GetKeyDown(KeyCode.R))
@@ -49,8 +50,6 @@ public class RigTweaks : hamburburmod
     protected override void OnEnable()
     {
         IsEnabled = true;
-
-        GTPlayerTransform.UseNetRotation = true;
     }
 
     protected override void OnDisable() => IsEnabled = false;

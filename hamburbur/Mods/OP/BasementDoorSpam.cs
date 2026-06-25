@@ -8,7 +8,7 @@ namespace hamburbur.Mods.OP;
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class BasementDoorSpam : hamburburmod
 {
-    private const float Delay = 0.1f;
+    private const float Delay = 0.02f;
     private       int   currentDoorIndex;
 
     private GTDoor door;
@@ -17,7 +17,7 @@ public class BasementDoorSpam : hamburburmod
 
     protected override void Update()
     {
-        if (!(lastTime + Delay < Time.time) || !PhotonNetwork.InRoom)
+        if (/*!(lastTime + Delay < Time.time) || */!PhotonNetwork.InRoom)
             return;
 
         lastTime = Time.time;

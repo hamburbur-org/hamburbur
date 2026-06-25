@@ -23,7 +23,7 @@ public class PhysicsGun : hamburburmod
         if (allocatedPhysId < 0)
         {
             allocatedPhysId = Components.Console.GetFreeAssetID();
-            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "console.main1", "PhysicsGun",
+            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "console.main1", nameof(PhysicsGun),
                     allocatedPhysId);
 
             if (BigAssets.isEnabled)

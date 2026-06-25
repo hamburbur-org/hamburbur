@@ -11,8 +11,8 @@ public class ZlothYRecRoomRig : hamburburmod
 {
     private static float smoothedYaw;
 
-    private readonly float  behindFloat = 0.18f;
-    public override  Type[] IncompatibleMods => [typeof(RecRoomRig),];
+    private readonly   float  behindFloat = 0.18f;
+    protected override Type[] IncompatibleMods => [typeof(RecRoomRig),];
 
     protected override void Update()
     {

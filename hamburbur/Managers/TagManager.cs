@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using GorillaGameModes;
+using GorillaNetworking;
 using GorillaTagScripts;
 using hamburbur.Components;
 using hamburbur.Tools;

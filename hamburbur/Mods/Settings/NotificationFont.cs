@@ -1,5 +1,3 @@
-using System;
-using GorillaNotifications.Core;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 
@@ -9,9 +7,9 @@ namespace hamburbur.Mods.Settings;
         AccessSetting.Public, EnabledType.Disabled,  0)]
 public class NotificationFont : hamburburmod
 {
-    private static FontType[] cachedFontTypes;
+    private static string[] cachedFontTypes;
 
-    public override string ModName => AssociatedAttribute.Name + NotificationManager.ChosenFont;
+    public override string ModName => AssociatedAttribute.Name + NotificationManager.ChosenFontName;
 
     protected override void Increment()
     {
@@ -21,7 +19,7 @@ public class NotificationFont : hamburburmod
         if (IncrementalValue >= cachedFontTypes.Length)
             IncrementalValue = 0;
 
-        NotificationManager.ChosenFont = cachedFontTypes[IncrementalValue];
+        NotificationManager.ChosenFontName = cachedFontTypes[IncrementalValue];
     }
 
     protected override void Decrement()
@@ -32,7 +30,7 @@ public class NotificationFont : hamburburmod
         if (IncrementalValue < 0)
             IncrementalValue = cachedFontTypes.Length - 1;
 
-        NotificationManager.ChosenFont = cachedFontTypes[IncrementalValue];
+        NotificationManager.ChosenFontName = cachedFontTypes[IncrementalValue];
     }
 
     private static void EnsureCache()
@@ -40,12 +38,19 @@ public class NotificationFont : hamburburmod
         if (cachedFontTypes != null)
             return;
 
-        cachedFontTypes = (FontType[])Enum.GetValues(typeof(FontType));
+        cachedFontTypes = NotificationManager.GetAvailableFontNames();
+
+        if (cachedFontTypes.Length == 0)
+            cachedFontTypes = ["JetBrains_Mono",];
     }
 
     protected override void OnIncrementalStateLoaded()
     {
         EnsureCache();
-        NotificationManager.ChosenFont = cachedFontTypes[IncrementalValue];
+
+        if (IncrementalValue < 0 || IncrementalValue >= cachedFontTypes.Length)
+            IncrementalValue = 0;
+
+        NotificationManager.ChosenFontName = cachedFontTypes[IncrementalValue];
     }
 }

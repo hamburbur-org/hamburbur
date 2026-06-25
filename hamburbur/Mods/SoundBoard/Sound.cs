@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.SoundBoard;
 
-[hamburburmod("Sound", "Plays a sound through your mic in-game", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(nameof(Sound), "Plays a sound through your mic in-game", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.AlwaysDisabled, 0)]
 public class Sound : hamburburmod
 {

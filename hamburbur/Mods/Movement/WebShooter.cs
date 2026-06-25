@@ -55,7 +55,7 @@ public class WebShooter : hamburburmod
                 leftJoint.massScale = 12f;
             }
 
-            GameObject   line  = new("Line");
+            GameObject   line  = new(nameof(Line));
             LineRenderer liner = line.AddComponent<LineRenderer>();
             liner.numCapVertices    = 10;
             liner.numCornerVertices = 5;
@@ -76,7 +76,7 @@ public class WebShooter : hamburburmod
             Vector3 endPosition = GorillaTagger.Instance.leftHandTransform.position +
                                   GorillaTagger.Instance.leftHandTransform.forward * 16f;
 
-            GameObject   line  = new("Line");
+            GameObject   line  = new(nameof(Line));
             LineRenderer liner = line.AddComponent<LineRenderer>();
             liner.numCapVertices    = 10;
             liner.numCornerVertices = 5;
@@ -136,7 +136,7 @@ public class WebShooter : hamburburmod
                 rightJoint.massScale = 12f;
             }
 
-            GameObject   line  = new("Line");
+            GameObject   line  = new(nameof(Line));
             LineRenderer liner = line.AddComponent<LineRenderer>();
             liner.numCapVertices    = 10;
             liner.numCornerVertices = 5;
@@ -157,7 +157,7 @@ public class WebShooter : hamburburmod
             Vector3 EndPosition = GorillaTagger.Instance.rightHandTransform.position +
                                   GorillaTagger.Instance.rightHandTransform.forward * 16f;
 
-            GameObject   line  = new("Line");
+            GameObject   line  = new(nameof(Line));
             LineRenderer liner = line.AddComponent<LineRenderer>();
             liner.numCapVertices    = 10;
             liner.numCornerVertices = 5;

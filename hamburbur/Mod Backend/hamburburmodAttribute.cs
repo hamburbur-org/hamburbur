@@ -3,6 +3,7 @@ using System;
 namespace hamburbur.Mod_Backend;
 
 [AttributeUsage(AttributeTargets.Class)]
+// ReSharper disable once InconsistentNaming
 public class hamburburmodAttribute(
         string        name,
         string        description,

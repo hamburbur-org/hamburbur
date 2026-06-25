@@ -23,7 +23,7 @@ public class BanHammer : hamburburmod
             return;
 
         allocatedBanHammerId = Components.Console.GetFreeAssetID();
-        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "banhammer", "BanHammer",
+        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "banhammer", nameof(BanHammer),
                 allocatedBanHammerId);
 
         if (BigAssets.isEnabled)

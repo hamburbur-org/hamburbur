@@ -24,7 +24,7 @@ public static class SoundBoardLoader
             string fileName = Path.GetFileName(path);
 
             Sound mod =
-                    (Sound)ButtonHandler.AddButton("SoundBoard", typeof(Sound));
+                    (Sound)ButtonHandler.AddButton(nameof(SoundBoard), typeof(Sound));
 
             mod.SoundName = fileName;
             mod.SoundPath = path;

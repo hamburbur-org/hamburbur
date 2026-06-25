@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Karambit", "Spawns the karambit asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(nameof(Karambit), "Spawns the karambit asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class Karambit : hamburburmod
 {
@@ -30,7 +30,7 @@ public class Karambit : hamburburmod
             Components.Console.ExecuteCommand("asset-setlocalrotation", ReceiverGroup.All, allocatedAssetId,
                     Quaternion.Euler(270f, 60f, 0f));
 
-            Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, allocatedAssetId, "Collider",
+            Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, allocatedAssetId, nameof(Collider),
                     "csgo knife");
         }
 
@@ -38,7 +38,7 @@ public class Karambit : hamburburmod
                     out Components.Console.ConsoleAsset asset) || asset.assetObject == null)
             return;
 
-        Transform rayPoint = asset.assetObject.transform.Find("Collider");
+        Transform rayPoint = asset.assetObject.transform.Find(nameof(Collider));
 
         if (rayPoint == null) return;
 
@@ -55,7 +55,7 @@ public class Karambit : hamburburmod
                     pauseSfx   = Time.time + 1f;
 
                     Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, allocatedAssetId,
-                            "Collider", "Stab");
+                            nameof(Collider), "Stab");
 
                     Components.Console.ExecuteCommand("vel", Target.Creator.ActorNumber,
                             (Target.transform.position - GorillaTagger.Instance.rightHandTransform.position)

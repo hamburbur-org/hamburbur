@@ -6,9 +6,11 @@ using System.Text.RegularExpressions;
 using hamburbur.Managers;
 using hamburbur.Misc;
 using hamburbur.Mod_Backend;
+using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using Object = UnityEngine.Object;
+// ReSharper disable ConvertToExtensionBlock
 
 namespace hamburbur.Tools;
 
@@ -46,12 +48,15 @@ public static class Extensions
     public static VRRig Rig(this int actorNumber) =>
             VRRigCache.m_activeRigs.Find(r => r.Creator.ActorNumber == actorNumber);
 
-    public static VRRig Rig(this NetPlayer netPlayer) => VRRigCache.rigsInUse[netPlayer].Rig;
-
+    public static VRRig Rig(this NetPlayer netPlayer) =>
+            VRRigCache.m_activeRigs.Find(r => r.Creator.Equals(netPlayer));
+    
     public static VRRig Rig(this Player player) =>
             VRRigCache.m_activeRigs.Find(r => r.Creator.GetPlayerRef().Equals(player));
 
     public static VRRig Rig(this string id) => VRRigCache.m_activeRigs.Find(r => r.Creator?.UserId == id);
+    
+    public static void Serialize(this PhotonView view, RaiseEventOptions options = null, int offset = 0) => Utils.SendSerialize(view, options, offset);
     
     public static bool IsOnSteam(this VRRig Player)
     {

@@ -20,11 +20,11 @@ public class RainbowSword : hamburburmod
         if (allocatedRSwordId < 0)
         {
             allocatedRSwordId = Components.Console.GetFreeAssetID();
-            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "rbsword", "Sword",
+            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "rbsword", nameof(Sword),
                     allocatedRSwordId);
 
             Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, allocatedRSwordId, 2);
-            Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, allocatedRSwordId, "Sword",
+            Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, allocatedRSwordId, nameof(Sword),
                     "Music");
 
             if (BigAssets.isEnabled)
@@ -55,7 +55,7 @@ public class RainbowSword : hamburburmod
                             "Sword/SFX", $"Slash{Random.Range(1, 3)}");
 
                     Components.Console.ExecuteCommand("asset-playanimation", ReceiverGroup.All,
-                            allocatedRSwordId, "Sword", "Particles");
+                            allocatedRSwordId, nameof(Sword), "Particles");
 
                     NetPlayer player = Target.Creator;
                     Components.Console.ExecuteCommand("silkick", player.ActorNumber, player.UserId);

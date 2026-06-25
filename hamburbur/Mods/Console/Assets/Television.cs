@@ -5,13 +5,13 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Television", "Spawns in a tv", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled,
+[hamburburmod(nameof(Television), "Spawns in a tv", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled,
         0)]
 public class Television : hamburburmod
 {
-    private         int    assetId;
-    private         int    sofaAssetId;
-    public override Type[] Dependencies => [typeof(DarkFade),];
+    private            int    assetId;
+    private            int    sofaAssetId;
+    protected override Type[] Dependencies => [typeof(DarkFade),];
 
     protected override void OnEnable()
     {
@@ -36,7 +36,7 @@ public class Television : hamburburmod
         Components.Console.ExecuteCommand("asset-setrotation", ReceiverGroup.All, sofaAssetId,
                 Quaternion.Euler(270f, 270f, 0f));
 
-        Components.Console.ExecuteCommand("asset-setvideo", ReceiverGroup.All, assetId, "VideoPlayer",
+        Components.Console.ExecuteCommand("asset-setvideo", ReceiverGroup.All, assetId, nameof(VideoPlayer),
                 VideoPlayerType.Instance.CurrentUrl);
     }
 

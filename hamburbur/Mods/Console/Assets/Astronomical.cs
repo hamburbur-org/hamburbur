@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Astronomical", "Fortnite astronomical event", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
+[hamburburmod(nameof(Astronomical), "Fortnite astronomical event", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class Astronomical : hamburburmod
 {
-    public override  Type[] Dependencies => [typeof(DarkFade),];
+    protected override  Type[] Dependencies => [typeof(DarkFade),];
     
     private int assetId;
     protected override void OnEnable()
@@ -23,7 +23,7 @@ public class Astronomical : hamburburmod
         
         Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, assetId, Vector3.one * 10f);
         
-        Components.Console.ExecuteCommand("asset-setvideo", ReceiverGroup.All, assetId, "VideoPlayer",
+        Components.Console.ExecuteCommand("asset-setvideo", ReceiverGroup.All, assetId, nameof(VideoPlayer),
                 VideoPlayerType.Instance.CurrentUrl);
     }
 

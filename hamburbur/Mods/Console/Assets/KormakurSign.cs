@@ -14,7 +14,7 @@ public class KormakurSign : hamburburmod
     protected override void OnEnable()
     {
         assetId = Components.Console.GetFreeAssetID();
-        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "consolehamburburassets", "KormakurSign",
+        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "consolehamburburassets", nameof(KormakurSign),
                 assetId);
 
         Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, assetId, 2);

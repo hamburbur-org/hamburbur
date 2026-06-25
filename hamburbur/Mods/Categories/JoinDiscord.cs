@@ -7,7 +7,7 @@ namespace hamburbur.Mods.Categories;
         EnabledType.Disabled, 0)]
 public class JoinDiscord : hamburburmod
 {
-    public const string DiscordUrl = "https://discord.gg/hamburbur";
+    public const string DiscordUrl = "https://hamburbur.org/discord";
 
     protected override void Pressed()
     {

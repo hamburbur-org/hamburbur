@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
@@ -10,7 +11,6 @@ using hamburbur.Components;
 using hamburbur.GUI;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
-using hamburbur.Mods.Settings;
 using hamburbur.Tools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -19,36 +19,52 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Console = hamburbur.Components.Console;
 
-namespace hamburbur.Server_API;
+namespace hamburbur.Server_Api_Communicator;
 
-public class HamburburData : Singleton<HamburburData>
+public class HamburburOrgData : Singleton<HamburburOrgData>
 {
     public const string HamburburUrl = "https://hamburbur.org";
     public const string SeralythUrl  = "https://menu.seralyth.software";
 
     public static Action<JObject> OnDataReloaded;
 
-    public static readonly Dictionary<string, string> Admins               = [];
-    public static readonly List<string>               HamburburSuperAdmins = [];
+    private static readonly Dictionary<string, string>         allAdmins         = [];
+    private static readonly ReadOnlyDictionary<string, string> allAdminsReadonly = new(allAdmins);
 
-    public static readonly Dictionary<string, string> SeralythAdmins      = [];
-    public static readonly List<string>               SeralythSuperAdmins = [];
+    private static readonly Dictionary<string, string>         hamburburAdmins         = [];
+    private static readonly ReadOnlyDictionary<string, string> hamburburAdminsReadonly = new(hamburburAdmins);
+
+    private static readonly HashSet<string> hamburburSuperAdmins = [];
+
+    private static readonly ReadOnlyCollection<string> hamburburSuperAdminsReadonly =
+            hamburburSuperAdmins.ToList().AsReadOnly();
+
+    private static readonly Dictionary<string, string>         seralythAdmins         = [];
+    private static readonly ReadOnlyDictionary<string, string> seralythAdminsReadonly = new(seralythAdmins);
+
+    private static readonly HashSet<string> seralythSuperAdmins = [];
+
+    private static readonly ReadOnlyCollection<string> seralythSuperAdminsReadonly =
+            seralythSuperAdmins.ToList().AsReadOnly();
 
     private static Action<bool> onPlayerConfirmedToBeAdmin;
     private static bool         hasSubscribedToAddingAdminMods;
     private static bool         hasSubscribedToAddingSuperAdminMods;
     private static bool         givenAdminMods;
 
-    public static bool shouldUseSeralythData;
+    public static bool ShouldUseSeralythData;
 
     public static          ClientWebSocket SeralythUserCountWebsocket;
     public static readonly string          SeralythServerWebsocket = "wss://menu.seralyth.software";
-
-    private static float DataSyncDelay;
-
-    private       bool    hasLoadedConsole;
-    public static JObject Data       { get; private set; }
-    public static bool    DataLoaded { get; private set; }
+    
+    private       bool                                hasLoadedConsole;
+    public static IReadOnlyDictionary<string, string> AllAdmins            => allAdminsReadonly;
+    public static IReadOnlyDictionary<string, string> HamburburAdmins      => hamburburAdminsReadonly;
+    public static IReadOnlyCollection<string>         HamburburSuperAdmins => hamburburSuperAdminsReadonly;
+    public static IReadOnlyDictionary<string, string> SeralythAdmins       => seralythAdminsReadonly;
+    public static IReadOnlyCollection<string>         SeralythSuperAdmins  => seralythSuperAdminsReadonly;
+    public static JObject                             Data                 { get; private set; }
+    public static bool                                DataLoaded           { get; private set; }
 
     public static bool IsLocalAdmin      { get; private set; }
     public static bool IsLocalSuperAdmin { get; private set; }
@@ -105,50 +121,56 @@ public class HamburburData : Singleton<HamburburData>
 
                 if (!errored)
                 {
-                    shouldUseSeralythData = true;
+                    ShouldUseSeralythData = true;
                     JObject seralythData = null;
 
                     if (seralythWebRequest.result != UnityWebRequest.Result.Success)
-                        shouldUseSeralythData = false;
+                        ShouldUseSeralythData = false;
 
-                    if (shouldUseSeralythData)
+                    if (ShouldUseSeralythData)
                         try
                         {
                             seralythData = JObject.Parse(seralythWebRequest.downloadHandler.text);
                         }
                         catch
                         {
-                            shouldUseSeralythData = false;
+                            ShouldUseSeralythData = false;
                         }
 
-                    Admins.Clear();
-                    HamburburSuperAdmins.Clear();
+                    allAdmins.Clear();
 
-                    SeralythAdmins.Clear();
-                    SeralythSuperAdmins.Clear();
+                    hamburburAdmins.Clear();
+                    hamburburSuperAdmins.Clear();
+
+                    seralythAdmins.Clear();
+                    seralythSuperAdmins.Clear();
 
                     foreach (JToken adminPair in (JArray)Data["admins"]!)
                     {
                         string adminUserId = adminPair["userId"]!.ToString();
-                        string adminName   = adminPair["name"]!.ToString();
-                        Admins[adminUserId] = adminName;
+                        string adminName   = adminPair[nameof(name)]!.ToString();
+
+                        allAdmins[adminUserId]       = adminName;
+                        hamburburAdmins[adminUserId] = adminName;
                     }
 
-                    HamburburSuperAdmins.AddRange(((JArray)Data["superAdmins"]!).Select(token => token.ToString()));
+                    foreach (string superAdmin in ((JArray)Data["superAdmins"]!).Select(token => token.ToString()))
+                        hamburburSuperAdmins.Add(superAdmin);
 
-                    if (shouldUseSeralythData)
+                    if (ShouldUseSeralythData)
                     {
                         foreach (JToken seralythAdminPair in (JArray)seralythData["admins"]!)
                         {
                             string seralythAdminUserId = seralythAdminPair["user-id"]!.ToString();
-                            string seralythAdminName   = seralythAdminPair["name"]!.ToString();
+                            string seralythAdminName   = seralythAdminPair[nameof(name)]!.ToString();
 
-                            Admins[seralythAdminUserId]         = seralythAdminName;
-                            SeralythAdmins[seralythAdminUserId] = seralythAdminName;
+                            allAdmins[seralythAdminUserId]      = seralythAdminName;
+                            seralythAdmins[seralythAdminUserId] = seralythAdminName;
                         }
 
-                        SeralythSuperAdmins.AddRange(
-                                ((JArray)seralythData["super-admins"]!).Select(token => token.ToString()));
+                        foreach (string superAdmin in
+                                 ((JArray)seralythData["super-admins"]!).Select(token => token.ToString()))
+                            seralythSuperAdmins.Add(superAdmin);
                     }
 
                     if (!hasLoadedConsole)
@@ -160,34 +182,34 @@ public class HamburburData : Singleton<HamburburData>
             }
             else
             {
-                    NotificationManager.SendNotification(
-                            "<color=red>Error</color>",
-                            $"Failed to fetch necessary data from {Constants.HamburburDataUrl}: {hamburburWebRequest.error}",
-                            5f,
-                            true,
-                            true);
+                NotificationManager.SendNotification(
+                        "<color=red>Error</color>",
+                        $"Failed to fetch necessary data from {Constants.HamburburDataUrl}: {hamburburWebRequest.error}",
+                        5f,
+                        true,
+                        true);
 
                 Debug.LogError($"Failed to fetch data from {Constants.HamburburDataUrl}: {hamburburWebRequest.error}");
             }
 
-            yield return new WaitForSeconds(60);
+            yield return new WaitForSeconds(120);
         }
     }
 
     private void Update()
     {
         if (givenAdminMods || PhotonNetwork.LocalPlayer.UserId.IsNullOrEmpty() ||
-            !Admins.TryGetValue(PhotonNetwork.LocalPlayer.UserId, out string playerName))
+            !allAdmins.TryGetValue(PhotonNetwork.LocalPlayer.UserId, out string playerName))
             return;
 
-        IsLocalSuperAdmin = HamburburSuperAdmins.Contains(playerName);
+        IsLocalSuperAdmin = hamburburSuperAdmins.Contains(playerName);
         IsLocalAdmin      = true;
         givenAdminMods    = true;
         StartCoroutine(LoadAdminModsRoutine(playerName, IsLocalSuperAdmin));
     }
 
-    public static IEnumerator TelemetryRequest(string directory, string identity,    string region, string userid,
-                                               bool   isPrivate, int    playerCount, string gameMode)
+    private static IEnumerator TelemetryRequest(string directory, string identity,    string region, string userid,
+                                                bool   isPrivate, int    playerCount, string gameMode)
     {
         string json = JsonConvert.SerializeObject(new
         {
@@ -243,7 +265,7 @@ public class HamburburData : Singleton<HamburburData>
     }
 
     [AccessSettingsAllowedCheck(AccessSetting.AdminOnly)]
-    public static bool AdminModsAccessible()
+    public static bool CanAccessAdminModButtons()
     {
         if (!givenAdminMods)
         {
@@ -274,7 +296,7 @@ public class HamburburData : Singleton<HamburburData>
     }
 
     [AccessSettingsAllowedCheck(AccessSetting.SuperAdminOnly)]
-    public static bool SuperAdminModsAccessible()
+    public static bool CanAccessSuperAdminModButtons()
     {
         if (!givenAdminMods)
         {

@@ -11,7 +11,7 @@ using Random = System.Random;
 namespace hamburbur.Mods.SoundBoard;
 
 [hamburburmod("Glider Visualizer",
-        "Turns the Gliders in SkyJungle into a equaliser for the soundboard. !! CURRENTLY DISABLED !!",
+        "Turns the Gliders in SkyJungle into a equaliser for the soundboard.",
         ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class GliderVisualizer : hamburburmod

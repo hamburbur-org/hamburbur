@@ -31,7 +31,7 @@ public class GrayZone : hamburburmod
             greyZone.forceTimeOfDayToNight  = true;
             greyZone.greyZoneActiveDuration = float.MaxValue;
             greyZone.ActivateGreyZoneAuthority();
-            greyZone.gravityFactorOptionSelection = 100;
+            greyZone.gravityFactorOptionSelection = 0;
         }
     }
 
@@ -42,7 +42,7 @@ public class GrayZone : hamburburmod
         
         foreach (GreyZoneManager greyZone in greyZones)
         {
-            greyZone.greyZoneAmbienceVolume = 1f;
+            greyZone.greyZoneAmbienceVolume = 0f;
             greyZone.DeactivateGreyZoneAuthority();
             greyZone.gravityFactorOptionSelection = 0;
         }

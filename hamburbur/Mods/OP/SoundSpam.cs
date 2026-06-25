@@ -79,7 +79,7 @@ public class ChangeSpamSound : hamburburmod
     // ReSharper disable once UseCollectionExpression
     private static readonly List<KeyValuePair<string, int>> soundList = new()
     {
-            new KeyValuePair<string, int>("Random",   -1),
+            new KeyValuePair<string, int>(nameof(Random),   -1),
             new KeyValuePair<string, int>("Jman1",    336),
             new KeyValuePair<string, int>("Jman2",    337),
             new KeyValuePair<string, int>("Crystal1", -2),
@@ -99,7 +99,7 @@ public class ChangeSpamSound : hamburburmod
 
         return kvp.Key switch
                {
-                       "Random"   => Random.Range(0,   255),
+                       nameof(Random)   => Random.Range(0,   255),
                        "Crystal1" => Random.Range(40,  54),
                        "Crystal2" => Random.Range(214, 221),
                        "Racoon"   => Random.Range(274, 277),

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod(                      "Scythe", "Spawns the scythe asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      nameof(Scythe), "Spawns the scythe asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class Scythe : hamburburmod
 {
@@ -17,7 +17,7 @@ public class Scythe : hamburburmod
         if (scytheId < 0)
         {
             scytheId = Components.Console.GetFreeAssetID();
-            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "mistscythe", "Scythe",
+            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "mistscythe", nameof(Scythe),
                     scytheId);
 
             Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, scytheId, 2);

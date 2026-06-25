@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Fun;
 
-[hamburburmod("Nuke", "Falling nuke", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
+[hamburburmod(nameof(Nuke), "Falling nuke", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class Nuke : hamburburmod
 {
     private Coroutine fallRoutine;
@@ -92,7 +92,7 @@ public class Nuke : hamburburmod
         Components.Console.ExecuteCommand("asset-spawn",       ReceiverGroup.All, "btools", "Explosion", explosionId);
         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, explosionId, position);
         
-        Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, explosionId, "Sound", "Explode");
+        Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, explosionId, "Sound", nameof(Explode));
 
         Task.Run(async () =>
                  {

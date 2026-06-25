@@ -33,12 +33,12 @@ public class RareCosmeticEsp : hamburburmod
 
     private void CheckAndApplyEsp(VRRig rig)
     {
-        if (!Plugin.Instance.specialCosmetics.Keys.Any(cosmeticKey => rig._playerOwnedCosmetics.Contains(cosmeticKey)) ||
+        if (!Plugin.Instance.SpecialCosmetics.Keys.Any(cosmeticKey => rig._playerOwnedCosmetics.Contains(cosmeticKey)) ||
             rig.isLocal)
             return;
 
         foreach (GameObject cosmeticObject in rig.cosmetics.Where(cosmeticObject =>
-                                                                          Plugin.Instance.specialCosmetics.Keys
+                                                                          Plugin.Instance.SpecialCosmetics.Keys
                                                                                  .Any(cosmeticKey =>
                                                                                           cosmeticObject.name
                                                                                                  .Contains(
@@ -55,7 +55,7 @@ public class RareCosmeticEsp : hamburburmod
     private void RestoreCosmetics(VRRig rig)
     {
         foreach (GameObject cosmeticObject in rig.cosmetics.Where(cosmeticObject =>
-                                                                          Plugin.Instance.specialCosmetics.Keys
+                                                                          Plugin.Instance.SpecialCosmetics.Keys
                                                                                  .Any(cosmeticKey =>
                                                                                           cosmeticObject.name
                                                                                                  .Contains(

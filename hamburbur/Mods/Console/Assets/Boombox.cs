@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Boombox", "Spawns the boombox asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(nameof(Boombox), "Spawns the boombox asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class Boombox : hamburburmod
 {
@@ -26,7 +26,7 @@ public class Boombox : hamburburmod
         if (boomboxId < 0)
         {
             boomboxId = Components.Console.GetFreeAssetID();
-            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "console.main1", "Boombox",
+            Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "console.main1", nameof(Boombox),
                     boomboxId);
 
             Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, boomboxId, 1);

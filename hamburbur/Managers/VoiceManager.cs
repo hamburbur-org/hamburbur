@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Managers;
 
-// https://github.com/iiDk-the-actual/iis.Stupid.Menu/blob/master/Managers/VoiceManager.cs
+// https://github.com/Seralyth/Seralyth-Menu/blob/master/Managers/VoiceManager.cs
 public class VoiceManager : IAudioReader<float>
 {
     private readonly List<Clip> audioClips = [];
@@ -14,12 +14,12 @@ public class VoiceManager : IAudioReader<float>
     private readonly int loopLength;
 
     /// <summary>
-    ///     A list of post processers that can be used to edit the buffer after all the audio data is compiled.
+    ///     A list of post processors that can be used to edit the buffer after all the audio data is compiled.
     /// </summary>
     public readonly Dictionary<string, Action<float[]>> PostProcessors = new();
 
     private int       lastSamplePosition;
-    public  AudioClip microphoneClip;
+    private AudioClip microphoneClip;
 
     private int   outputRate = 48000;
     private float pitch      = 1f;
@@ -29,7 +29,7 @@ public class VoiceManager : IAudioReader<float>
 
     private float[] tempBuffer;
 
-    public VoiceManager(int loopLength = 1, string device = null)
+    private VoiceManager(int loopLength = 1, string device = null)
     {
         this.loopLength = loopLength;
         StartRecording(device);
@@ -62,7 +62,7 @@ public class VoiceManager : IAudioReader<float>
     /// <summary>
     ///     Gets or sets the microphone gain multiplier.
     /// </summary>
-    public float Gain { get; set; } = 1;
+    private float Gain { get; set; } = 1;
 
     /// <summary>
     ///     Gets or sets the pitch. Lowest possible value can be 0.1f.
@@ -74,11 +74,11 @@ public class VoiceManager : IAudioReader<float>
     }
 
     /// <summary>
-    ///     Gets or sets the decision on if the post processing should affect the applied Audio Clip or not.
+    ///     Gets or sets the decision on if the post-processing should affect the applied Audio Clip or not.
     /// </summary>
     public bool PostProcessClip { get; set; }
 
-    public string CurrentDevice { get; private set; }
+    private string CurrentDevice { get; set; }
 
     public static VoiceManager Instance { get; private set; }
 
@@ -364,7 +364,7 @@ public class VoiceManager : IAudioReader<float>
     /// <summary>
     ///     Fills the provided buffer with the current mixed audio output from all active clips.
     ///     This represents the same combined audio data that is pushed into the Photon voice stream,
-    ///     allowing external systems to analyze waveform data in real time.
+    ///     allowing external systems to analyse waveform data in real time.
     /// </summary>
     public void GetMixedOutput(float[] buffer)
     {

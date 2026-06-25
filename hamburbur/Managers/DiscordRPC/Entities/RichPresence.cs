@@ -37,7 +37,7 @@ public class BaseRichPresence
         set
         {
             if (!ValidateString(value, out _state, false, 128))
-                throw new StringOutOfRangeException("State", 0, 128);
+                throw new StringOutOfRangeException(nameof(State), 0, 128);
         }
     }
 

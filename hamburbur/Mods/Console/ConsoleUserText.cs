@@ -18,8 +18,8 @@ public class ConsoleUserText : hamburburmod
 
     private static readonly Dictionary<string, (string, string)> onText = new();
 
-    private static  TextMeshProUGUI text;
-    public override Type[]          Dependencies => [typeof(AutoGetConsoleUsers),];
+    private static     TextMeshProUGUI text;
+    protected override Type[]          Dependencies => [typeof(AutoGetConsoleUsers),];
 
     protected override void Start()
     {

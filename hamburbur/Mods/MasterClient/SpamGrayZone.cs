@@ -30,9 +30,10 @@ public class SpamGrayZone : hamburburmod
             }
             else
             {
-                greyZone.greyZoneAmbienceVolume = float.MaxValue;
+                greyZone.greyZoneAmbienceVolume = 0f;
                 greyZone.ActivateGreyZoneAuthority();
-                greyZone.gravityFactorOptionSelection = 100;
+                
+                greyZone.DeactivateGreyZoneLocal();
             }
     }
 
@@ -41,7 +42,7 @@ public class SpamGrayZone : hamburburmod
         foreach (GreyZoneManager greyZone in greyZones)
             if (greyZone.GreyZoneActive)
             {
-                greyZone.greyZoneAmbienceVolume = 1f;
+                greyZone.greyZoneAmbienceVolume = 0f;
                 greyZone.DeactivateGreyZoneAuthority();
             }
     }

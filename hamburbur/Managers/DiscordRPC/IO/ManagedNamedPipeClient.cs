@@ -74,7 +74,7 @@ public sealed class ManagedNamedPipeClient : INamedPipeClient
             throw new ObjectDisposedException("NamedPipe");
 
         if (pipe > 9)
-            throw new ArgumentOutOfRangeException("pipe", "Argument cannot be greater than 9");
+            throw new ArgumentOutOfRangeException(nameof(pipe), "Argument cannot be greater than 9");
 
         int startPipe = 0;
         if (pipe >= 0)
@@ -99,7 +99,7 @@ public sealed class ManagedNamedPipeClient : INamedPipeClient
     public bool ReadFrame(out PipeFrame frame)
     {
         if (_isDisposed)
-            throw new ObjectDisposedException("_stream");
+            throw new ObjectDisposedException(nameof(_stream));
 
         //Check the queue, returning the pipe if we have anything available. Otherwise null.
         lock (_framequeuelock)
@@ -127,7 +127,7 @@ public sealed class ManagedNamedPipeClient : INamedPipeClient
     public bool WriteFrame(PipeFrame frame)
     {
         if (_isDisposed)
-            throw new ObjectDisposedException("_stream");
+            throw new ObjectDisposedException(nameof(_stream));
 
         //Write the frame. We are assuming proper duplex connection here
         if (_isClosed || !IsConnected)
@@ -250,7 +250,7 @@ public sealed class ManagedNamedPipeClient : INamedPipeClient
     private bool AttemptConnection(string pipename)
     {
         if (_isDisposed)
-            throw new ObjectDisposedException("_stream");
+            throw new ObjectDisposedException(nameof(_stream));
 
         try
         {

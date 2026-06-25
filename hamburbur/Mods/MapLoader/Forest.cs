@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.MapLoader;
 
-[hamburburmod("Forest", "Go to Forest Map", ButtonType.Fixed, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(nameof(Forest), "Go to Forest Map", ButtonType.Fixed, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class Forest : hamburburmod
 {
     protected override void Pressed()

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod(                "Frozone", "Frozone platforms slippery ooo", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                nameof(Frozone), "Frozone platforms slippery ooo", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class Frozone : hamburburmod
 {
@@ -39,7 +39,7 @@ public class Frozone : hamburburmod
 
         if (platform.TryGetComponent(out Renderer renderer))
         {
-            renderer.material.shader = Plugin.Instance.UberShader;
+            renderer.material.shader = Shaders.UberShader;
             renderer.material.color  = Plugin.Instance.MainColour;
         }
 

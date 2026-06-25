@@ -16,7 +16,7 @@ public class AccountBanLogger : MonoBehaviour
     private static AccountBanLogger instance;
 
     private readonly string jsonFilePath =
-            Path.Combine(Path.Combine(Paths.GameRootPath, "hamburbur"), "AccountBansLog.json");
+            Path.Combine(Path.Combine(Paths.GameRootPath, nameof(hamburbur)), "AccountBansLog.json");
 
     private List<BanEntry> banEntries;
 

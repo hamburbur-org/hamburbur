@@ -13,6 +13,6 @@ public class ArrayList : hamburburmod
     protected override void OnDisable()
     {
         IsEnabled                         = false;
-        GUIHandler.Instance.arrayListText.text = string.Empty;
+        GUIHandler.Instance.ArrayListText.text = string.Empty;
     }
 }

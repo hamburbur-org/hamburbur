@@ -114,7 +114,6 @@ public class ButtonHandler : Singleton<ButtonHandler>
     private readonly List<PromptData> currentPrompts = [];
 
     public ModButton[] ModButtons;
-
     public void Initialize()
     {
         Instance = this;
@@ -131,7 +130,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         ButtonsPerPage--;
 
         ModButtons = buttons.ToArray();
-
+        
         UpdateButtons();
     }
 
@@ -155,7 +154,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         else
             MenuHandler.Instance.PageIndex = 0;
 
-        if (category == "Main")
+        if (category == nameof(Main))
             MenuHandler.LastCategories.Clear();
 
         UpdateButtons();
@@ -187,11 +186,14 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
         hamburburmodComp.LoadSavedDataWhenStartCalled = true;
         hamburburmodComp.AssociatedAttribute          = mod.GetCustomAttribute<hamburburmodAttribute>();
-        hamburburmodComp.InvokeStart();
+
         mods.Add((mod, hamburburmodComp));
         Buttons.Categories[category] = mods.ToArray();
 
-        if (category == "Main")
+        ModRegistry.Register(mod, hamburburmodComp);
+        hamburburmodComp.InvokeStart();
+
+        if (category == nameof(Main))
         {
             Transform categoryContent =
                     GUIHandler.Instance.Menu.transform.GetChild(1).GetChild(0).GetChild(0).GetChild(0);
@@ -244,9 +246,16 @@ public class ButtonHandler : Singleton<ButtonHandler>
             return;
 
         List<(Type, hamburburmod)> buttons = categoryEntry.Value.ToList();
+        
+        Type modType = buttons.FirstOrDefault(button => button.Item2 == modComp).Item1;
 
         if (modComp.Enabled && modComp.AssociatedAttribute.ButtonType == ButtonType.Togglable)
             modComp.Toggle(ButtonState.Normal, false, false);
+        
+        ModRuntime.Unregister(modComp);
+
+        if (modType != null)
+            ModRegistry.Unregister(modType);
 
         buttons.RemoveAll(button => button.Item2 == modComp);
         modComp.AssociatedGUIButton?.Obliterate();
@@ -562,10 +571,10 @@ public class ButtonHandler : Singleton<ButtonHandler>
                 PlusButton              = incrementalButton.Find("PlusButton").AddComponent<ButtonCollider>(),
                 MinusButton             = incrementalButton.Find("MinusButton").AddComponent<ButtonCollider>(),
                 IncrementalButtonObject = incrementalButton.gameObject,
-                IncrementalTMP          = incrementalButton.transform.Find("TMP").GetComponent<TextMeshPro>(),
+                IncrementalTMP          = incrementalButton.transform.Find("TMP").GetComponent<TMP_Text>(),
 
                 NormalButton       = normalButton.AddComponent<ButtonCollider>(),
-                NormalTMP          = normalButton.GetComponentInChildren<TextMeshPro>(),
+                NormalTMP          = normalButton.GetComponentInChildren<TMP_Text>(),
                 NormalButtonObject = normalButton.gameObject,
         };
     }
@@ -592,7 +601,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         public GameObject NormalButtonObject;
         public GameObject IncrementalButtonObject;
 
-        public TextMeshPro NormalTMP;
-        public TextMeshPro IncrementalTMP;
+        public TMP_Text NormalTMP;
+        public TMP_Text IncrementalTMP;
     }
 }

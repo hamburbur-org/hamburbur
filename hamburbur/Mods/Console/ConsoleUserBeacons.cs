@@ -19,7 +19,7 @@ public class ConsoleUserBeacons : hamburburmod
     public static readonly  List<string>                                                 UserTags      = [];
     private static readonly Dictionary<string, (GameObject upLine, GameObject downLine)> ActiveBeacons = new();
 
-    public override Type[] Dependencies => [typeof(AutoGetConsoleUsers),];
+    protected override Type[] Dependencies => [typeof(AutoGetConsoleUsers),];
 
     protected override void Update()
     {

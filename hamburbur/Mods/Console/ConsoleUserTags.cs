@@ -21,7 +21,7 @@ public class ConsoleUserTags : hamburburmod
 
     public static readonly  Dictionary<string, (string, string)> UserTags   = new();
     private static readonly Dictionary<string, GameObject>       activeTags = new();
-    public override         Type[]                               Dependencies => [typeof(AutoGetConsoleUsers),];
+    protected override      Type[]                               Dependencies => [typeof(AutoGetConsoleUsers),];
 
     protected override void Update()
     {

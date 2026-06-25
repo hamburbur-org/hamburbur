@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Fly", "Lets you fly around on VR", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(nameof(Fly), "Lets you fly around on VR", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class Fly : hamburburmod
 {
     private        Vector3 lastFlyDirection;

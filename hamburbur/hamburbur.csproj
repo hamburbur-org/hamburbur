@@ -36,9 +36,6 @@
         <Reference Include="GorillaFriends">
             <HintPath>$(PluginsPath)\GorillaFriends\GorillaFriends.dll</HintPath>
         </Reference>
-        <Reference Include="GorillaNotifications">
-            <HintPath>$(PluginsPath)\GorillaNotifications\GorillaNotifications.dll</HintPath>
-        </Reference>
         <Reference Include="GT_CustomMapSupportRuntime">
             <HintPath>$(GameAssemblyPath)\GT_CustomMapSupportRuntime.dll</HintPath>
         </Reference>
@@ -325,6 +322,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="System.Collections.Immutable" Version="11.0.0-preview.3.26207.106" />
     </ItemGroup>
 
     <ItemGroup>
@@ -402,10 +400,5 @@
 
     <ItemGroup>
         <EmbeddedResource Include="Resources\gotresponse.wav"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Remove="Mods\Rig\PCHead.cs"/>
-        <Compile Remove="Managers\NetworkedMenuManager.cs"/>
     </ItemGroup>
 </Project>

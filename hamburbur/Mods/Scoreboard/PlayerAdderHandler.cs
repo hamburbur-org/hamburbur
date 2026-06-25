@@ -19,7 +19,7 @@ public class PlayerAdderHandler : MonoBehaviour
 
     private void AddPlayer(VRRig rig)
     {
-        PlayerLine mod = (PlayerLine)ButtonHandler.AddButton("Scoreboard", typeof(PlayerLine));
+        PlayerLine mod = (PlayerLine)ButtonHandler.AddButton(nameof(Scoreboard), typeof(PlayerLine));
         mod.AssociatedRig = rig;
     }
 
@@ -28,7 +28,7 @@ public class PlayerAdderHandler : MonoBehaviour
         if (rig == null)
             return;
 
-        hamburburmod mod = Buttons.Categories["Scoreboard"]
+        hamburburmod mod = Buttons.Categories[nameof(Scoreboard)]
                                   .First(button => ((PlayerLine)button.Item2).AssociatedRig == rig).Item2;
 
         ButtonHandler.RemoveButton(mod);

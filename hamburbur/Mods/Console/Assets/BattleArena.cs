@@ -24,7 +24,7 @@ public class BattleArena : hamburburmod
         Components.Console.ExecuteCommand("tpsmooth", ReceiverGroup.All, new Vector3(504.92f, 51f, 500.87f), 2f);
 
         assetId = Components.Console.GetFreeAssetID();
-        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "console.main1", "VideoPlayer", assetId);
+        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "console.main1", nameof(VideoPlayer), assetId);
         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, assetId,
                 new Vector3(486f, 53f, 500f));
 

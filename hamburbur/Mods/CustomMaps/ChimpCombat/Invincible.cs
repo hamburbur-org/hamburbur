@@ -5,7 +5,7 @@ using Photon.Realtime;
 
 namespace hamburbur.Mods.CustomMaps.ChimpCombat;
 
-[hamburburmod("Invincible", "No die die", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(nameof(Invincible), "No die die", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class Invincible : hamburburmod
 {
     protected override void Update()

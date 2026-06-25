@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Shreksophone", "Shreksophone", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      nameof(Shreksophone), nameof(Shreksophone), ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class Shreksophone : hamburburmod
 {

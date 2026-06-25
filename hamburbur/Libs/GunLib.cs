@@ -49,16 +49,21 @@ public class GunLib
             gunLine.gameObject.SetActive(false);
     }
 
+    private static bool GetGunInput(bool isTriggerInput = false) =>
+            LeftHandedGun.IsEnabled
+                    ? isTriggerInput ? InputManager.Instance.LeftTrigger.IsPressed : InputManager.Instance.LeftGrip.IsPressed
+                    : isTriggerInput ? InputManager.Instance.RightTrigger.IsPressed : InputManager.Instance.RightGrip.IsPressed;
+
     public void LateUpdate()
     {
-        if (InputManager.Instance.RightGrip.IsPressed)
+        if (GetGunInput())
         {
-            Transform realRightController = Tools.Utils.RealRightController;
+            Transform originController = LeftHandedGun.IsEnabled ? Tools.Utils.RealLeftController: Tools.Utils.RealRightController;
 
-            Vector3 gunPosition  = realRightController.position;
-            Vector3 gunDirection = realRightController.forward;
+            Vector3 gunPosition  = originController.position;
+            Vector3 gunDirection = originController.forward;
 
-            HandleShooting(new Ray(gunPosition, gunDirection), InputManager.Instance.RightTrigger.IsPressed,
+            HandleShooting(new Ray(gunPosition, gunDirection), GetGunInput(true),
                     gunPosition);
         }
         else if (Mouse.current.backButton.isPressed)
@@ -107,9 +112,22 @@ public class GunLib
 
             HandleShootingVisuals(fakeOrigin, targetEndPos, IsShooting || AlwaysAnimateGun.IsEnabled, gunLine);
         }
+        
+        //Fake raycast
         else
         {
-            gunLine.gameObject.SetActive(false);
+            gunLine.gameObject.SetActive(true);
+
+            Vector3 fallbackEnd = ChosenRig == null ? ray.origin + ray.direction * 1000f : ChosenRig.transform.position;
+
+            float time = Mathf.PingPong(Time.time, 1f);
+            gunLine.material.color = Color.Lerp(Plugin.Instance.MainColour, Plugin.Instance.SecondaryColour, time);
+
+            float scale = 0.0125f * GTPlayer.Instance.scale;
+            gunLine.startWidth = scale;
+            gunLine.endWidth   = scale;
+            
+            HandleShootingVisuals(fakeOrigin, fallbackEnd, IsShooting || AlwaysAnimateGun.IsEnabled, gunLine);
         }
     }
 
@@ -266,6 +284,7 @@ public class GunLib
     private static bool PhysicsRaycast(Ray ray, VRRig toIgnore, ref VRRig chosenRig, out RaycastHit hit,
                                        [CanBeNull] out VRRig rig)
     {
+        // ReSharper disable once Unity.PreferNonAllocApi
         RaycastHit[] hits = Physics.RaycastAll(ray, 1000f);
 
         hit = default(RaycastHit);

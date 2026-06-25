@@ -14,8 +14,8 @@ public class HoverboardGun : hamburburmod
 
     private float lastTime;
 
-    private         bool   wasShooting;
-    public override Type[] Dependencies => [typeof(HoverboardsAnywhere),];
+    private            bool   wasShooting;
+    protected override Type[] Dependencies => [typeof(HoverboardsAnywhere),];
 
     protected override void Start()
     {

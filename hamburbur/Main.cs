@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace hamburbur;
 
-[BepInDependency("hansolo1000falcon.gorillanotifications")]
 [BepInPlugin(Constants.PluginGuid, Constants.PluginName, Constants.PluginVersion)]
 public class Main : BaseUnityPlugin
 {
@@ -11,13 +10,13 @@ public class Main : BaseUnityPlugin
 
     public static void Inject()
     {
-        GameObject hamburburMenu = new("hamburburMenu");
+        GameObject hamburburMenu = new(nameof(hamburburMenu));
         hamburburMenu.AddComponent<Plugin>();
     }
 
     private void LoadNormally()
     {
-        GameObject hamburburMenu = new("hamburburMenu");
+        GameObject hamburburMenu = new(nameof(hamburburMenu));
         hamburburMenu.AddComponent<Plugin>();
         DontDestroyOnLoad(hamburburMenu);
     }

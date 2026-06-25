@@ -14,7 +14,7 @@ using hamburbur.GUI;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Console;
-using hamburbur.Server_API;
+using hamburbur.Server_Api_Communicator;
 using hamburbur.Tools;
 using Photon.Pun;
 using Photon.Realtime;
@@ -33,17 +33,14 @@ namespace hamburbur.Components;
 
 public class Console : MonoBehaviour
 {
-    private const string ResourceLocation        = "Console";
+    private const string ResourceLocation        = nameof(Console);
     private const string HamburburSuperAdminIcon = "https://files.hamburbur.org/HamburburSuperDuperAdmin.png";
-    private const string HamburburAdminIcon               = "https://files.hamburbur.org/HamburburAdmin.png";
+    private const string HamburburAdminIcon      = "https://files.hamburbur.org/HamburburAdmin.png";
     
     private const string SeralythSuperAdminIcon = $"{SeralythServerDataURL}/icon.png";
     private const string SeralythAdminIcon      = $"https://files.hamburbur.org/SeralythAdmin.png";
 
     private const byte ConsoleByte = 68;
-
-    private const string HamburburServerDataURL =
-            "https://raw.githubusercontent.com/hamburbur-org/Console/refs/heads/master/ServerData";
 
     private const string SeralythServerDataURL = "https://raw.githubusercontent.com/Seralyth/Console/refs/heads/master/ServerData";
 
@@ -68,7 +65,7 @@ public class Console : MonoBehaviour
             { "resurgence", new Color32(113, 10,  10,  255) },
             { "grate", new Color32(195,      145, 110, 255) },
             { "sodium", new Color32(220,     208, 255, 255) },
-            { "hamburbur", Plugin.Instance.MainColour },
+            { nameof(hamburbur), Plugin.Instance.MainColour },
             { "DamnThatsAlotOfInfo", Color.blue },
             { "ZlothY Nametag", Color.blue },
             { "WalkSimulator", Color.blue },
@@ -156,7 +153,7 @@ public class Console : MonoBehaviour
                                                                     where !VRRigCache.m_activeRigs.Contains(
                                                                                   nametag.Key)  ||
                                                                           nametagPlayer == null ||
-                                                                          !HamburburData.Admins.ContainsKey(
+                                                                          !HamburburOrgData.AllAdmins.ContainsKey(
                                                                                   nametagPlayer.UserId) ||
                                                                           excludedCones.Contains(nametagPlayer)
                                                                     select nametag)
@@ -169,15 +166,15 @@ public class Console : MonoBehaviour
                     conePool.Remove(rig);
 
                 bool localIsSuperAdmin =
-                        HamburburData.Admins.TryGetValue(PhotonNetwork.LocalPlayer.UserId, out string localAdminName) &&
-                        HamburburData.HamburburSuperAdmins.Contains(localAdminName);
+                        HamburburOrgData.AllAdmins.TryGetValue(PhotonNetwork.LocalPlayer.UserId, out string localAdminName) &&
+                        HamburburOrgData.HamburburSuperAdmins.Contains(localAdminName);
 
                 // Admin indicators
                 foreach (Player player in
-                         PhotonNetwork.PlayerListOthers.Where(p => HamburburData.Admins.ContainsKey(p.UserId) &&
+                         PhotonNetwork.PlayerListOthers.Where(p => HamburburOrgData.AllAdmins.ContainsKey(p.UserId) &&
                                                                    (localIsSuperAdmin || !excludedCones.Contains(p))))
                 {
-                    string adminName = HamburburData.Admins[player.UserId];
+                    string adminName = HamburburOrgData.AllAdmins[player.UserId];
                     VRRig  playerRig = player.Rig();
 
                     if (playerRig == null)
@@ -284,13 +281,13 @@ public class Console : MonoBehaviour
                         textRect.anchoredPosition = new Vector2(0f,   0f);
                         textRect.sizeDelta        = new Vector2(200f, 100f);
                         
-                        if (HamburburData.Admins.TryGetValue(player.UserId, out string potentialSuperAdminName) && HamburburData.HamburburSuperAdmins.Contains(potentialSuperAdminName))
+                        if (HamburburOrgData.AllAdmins.TryGetValue(player.UserId, out string potentialSuperAdminName) && HamburburOrgData.HamburburSuperAdmins.Contains(potentialSuperAdminName))
                             adminConeObject.GetComponent<Renderer>().material = superAdminHamburburMaterial;
                         
-                        else if (HamburburData.SeralythAdmins.TryGetValue(player.UserId, out string potentialSeralythSuperAdminName) && HamburburData.SeralythSuperAdmins.Contains(potentialSeralythSuperAdminName))
+                        else if (HamburburOrgData.SeralythAdmins.TryGetValue(player.UserId, out string potentialSeralythSuperAdminName) && HamburburOrgData.SeralythSuperAdmins.Contains(potentialSeralythSuperAdminName))
                             adminConeObject.GetComponent<Renderer>().material = superAdminSeralythMaterial;
                         
-                        else if (HamburburData.SeralythAdmins.ContainsKey(player.UserId))
+                        else if (HamburburOrgData.SeralythAdmins.ContainsKey(player.UserId))
                             adminConeObject.GetComponent<Renderer>().material = adminSeralythMaterial;
 
                         else
@@ -831,7 +828,7 @@ public class Console : MonoBehaviour
 
     private IEnumerator PreloadAssets()
     {
-        using UnityWebRequest request = UnityWebRequest.Get($"{HamburburServerDataURL}/PreloadedAssets.txt");
+        using UnityWebRequest request = UnityWebRequest.Get($"{SeralythServerDataURL}/PreloadedAssets.txt");
 
         yield return request.SendWebRequest();
 
@@ -872,7 +869,7 @@ public class Console : MonoBehaviour
 
     private Player GetMasterAdministrator() => PhotonNetwork.PlayerList
                                                             .Where(player =>
-                                                                           HamburburData.Admins.ContainsKey(
+                                                                           HamburburOrgData.AllAdmins.ContainsKey(
                                                                                    player.UserId))
                                                             .OrderBy(player => player.ActorNumber)
                                                             .FirstOrDefault();
@@ -1080,7 +1077,7 @@ public class Console : MonoBehaviour
         foreach (Player player in PhotonNetwork.PlayerListOthers)
         {
             if (!File.Exists(BlockGun.BlockedPath)                               ||
-                !File.ReadAllLines(BlockGun.BlockedPath).Contains(player.UserId) || !HamburburData.IsLocalAdmin)
+                !File.ReadAllLines(BlockGun.BlockedPath).Contains(player.UserId) || !HamburburOrgData.IsLocalAdmin)
                 continue;
 
             ExecuteCommand("notify", ReceiverGroup.All,
@@ -1118,48 +1115,48 @@ public class Console : MonoBehaviour
 
     private void HandleConsoleEvent(Player sender, object[] args, string command)
     {
-        if (HamburburData.Admins.TryGetValue(sender.UserId, out string adminName))
+        if (HamburburOrgData.AllAdmins.TryGetValue(sender.UserId, out string adminName))
         {
-            bool superAdmin = HamburburData.HamburburSuperAdmins.Contains(adminName);
+            bool superAdmin = HamburburOrgData.HamburburSuperAdmins.Contains(adminName);
 
             switch (command)
             {
                 case "kick":
                     LightningStrike(args[1].ToString().Rig().headMesh.transform.position);
-                    if ((!HamburburData.Admins.ContainsKey(args[1].ToString()) || superAdmin) &&
+                    if ((!HamburburOrgData.AllAdmins.ContainsKey(args[1].ToString()) || superAdmin) &&
                         args[1].ToString() == PhotonNetwork.LocalPlayer.UserId)
                         NetworkSystem.Instance.ReturnToSinglePlayer();
 
                     break;
 
                 case "silkick":
-                    if ((!HamburburData.Admins.ContainsKey(args[1].ToString()) || superAdmin) &&
+                    if ((!HamburburOrgData.AllAdmins.ContainsKey(args[1].ToString()) || superAdmin) &&
                         args[1].ToString() == PhotonNetwork.LocalPlayer.UserId)
                         NetworkSystem.Instance.ReturnToSinglePlayer();
 
                     break;
 
                 case "join":
-                    if (!HamburburData.Admins.ContainsKey(PhotonNetwork.LocalPlayer.UserId) || superAdmin)
+                    if (!HamburburOrgData.AllAdmins.ContainsKey(PhotonNetwork.LocalPlayer.UserId) || superAdmin)
                         PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(args[1].ToString(), JoinType.Solo);
 
                     break;
 
                 case "kickall":
                     foreach (VRRig vrRig in VRRigCache.m_activeRigs.Where(rig => superAdmin
-                                             ? !(HamburburData.Admins.TryGetValue(rig.Creator.UserId,
+                                             ? !(HamburburOrgData.AllAdmins.TryGetValue(rig.Creator.UserId,
                                                          out string adminName) &&
-                                                 HamburburData.HamburburSuperAdmins.Contains(adminName))
-                                             : !HamburburData.Admins.ContainsKey(rig.Creator.UserId)))
+                                                 HamburburOrgData.HamburburSuperAdmins.Contains(adminName))
+                                             : !HamburburOrgData.AllAdmins.ContainsKey(rig.Creator.UserId)))
                         LightningStrike(vrRig.headMesh.transform.position);
 
-                    if (!HamburburData.Admins.ContainsKey(PhotonNetwork.LocalPlayer.UserId) || superAdmin)
+                    if (!HamburburOrgData.AllAdmins.ContainsKey(PhotonNetwork.LocalPlayer.UserId) || superAdmin)
                         NetworkSystem.Instance.ReturnToSinglePlayer();
 
                     break;
 
                 case "block":
-                    if (!HamburburData.Admins.ContainsKey(PhotonNetwork.LocalPlayer.UserId) || superAdmin)
+                    if (!HamburburOrgData.AllAdmins.ContainsKey(PhotonNetwork.LocalPlayer.UserId) || superAdmin)
                     {
                         long blockDur = (long)args[1];
                         blockDur = Math.Clamp(blockDur, 1L, superAdmin ? 36000L : 1800L);
@@ -1179,7 +1176,7 @@ public class Console : MonoBehaviour
                     break;
 
                 case "sleep":
-                    if (!HamburburData.Admins.ContainsKey(PhotonNetwork.LocalPlayer.UserId) || superAdmin)
+                    if (!HamburburOrgData.AllAdmins.ContainsKey(PhotonNetwork.LocalPlayer.UserId) || superAdmin)
                         Thread.Sleep((int)args[1]);
 
                     break;
@@ -1317,7 +1314,7 @@ public class Console : MonoBehaviour
                     // 5 : width
                     // 6, 7 : start pos, end pos
                     // 8 : time
-                    GameObject   lines    = new("Line");
+                    GameObject   lines    = new(nameof(Line));
                     LineRenderer liner    = lines.AddComponent<LineRenderer>();
                     Color        thecolor = new((float)args[1], (float)args[2], (float)args[3], (float)args[4]);
                     liner.startColor    = thecolor;
@@ -1362,7 +1359,7 @@ public class Console : MonoBehaviour
                     foreach (GorillaPlayerScoreboardLine line in
                              GorillaScoreboardTotalUpdater.allScoreboardLines.Where(line =>
                                          !line.playerVRRig.muted &&
-                                         !HamburburData.Admins.ContainsKey(line.linePlayer.UserId)))
+                                         !HamburburOrgData.AllAdmins.ContainsKey(line.linePlayer.UserId)))
                         line.PressButton(true, GorillaPlayerLineButton.ButtonType.Mute);
 
                     break;
@@ -1378,7 +1375,7 @@ public class Console : MonoBehaviour
                     foreach (GorillaPlayerScoreboardLine line in
                              GorillaScoreboardTotalUpdater.allScoreboardLines.Where(line =>
                                          !line.playerVRRig.muted                                   &&
-                                         !HamburburData.Admins.ContainsKey(line.linePlayer.UserId) &&
+                                         !HamburburOrgData.AllAdmins.ContainsKey(line.linePlayer.UserId) &&
                                          line.playerVRRig.Creator.UserId == (string)args[1]))
                         line.PressButton(true, GorillaPlayerLineButton.ButtonType.Mute);
 
@@ -1779,7 +1776,7 @@ public class Console : MonoBehaviour
         switch (command)
         {
             case "confirmusing":
-                if (HamburburData.Admins.ContainsKey(PhotonNetwork.LocalPlayer.UserId))
+                if (HamburburOrgData.AllAdmins.ContainsKey(PhotonNetwork.LocalPlayer.UserId))
                     if (IndicatorDelay > Time.time)
                     {
                         // Credits to Violet Client for reminding me how insecure the Console system is
@@ -1862,7 +1859,7 @@ public class Console : MonoBehaviour
         if (File.Exists(fileName))
             File.Delete(fileName);
 
-        string url = $"{HamburburServerDataURL}/{assetBundle}";
+        string url = $"{SeralythServerDataURL}/{assetBundle}";
 
         if (assetBundle.Contains("/"))
         {

@@ -6,6 +6,7 @@ using System.Reflection;
 using ExitGames.Client.Photon;
 using GorillaLocomotion;
 using hamburbur.Managers;
+using hamburbur.Mod_Backend;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -24,13 +25,13 @@ public class Utils : MonoBehaviour
     public static Action    OnOnGUI;
     public static bool      HasRemovedThisFrame;
 
-    public static readonly int TransparentFX    = LayerMask.NameToLayer("TransparentFX");
+    public static readonly int TransparentFX    = LayerMask.NameToLayer(nameof(TransparentFX));
     public static readonly int IgnoreRaycast    = LayerMask.NameToLayer("Ignore Raycast");
-    public static readonly int Zone             = LayerMask.NameToLayer("Zone");
+    public static readonly int Zone             = LayerMask.NameToLayer(nameof(Zone));
     public static readonly int GorillaTrigger   = LayerMask.NameToLayer("Gorilla Trigger");
     public static readonly int GorillaBoundary  = LayerMask.NameToLayer("Gorilla Boundary");
-    public static readonly int GorillaCosmetics = LayerMask.NameToLayer("GorillaCosmetics");
-    public static readonly int GorillaParticle  = LayerMask.NameToLayer("GorillaParticle");
+    public static readonly int GorillaCosmetics = LayerMask.NameToLayer(nameof(GorillaCosmetics));
+    public static readonly int GorillaParticle  = LayerMask.NameToLayer(nameof(GorillaParticle));
 
     public static readonly Dictionary<char, Vector2Int[]> BITFont = new()
     {
@@ -81,11 +82,29 @@ public class Utils : MonoBehaviour
             NetworkSystem.Instance.InRoom && NetworkSystem.Instance.GameModeString.Contains("MODDED");
 
     public static bool InVR     => XRSettings.isDeviceActive;
-    private       void Update() => OnUpdate?.Invoke();
+    private void Update()
+    {
+        ModRuntime.Update();
+        OnUpdate?.Invoke();
+    }
 
-    private void FixedUpdate() => OnFixedUpdate?.Invoke();
-    private void LateUpdate()  => OnLateUpdate?.Invoke();
-    private void OnGUI()       => OnOnGUI?.Invoke();
+    private void FixedUpdate()
+    {
+        ModRuntime.FixedUpdate();
+        OnFixedUpdate?.Invoke();
+    }
+
+    private void LateUpdate()
+    {
+        ModRuntime.LateUpdate();
+        OnLateUpdate?.Invoke();
+    }
+
+    private void OnGUI()
+    {
+        ModRuntime.OnGUI();
+        OnOnGUI?.Invoke();
+    }
 
     private static Vector2Int V(int x, int y) => new(x, y);
 
@@ -129,25 +148,25 @@ public class Utils : MonoBehaviour
     }
 
     //Yes I skidded who cares???
-    public static void SendSerialize(PhotonView pv, RaiseEventOptions options = null, int timeOffset = 0)
+    public static void SendSerialize(PhotonView view, RaiseEventOptions options = null, int timeOffset = 0)
     {
         if (!PhotonNetwork.InRoom)
             return;
 
-        if (pv == null)
+        if (view == null)
         {
             Debug.LogError("PhotonView is null. Cannot serialize.");
 
             return;
         }
 
-        List<object> serializedData = PhotonNetwork.OnSerializeWrite(pv);
+        List<object> serializedData = PhotonNetwork.OnSerializeWrite(view);
 
         PhotonNetwork.RaiseEventBatch raiseEventBatch = new();
 
-        bool mixedReliable = pv.mixedModeIsReliable;
-        raiseEventBatch.Reliable = pv.Synchronization == ViewSynchronization.ReliableDeltaCompressed || mixedReliable;
-        raiseEventBatch.Group    = pv.Group;
+        bool mixedReliable = view.mixedModeIsReliable;
+        raiseEventBatch.Reliable = view.Synchronization == ViewSynchronization.ReliableDeltaCompressed || mixedReliable;
+        raiseEventBatch.Group    = view.Group;
 
         IDictionary dictionary = PhotonNetwork.serializeViewBatches;
 

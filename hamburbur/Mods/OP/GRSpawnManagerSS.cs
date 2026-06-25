@@ -116,7 +116,7 @@ public class GRHamburburText : hamburburmod
         while (true)
         {
             DrawWord(
-                    "hamburbur",
+                    nameof(hamburbur),
                     new Vector3(-35f - 25f, -70f),
                     Quaternion.Euler(0f, 0f, 0f),
                     1f,

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Wii", "Wii twin", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
+[hamburburmod(nameof(Wii), "Wii twin", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class Wii : hamburburmod
 {
     private int clickerAssetId = -1;
@@ -63,13 +63,13 @@ public class Wii : hamburburmod
         {
             if (selectedRig == null && hitRig && !hitRig.isLocal)
             {
-                Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, "AudioSource", "wiistart");
+                Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, nameof(AudioSource), "wiistart");
                 
                 selectedRig = hitRig;
             }            
             else if (selectedRig == null)
             {
-                Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, "AudioSource", "wiiclick");
+                Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, nameof(AudioSource), "wiiclick");
             }
             else
             {
@@ -95,14 +95,14 @@ public class Wii : hamburburmod
         {
             if (hitRig != null && !hitRig.isLocal)
             {
-                Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, "AudioSource", "wiistart");
+                Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, nameof(AudioSource), "wiistart");
                 
                 Vector3 flingVel = direction * 30f;
                 Components.Console.ExecuteCommand("vel", hitRig.creator.ActorNumber, flingVel);
             }
             else
             {
-                Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, "AudioSource", "wiiclick");
+                Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, nameof(AudioSource), "wiiclick");
             }
         }
 

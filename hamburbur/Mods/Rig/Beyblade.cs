@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Rig;
 
-[hamburburmod("Beyblade", "Move with joystick while spinning A to bounce", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(nameof(Beyblade), "Move with joystick while spinning A to bounce", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class Beyblade : hamburburmod
 {
     public static bool IsEnabled;

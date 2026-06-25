@@ -3,7 +3,7 @@ using HarmonyLib;
 
 namespace hamburbur.Mods.Fun;
 
-[hamburburmod("Ungrabbable", "Makes you ungrabbable", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled,
+[hamburburmod(nameof(Ungrabbable), "Makes you ungrabbable", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled,
         0)]
 public class Ungrabbable : hamburburmod
 {
