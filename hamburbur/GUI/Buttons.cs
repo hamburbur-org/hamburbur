@@ -289,6 +289,7 @@ public static class Buttons
             [
                     (typeof(GliderVisualizer), null),
                     (typeof(AudioOrbsVisualizer), null),
+                    (typeof(RefreshAudios), null),
             ],
 
             [nameof(OP)] =

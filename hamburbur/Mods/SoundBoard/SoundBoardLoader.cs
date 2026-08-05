@@ -12,6 +12,7 @@ namespace hamburbur.Mods.SoundBoard;
 public static class SoundBoardLoader
 {
     private static readonly Dictionary<string, AudioClip> AudioFilePool = [];
+    private static readonly HashSet<string>               AlreadyLoaded = [];
     public static           bool                          HasLoadedAllSounds;
 
     private static readonly Queue<(string path, string name, Action<AudioClip> cb)> loadQueue = new();
@@ -22,6 +23,9 @@ public static class SoundBoardLoader
         foreach (string path in FileManager.Instance.GetSoundFiles())
         {
             string fileName = Path.GetFileName(path);
+            
+            if (!AlreadyLoaded.Add(fileName))
+                continue;
 
             Sound mod =
                     (Sound)ButtonHandler.AddButton(nameof(SoundBoard), typeof(Sound));
