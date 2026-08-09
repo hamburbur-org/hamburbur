@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using BepInEx;
 using GorillaNetworking;
 using hamburbur.Components;
@@ -19,9 +18,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Networking;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
-using ArrayList = System.Collections.ArrayList;
 
 namespace hamburbur.GUI;
 
@@ -36,10 +33,9 @@ public class GUIHandler : Singleton<GUIHandler>
 
     public GameObject Menu;
 
-    public bool Open;
+    public bool            Open;
 
-    private                                        TextMeshProUGUI fpsText;
-    public TextMeshProUGUI ArrayListText;
+    private TextMeshProUGUI fpsText;
 
     private float lastFpsUpdate;
     private float lastTimeDataStreamed;
@@ -51,26 +47,29 @@ public class GUIHandler : Singleton<GUIHandler>
         canvasPrefab.Obliterate();
         Canvas.name = "HamburburGUICanvas";
 
-        Canvas.transform.TakeChild(2, 1).GetComponent<TextMeshProUGUI>().text =
-                $"Build {Constants.PluginVersion}";
+        // Watermark has been disabled due to the new array list and the fact that it's annoying
+        /*Canvas.transform.TakeChild(2, 1).GetComponent<TextMeshProUGUI>().text =
+                $"Build {Constants.PluginVersion}";*/
 
         CategoryButtonPrefab = Plugin.Instance.HamburburBundle.LoadAsset<GameObject>("CategoryButton");
         ModButtonPrefab      = Plugin.Instance.HamburburBundle.LoadAsset<GameObject>("ModButton");
 
-        NotificationText      = Canvas.transform.Find(nameof(NotificationText)).GetComponent<TextMeshProUGUI>();
+        NotificationText      = Canvas.transform.Find("NotificationText").GetComponent<TextMeshProUGUI>();
         NotificationText.text = "";
 
         Menu = Canvas.transform.TakeChild(1).gameObject;
         Menu.AddComponent<DragObject>();
         fpsText = Menu.transform.TakeChild(1, 1).GetComponent<TextMeshProUGUI>();
-        
+
         Menu.transform.TakeChild(4).GetComponent<Button>().onClick
             .AddListener(() => ButtonHandler.Instance.SetCategory(nameof(Main)));
-        Menu.transform.TakeChild(5).GetComponent<Button>().onClick.AddListener(() => NetworkSystem.Instance.ReturnToSinglePlayer());
+
+        Menu.transform.TakeChild(5).GetComponent<Button>().onClick
+            .AddListener(() => NetworkSystem.Instance.ReturnToSinglePlayer());
 
         Menu.transform.TakeChild(3, 0, 0, 0).AddComponent<GreetingHandler>();
         
-        ArrayListText = Canvas.transform.TakeChild(3).GetComponent<TextMeshProUGUI>();
+        Plugin.Instance.ComponentHolder.AddComponent<ArrayListOverlay>();
 
         //Text input field
         Menu.transform.TakeChild(3, 0, 0, 1, 0).GetComponent<TMP_InputField>().onSelect
@@ -196,28 +195,24 @@ public class GUIHandler : Singleton<GUIHandler>
             });
 
         SetUpButtons();
+
+        foreach (Button button in Canvas.GetComponentsInChildren<Button>(true))
+            button.gameObject.GetOrAddComponent<ButtonPressAnimator>();
+
         Menu.SetActive(false);
 
         Plugin.Instance.MenuLoaded = true;
-        SoundBoardLoader.LoadSoundButtons();
+        StartCoroutine(LoadSoundButtonsWhenReady());
     }
 
     private void Update()
     {
-        if (Mods.Settings.ArrayList.IsEnabled && ArrayListText != false)
-        {
-            ValueTuple<Type, hamburburmod>[] enabledMods = Buttons.GetEnabledMods();
+        if (Menu                      == null ||
+            MenuHandler.Instance      == null ||
+            MenuHandler.Instance.Menu == null ||
+            KeyboardManager.Instance  == null)
+            return;
 
-            StringBuilder sb = new();
-            
-            sb.AppendLine("<size=32><color=green>Enabled Mods</color></size>");
-
-            foreach ((Type, hamburburmod) mod in enabledMods)
-                sb.AppendLine(mod.Item2.ModName);
-
-            ArrayListText.text = sb.ToString();
-        }
-        
         if (KeyboardManager.Instance.KeyboardOpen)
             return;
 
@@ -239,6 +234,9 @@ public class GUIHandler : Singleton<GUIHandler>
                 GameObject menu        = MenuHandler.Instance.Menu;
                 Camera     cameraToUse = Tools.Utils.GetActiveCamera();
 
+                if (menu == null || cameraToUse == null || menu.transform.parent == null)
+                    return;
+
                 menu.transform.parent.SetParent(cameraToUse.transform);
                 menu.transform.parent.localRotation = Quaternion.Euler(270f, 270f, 0f);
                 menu.transform.parent.localPosition = new Vector3(0f, 0f, 0.5f);
@@ -256,15 +254,18 @@ public class GUIHandler : Singleton<GUIHandler>
         if (!Open)
             return;
 
-        if (Mouse.current.leftButton.wasPressedThisFrame)
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             Camera cameraToUse = Tools.Utils.GetActiveCamera();
+
+            if (cameraToUse == null)
+                return;
 
             if (Physics.Raycast(cameraToUse.ScreenPointToRay(Mouse.current.position.ReadValue()),
                         out RaycastHit hit,
                         0.6f, 1 << 2, QueryTriggerInteraction.Collide))
                 if (hit.collider.TryGetComponent(out ButtonCollider buttonCollider))
-                    buttonCollider.OnPress?.Invoke();
+                    buttonCollider.Press();
         }
 
         if (lastTimeDataStreamed + 0.1f > Time.time)
@@ -292,6 +293,19 @@ public class GUIHandler : Singleton<GUIHandler>
                                                       : Plugin.Instance.MenuLocalRotationLeft;
     }
 
+    private IEnumerator LoadSoundButtonsWhenReady()
+    {
+        while (FileManager.Instance      == null ||
+               ButtonHandler.Instance    == null ||
+               MenuHandler.Instance      == null ||
+               MenuHandler.Instance.Menu == null)
+            yield return null;
+
+        yield return null;
+
+        SoundBoardLoader.LoadSoundButtons();
+    }
+
     private void SetUpButtons()
     {
         Transform categoryContent = Menu.transform.TakeChild(1).TakeChild(0).TakeChild(0).TakeChild(0);
@@ -304,8 +318,9 @@ public class GUIHandler : Singleton<GUIHandler>
                 {
                     GameObject categoryButton = Instantiate(CategoryButtonPrefab, categoryContent);
                     categoryButton.GetComponentInChildren<TextMeshProUGUI>().text = mod.Item2.ModName;
-                    categoryButton.GetComponent<Button>().onClick
-                                  .AddListener(() => mod.Item2.Toggle(ButtonState.Normal));
+                    Button categoryUiButton = categoryButton.GetComponent<Button>();
+                    categoryUiButton.onClick.AddListener(() => mod.Item2.Toggle(ButtonState.Normal));
+                    categoryUiButton.gameObject.GetOrAddComponent<ButtonPressAnimator>();
 
                     mod.Item2.AssociatedGUIButton = categoryButton;
                 }
@@ -322,14 +337,20 @@ public class GUIHandler : Singleton<GUIHandler>
                     modButton.transform.TakeChild(2, 1).gameObject
                              .SetActive(mod.Item2.AssociatedAttribute.ButtonType == ButtonType.Incremental);
 
-                    modButton.transform.TakeChild(2, 0).GetComponent<Button>().onClick
-                             .AddListener(() => mod.Item2.Toggle(ButtonState.Normal));
+                    Button normalButton = modButton.transform.TakeChild(2, 0).GetComponent<Button>();
+                    Button minusButton  = modButton.transform.TakeChild(2, 1).TakeChild(0).GetComponent<Button>();
+                    Button plusButton   = modButton.transform.TakeChild(2, 1).TakeChild(1).GetComponent<Button>();
 
-                    modButton.transform.TakeChild(2, 1).TakeChild(0).GetComponent<Button>().onClick
-                             .AddListener(() => mod.Item2.Toggle(ButtonState.Decrement));
+                    normalButton.onClick.AddListener(() => mod.Item2.Toggle(ButtonState.Normal));
+                    normalButton.gameObject.GetOrAddComponent<ButtonPressAnimator>();
 
-                    modButton.transform.TakeChild(2, 1).TakeChild(1).GetComponent<Button>().onClick
-                             .AddListener(() => mod.Item2.Toggle(ButtonState.Increment));
+                    minusButton.gameObject.GetOrAddComponent<HoldButtonRepeater>().Configure(
+                            () => mod.Item2.Toggle(ButtonState.Decrement),
+                            () => mod.Item2.Toggle(ButtonState.Decrement, false));
+
+                    plusButton.gameObject.GetOrAddComponent<HoldButtonRepeater>().Configure(
+                            () => mod.Item2.Toggle(ButtonState.Increment),
+                            () => mod.Item2.Toggle(ButtonState.Increment, false));
 
                     mod.Item2.AssociatedGUIButton = modButton;
                 }
@@ -345,12 +366,21 @@ public class GUIHandler : Singleton<GUIHandler>
             if (category == nameof(Main))
             {
                 foreach ((Type _, hamburburmod modComp) in buttons)
+                {
+                    if (modComp?.AssociatedGUIButton == null)
+                        continue;
+
                     modComp.AssociatedGUIButton.GetComponentInChildren<TextMeshProUGUI>().text = modComp.ModName;
+                }
 
                 continue;
             }
 
             foreach ((Type _, hamburburmod modComp) in buttons)
+            {
+                if (modComp?.AssociatedGUIButton == null)
+                    continue;
+
                 if (MenuHandler.Instance.Category != "Enabled Mods")
                 {
                     modComp.AssociatedGUIButton.SetActive(category == MenuHandler.Instance.Category);
@@ -403,6 +433,7 @@ public class GUIHandler : Singleton<GUIHandler>
                     modComp.AssociatedGUIButton.transform.TakeChild(2, 0, 2).gameObject
                            .SetActive(modComp.AssociatedAttribute.ButtonType != ButtonType.Fixed && modComp.Enabled);
                 }
+            }
 
             Menu.transform.TakeChild(2).gameObject.SetActive(MenuHandler.Instance.Category != nameof(Main));
             Menu.transform.TakeChild(3).gameObject.SetActive(MenuHandler.Instance.Category == nameof(Main));

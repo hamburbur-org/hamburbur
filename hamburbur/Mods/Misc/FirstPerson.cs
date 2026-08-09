@@ -9,6 +9,7 @@ namespace hamburbur.Mods.Misc;
         EnabledType.Disabled, 0)]
 public class FirstPerson : hamburburmod
 {
+    public static bool  isEnabled;
     private bool  wasEnabled = true;
     private float zoomFov    = 35f;
 
@@ -23,8 +24,8 @@ public class FirstPerson : hamburburmod
         if (Keyboard.current.cKey.isPressed)
         {
             Vector2 scroll = Mouse.current.scroll.ReadValue();
-            zoomFov += -scroll.y * 5f;
-            zoomFov =  Mathf.Clamp(zoomFov, 10f, 90f);
+            zoomFov += -scroll.y * 2.5f;
+            zoomFov =  Mathf.Clamp(zoomFov, 1f, 90f);
             Plugin.Instance.ThirdPersonCamera.fieldOfView =
                     Mathf.Lerp(Plugin.Instance.ThirdPersonCamera.fieldOfView, zoomFov, 0.1f);
         }
@@ -56,6 +57,8 @@ public class FirstPerson : hamburburmod
 
     protected override void OnEnable()
     {
+        isEnabled = true;
+        
         if (Plugin.Instance.ThirdPersonCamera != null)
             wasEnabled = Plugin.Instance.ThirdPersonCamera.gameObject.transform.Find("CM vcam1")
                                .GetComponent<CinemachineVirtualCamera>().enabled;
@@ -65,6 +68,8 @@ public class FirstPerson : hamburburmod
 
     protected override void OnDisable()
     {
+        isEnabled = false;
+        
         if (Plugin.Instance.ThirdPersonCamera == null)
             return;
 

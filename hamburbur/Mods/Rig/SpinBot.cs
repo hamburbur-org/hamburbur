@@ -1,4 +1,5 @@
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using HarmonyLib;
 using UnityEngine;
 
@@ -20,7 +21,7 @@ public static class SpinBotPatch
 
     private static void Postfix(VRRig __instance)
     {
-        if (!SpinBot.IsEnabled || !__instance.isLocal)
+        if (!SpinBot.IsEnabled || !__instance.IsLocalRig())
             return;
 
         yRot = (yRot + 1350 * Time.deltaTime) % 360f;

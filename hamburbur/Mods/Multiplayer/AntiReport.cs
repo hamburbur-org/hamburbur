@@ -30,7 +30,7 @@ public class AntiReport : hamburburmod
                                                            .Select(line => line.reportButton.gameObject.transform)
                                                            .SelectMany(myReportButton =>
                                                                                from rig in VRRigCache.m_activeRigs
-                                                                               where !rig.isLocal
+                                                                               where !rig.IsLocalRig()
                                                                                let leftHandDistance =
                                                                                        Vector3.Distance(
                                                                                                rig.leftHandTransform

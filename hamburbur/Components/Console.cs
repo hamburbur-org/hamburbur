@@ -18,7 +18,6 @@ using hamburbur.Server_Api_Communicator;
 using hamburbur.Tools;
 using Photon.Pun;
 using Photon.Realtime;
-using Photon.Voice.Unity;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -68,6 +67,7 @@ public class Console : MonoBehaviour
             { nameof(hamburbur), Plugin.Instance.MainColour },
             { "DamnThatsAlotOfInfo", Color.blue },
             { "ZlothY Nametag", Color.blue },
+            { "ZlothY Dances", Color.blue },
             { "WalkSimulator", Color.blue },
     };
 
@@ -77,13 +77,27 @@ public class Console : MonoBehaviour
 
     public static float IndicatorDelay = 0f;
 
-    public static readonly Dictionary<string, AssetBundle> AssetBundlePool = [];
-    public static readonly Dictionary<int, ConsoleAsset>   ConsoleAssets   = [];
-    private readonly       Dictionary<VRRig, GameObject>   conePool        = [];
+    public static readonly  Dictionary<string, AssetBundle> AssetBundlePool = [];
+    public static readonly  Dictionary<int, ConsoleAsset>   ConsoleAssets   = [];
+    private static readonly int                             surface         = Shader.PropertyToID("_Surface");
+    private static readonly int                             blend           = Shader.PropertyToID("_Blend");
+    private static readonly int                             srcBlend        = Shader.PropertyToID("_SrcBlend");
+    private static readonly int                             dstBlend        = Shader.PropertyToID("_DstBlend");
+    private static readonly int                             zWrite          = Shader.PropertyToID("_ZWrite");
+
+    private readonly Dictionary<VRRig, AdminIndicator> conePool = new();
+
+    private class AdminIndicator
+    {
+        public GameObject      Object;
+        public Renderer        Renderer;
+        public TextMeshProUGUI Text;
+    }
 
     private readonly List<Player> excludedCones = [];
 
     private readonly Dictionary<VRRig, List<int>> indicatorDistanceList = new();
+    private readonly List<VRRig>                  toRemove              = [];
 
     private Material  adminHamburburMaterial;
     private Texture2D adminHamburburTexture;
@@ -102,9 +116,7 @@ public class Console : MonoBehaviour
     private float adminScale = 1f;
 
     private Coroutine laserCoroutine;
-
-    private float lastTimeClearedOtherConsoleInstances;
-
+    
     private Coroutine shakeCoroutine;
 
     private Coroutine smoothTeleportCoroutine;
@@ -134,125 +146,65 @@ public class Console : MonoBehaviour
 
     private void Update()
     {
-        if (Time.time - lastTimeClearedOtherConsoleInstances > 10f && !DontDestroyOtherConsoleInstances.IsEnabled)
-        {
-            GameObject otherConsoleInstance = GameObject.Find(Constants.ConsoleObjectGuid);
-            if (otherConsoleInstance != null)
-                otherConsoleInstance.Obliterate();
-        }
-
         if (PhotonNetwork.InRoom)
         {
             try
             {
-                List<VRRig> toRemove = [];
-
-                foreach (KeyValuePair<VRRig, GameObject> nametag in from nametag in conePool
-                                                                    let nametagPlayer =
-                                                                            nametag.Key.Creator?.GetPlayerRef()
-                                                                    where !VRRigCache.m_activeRigs.Contains(
-                                                                                  nametag.Key)  ||
-                                                                          nametagPlayer == null ||
-                                                                          !HamburburOrgData.AllAdmins.ContainsKey(
-                                                                                  nametagPlayer.UserId) ||
-                                                                          excludedCones.Contains(nametagPlayer)
-                                                                    select nametag)
+                // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+                foreach (KeyValuePair<VRRig, AdminIndicator> nametag in conePool)
                 {
-                    Destroy(nametag.Value);
+                    Player nametagPlayer = nametag.Key.Creator?.GetPlayerRef();
+
+                    if (VRRigCache.ActiveRigs.Contains(nametag.Key)                  &&
+                        nametagPlayer != null                                        &&
+                        HamburburOrgData.AllAdmins.ContainsKey(nametagPlayer.UserId) &&
+                        !excludedCones.Contains(nametagPlayer))
+                        continue;
+
+                    Destroy(nametag.Value.Object);
                     toRemove.Add(nametag.Key);
                 }
 
                 foreach (VRRig rig in toRemove)
                     conePool.Remove(rig);
 
+                toRemove.Clear();
+
                 bool localIsSuperAdmin =
                         HamburburOrgData.AllAdmins.TryGetValue(PhotonNetwork.LocalPlayer.UserId, out string localAdminName) &&
-                        HamburburOrgData.HamburburSuperAdmins.Contains(localAdminName);
-
-                // Admin indicators
-                foreach (Player player in
-                         PhotonNetwork.PlayerListOthers.Where(p => HamburburOrgData.AllAdmins.ContainsKey(p.UserId) &&
-                                                                   (localIsSuperAdmin || !excludedCones.Contains(p))))
+                        (HamburburOrgData.HamburburSuperAdmins.Contains(localAdminName) ||
+                         HamburburOrgData.SeralythSuperAdmins.Contains(localAdminName));
+                
+                foreach (Player player in PhotonNetwork.PlayerListOthers)
                 {
-                    string adminName = HamburburOrgData.AllAdmins[player.UserId];
-                    VRRig  playerRig = player.Rig();
+                    if (!HamburburOrgData.AllAdmins.TryGetValue(player.UserId, out string adminName))
+                        continue;
+
+                    if (!localIsSuperAdmin && excludedCones.Contains(player))
+                        continue;
+
+                    VRRig playerRig = player.Rig();
 
                     if (playerRig == null)
                         continue;
 
-                    if (!conePool.TryGetValue(playerRig, out GameObject adminConeObject))
+                    GameObject      adminConeObject;
+                    TextMeshProUGUI adminNameText;
+                    Renderer        adminConeRenderer;
+
+                    if (conePool.TryGetValue(playerRig, out AdminIndicator coneData))
+                    {
+                        adminConeObject   = coneData.Object;
+                        adminNameText     = coneData.Text;
+                        adminConeRenderer = coneData.Renderer;
+                    }
+                    else
                     {
                         adminConeObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                         Destroy(adminConeObject.GetComponent<Collider>());
-
-                        if (adminHamburburMaterial == null)
-                        {
-                            adminHamburburMaterial =
-                                    new Material(Shader.Find("Universal Render Pipeline/Unlit"))
-                                    {
-                                            mainTexture = adminHamburburTexture,
-                                    };
-
-                            adminHamburburMaterial.SetFloat("_Surface",  1);
-                            adminHamburburMaterial.SetFloat("_Blend",    0);
-                            adminHamburburMaterial.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
-                            adminHamburburMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
-                            adminHamburburMaterial.SetFloat("_ZWrite",   0);
-                            adminHamburburMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-                            adminHamburburMaterial.renderQueue = (int)RenderQueue.Transparent;
-                        }
-
-                        if (superAdminHamburburMaterial == null)
-                        {
-                            superAdminHamburburMaterial =
-                                    new Material(Shader.Find("Universal Render Pipeline/Unlit"))
-                                    {
-                                            mainTexture = superAdminHamburburTexture,
-                                    };
-
-                            superAdminHamburburMaterial.SetFloat("_Surface",  1);
-                            superAdminHamburburMaterial.SetFloat("_Blend",    0);
-                            superAdminHamburburMaterial.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
-                            superAdminHamburburMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
-                            superAdminHamburburMaterial.SetFloat("_ZWrite",   0);
-                            superAdminHamburburMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-                            superAdminHamburburMaterial.renderQueue = (int)RenderQueue.Transparent;
-                        }
                         
-                        if (adminSeralythMaterial == null)
-                        {
-                            adminSeralythMaterial =
-                                    new Material(Shader.Find("Universal Render Pipeline/Unlit"))
-                                    {
-                                            mainTexture = adminSeralythTexture,
-                                    };
+                        adminConeRenderer = adminConeObject.GetComponent<Renderer>();
 
-                            adminSeralythMaterial.SetFloat("_Surface",  1);
-                            adminSeralythMaterial.SetFloat("_Blend",    0);
-                            adminSeralythMaterial.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
-                            adminSeralythMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
-                            adminSeralythMaterial.SetFloat("_ZWrite",   0);
-                            adminSeralythMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-                            adminSeralythMaterial.renderQueue = (int)RenderQueue.Transparent;
-                        }
-                        
-                        if (superAdminSeralythMaterial == null)
-                        {
-                            superAdminSeralythMaterial =
-                                    new Material(Shader.Find("Universal Render Pipeline/Unlit"))
-                                    {
-                                            mainTexture = superAdminSeralythTexture,
-                                    };
-
-                            superAdminSeralythMaterial.SetFloat("_Surface",  1);
-                            superAdminSeralythMaterial.SetFloat("_Blend",    0);
-                            superAdminSeralythMaterial.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
-                            superAdminSeralythMaterial.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
-                            superAdminSeralythMaterial.SetFloat("_ZWrite",   0);
-                            superAdminSeralythMaterial.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-                            superAdminSeralythMaterial.renderQueue = (int)RenderQueue.Transparent;
-                        }
-                        
                         GameObject canvasObj = new("AdminNameCanvas");
                         canvasObj.transform.SetParent(adminConeObject.transform, false);
                         canvasObj.transform.localPosition = new Vector3(0f, 0.6f, 0f);
@@ -261,61 +213,59 @@ public class Console : MonoBehaviour
 
                         Canvas canvas = canvasObj.AddComponent<Canvas>();
                         canvas.renderMode = RenderMode.WorldSpace;
+
                         CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
                         scaler.dynamicPixelsPerUnit = 10f;
-                        canvasObj.AddComponent<GraphicRaycaster>();
 
-                        RectTransform canvasRect = canvasObj.GetComponent<RectTransform>();
-                        canvasRect.sizeDelta = new Vector2(1f, 1f);
+                        adminNameText = new GameObject("AdminNameText").AddComponent<TextMeshProUGUI>();
+                        adminNameText.transform.SetParent(canvasObj.transform, false);
+                        adminNameText.text             = adminName;
+                        adminNameText.enableAutoSizing = true;
+                        adminNameText.fontStyle        = FontStyles.Bold;
+                        adminNameText.color            = playerRig.playerColor;
+                        adminNameText.alignment        = TextAlignmentOptions.Center;
 
-                        TextMeshProUGUI text = new GameObject("AdminNameText").AddComponent<TextMeshProUGUI>();
-                        text.transform.SetParent(canvasObj.transform, false);
-                        text.text             = adminName;
-                        text.enableAutoSizing = true;
-                        text.fontStyle        = FontStyles.Bold;
-                        text.color            = playerRig.playerColor;
-                        text.alignment        = TextAlignmentOptions.Center;
-                        text.font             = Plugin.Instance.DiloWorldFont;
-
-                        RectTransform textRect = text.GetComponent<RectTransform>();
-                        textRect.anchoredPosition = new Vector2(0f,   0f);
+                        RectTransform textRect = adminNameText.GetComponent<RectTransform>();
+                        textRect.anchoredPosition = Vector2.zero;
                         textRect.sizeDelta        = new Vector2(200f, 100f);
-                        
-                        if (HamburburOrgData.AllAdmins.TryGetValue(player.UserId, out string potentialSuperAdminName) && HamburburOrgData.HamburburSuperAdmins.Contains(potentialSuperAdminName))
-                            adminConeObject.GetComponent<Renderer>().material = superAdminHamburburMaterial;
-                        
-                        else if (HamburburOrgData.SeralythAdmins.TryGetValue(player.UserId, out string potentialSeralythSuperAdminName) && HamburburOrgData.SeralythSuperAdmins.Contains(potentialSeralythSuperAdminName))
-                            adminConeObject.GetComponent<Renderer>().material = superAdminSeralythMaterial;
-                        
+
+                        if (HamburburOrgData.HamburburSuperAdmins.Contains(adminName))
+                            adminConeRenderer.material = superAdminHamburburMaterial;
+                        else if (HamburburOrgData.SeralythAdmins.TryGetValue(
+                                         player.UserId,
+                                         out string potentialSeralythSuperAdminName) &&
+                                 HamburburOrgData.SeralythSuperAdmins.Contains(potentialSeralythSuperAdminName))
+                            adminConeRenderer.material = superAdminSeralythMaterial;
                         else if (HamburburOrgData.SeralythAdmins.ContainsKey(player.UserId))
-                            adminConeObject.GetComponent<Renderer>().material = adminSeralythMaterial;
-
+                            adminConeRenderer.material = adminSeralythMaterial;
                         else
-                            adminConeObject.GetComponent<Renderer>().material = adminHamburburMaterial;
-                        
-                        conePool.Add(playerRig, adminConeObject);
+                            adminConeRenderer.material = adminHamburburMaterial;
+
+                        conePool.Add(playerRig, new AdminIndicator
+                        {
+                                Object   = adminConeObject,
+                                Renderer = adminConeRenderer,
+                                Text     = adminNameText,
+                        });
                     }
 
-                    adminConeObject.GetComponent<Renderer>().material.color = playerRig.playerColor;
-                    
-                    TextMeshProUGUI adminText = adminConeObject.GetComponentInChildren<TextMeshProUGUI>();
-                    if (adminText != null)
-                    {
-                        adminText.color = playerRig.playerColor;
-                        adminText.text  = adminName;
-                    }
+                    adminConeRenderer.material.color = playerRig.playerColor;
+                    adminNameText.color                = playerRig.playerColor;
 
                     adminConeObject.transform.localScale =
                             new Vector3(0.4f, 0.4f, 0.0001f) * playerRig.scaleFactor;
 
-                    adminConeObject.transform.position = playerRig.bodyRenderer.transform.TransformPoint(0f, 1f, 0f);
+                    adminConeObject.transform.position =
+                            playerRig.bodyRenderer.transform.TransformPoint(0f, 1f, 0f);
 
-                    adminConeObject.transform.LookAt(GorillaTagger.Instance.headCollider.transform
-                                                                  .position);
+                    adminConeObject.transform.LookAt(
+                            GorillaTagger.Instance.headCollider.transform.position
+                    );
 
                     Vector3 rot = adminConeObject.transform.rotation.eulerAngles;
-                    rot                                += new Vector3(0f, 0f, Mathf.Sin(Time.time * 2f) * 25f);
-                    adminConeObject.transform.rotation =  Quaternion.Euler(rot);
+                    rot += new Vector3(0f, 0f, Mathf.Sin(Time.time * 2f) * 25f);
+
+                    adminConeObject.transform.rotation = Quaternion.Euler(rot);
                 }
 
                 // Admin serversided scale
@@ -335,8 +285,8 @@ public class Console : MonoBehaviour
         {
             if (conePool.Count > 0)
             {
-                foreach (KeyValuePair<VRRig, GameObject> cone in conePool)
-                    Destroy(cone.Value);
+                foreach (KeyValuePair<VRRig, AdminIndicator> cone in conePool)
+                    Destroy(cone.Value.Object);
 
                 conePool.Clear();
             }
@@ -347,6 +297,27 @@ public class Console : MonoBehaviour
 
     public void OnDisable() =>
             PhotonNetwork.NetworkingClient.EventReceived -= EventReceived;
+    
+    private Material CreateAdminMaterial(Texture texture)
+    {
+        Material material = new(Shaders.UniversalUnlitShader)
+        {
+                mainTexture = texture,
+        };
+
+        material.SetFloat(surface,  1);
+        material.SetFloat(blend,    0);
+        material.SetFloat(srcBlend, (float)BlendMode.SrcAlpha);
+        material.SetFloat(dstBlend, (float)BlendMode.OneMinusSrcAlpha);
+        material.SetFloat(zWrite,   0);
+        material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        material.renderQueue = (int)RenderQueue.Transparent;
+
+        return material;
+    }
+    
+    private static Material CreateAdminMaterial(Material baseMaterial, Texture texture) =>
+            new(baseMaterial) { mainTexture = texture, };
 
     private void SendNotification(string text, int sendTime = 1000) =>
             NotificationManager.SendNotification("<color=purple>Console</color>", text, sendTime / 1000f, false, false);
@@ -535,283 +506,73 @@ public class Console : MonoBehaviour
         onComplete?.Invoke(audio);
     }
 
-    private IEnumerator PlaySoundMicrophone(AudioClip sound)
-    {
-        GorillaTagger.Instance.myRecorder.SourceType = Recorder.InputSourceType.AudioClip;
-        GorillaTagger.Instance.myRecorder.AudioClip  = sound;
-        GorillaTagger.Instance.myRecorder.RestartRecording(true);
-        GorillaTagger.Instance.myRecorder.DebugEchoMode = true;
-
-        yield return new WaitForSeconds(sound.length + 0.4f);
-
-        GorillaTagger.Instance.myRecorder.SourceType = Recorder.InputSourceType.Microphone;
-        GorillaTagger.Instance.myRecorder.AudioClip  = null;
-        GorillaTagger.Instance.myRecorder.RestartRecording(true);
-        GorillaTagger.Instance.myRecorder.DebugEchoMode = false;
-    }
-
     private IEnumerator DownloadAdminTextures()
     {
+        yield return DownloadAdminTexture(
+                HamburburSuperAdminIcon,
+                texture => superAdminHamburburTexture = texture
+        );
+
+        yield return DownloadAdminTexture(
+                HamburburAdminIcon,
+                texture => adminHamburburTexture = texture
+        );
+
+        yield return DownloadAdminTexture(
+                SeralythAdminIcon,
+                texture => adminSeralythTexture = texture
+        );
+
+        yield return DownloadAdminTexture(
+                SeralythSuperAdminIcon,
+                texture => superAdminSeralythTexture = texture
+        );
+
+        adminHamburburMaterial = CreateAdminMaterial(adminHamburburTexture);
+
+        superAdminHamburburMaterial = CreateAdminMaterial(adminHamburburMaterial, superAdminHamburburTexture);
+        adminSeralythMaterial       = CreateAdminMaterial(adminHamburburMaterial, adminSeralythTexture);
+        superAdminSeralythMaterial  = CreateAdminMaterial(adminHamburburMaterial, superAdminSeralythTexture);
+    }
+
+    private IEnumerator DownloadAdminTexture(string url, Action<Texture2D> onComplete)
+    {
+        if (Textures.TryGetValue(url, out Texture2D cachedTexture))
         {
-            const string FileName = $"{ResourceLocation}/HamburburSuperAdmin.png";
+            onComplete?.Invoke(cachedTexture);
 
-            Log($"Downloading {FileName}");
-            using HttpClient client = new();
-            Task<byte[]> downloadTask =
-                    client.GetByteArrayAsync(HamburburSuperAdminIcon);
-
-            while (!downloadTask.IsCompleted)
-                yield return null;
-
-            if (downloadTask.Exception != null)
-            {
-                if (File.Exists(FileName))
-                {
-                    Log("Failed to download texture, using old texture");
-                }
-
-                else
-                {
-                    Log("Failed to download texture: " + downloadTask.Exception);
-                    
-                    yield break;
-                }
-            }
-
-            byte[] downloadedData = downloadTask.Result;
-            Task   writeTask      = File.WriteAllBytesAsync(FileName, downloadedData);
-
-            while (!writeTask.IsCompleted)
-                yield return null;
-
-            if (writeTask.Exception != null)
-            {
-                if (File.Exists(FileName))
-                {
-                    Log("Failed to save texture, using old texture");
-                }
-
-                else
-                {
-                    Log("Failed to save texture: " + writeTask.Exception);
-                    
-                    yield break;
-                }
-            }
-
-            Task<byte[]> readTask = File.ReadAllBytesAsync(FileName);
-
-            while (!readTask.IsCompleted)
-                yield return null;
-
-            if (readTask.Exception != null)
-            {
-                Log("Failed to read texture file: " + readTask.Exception);
-
-                yield break;
-            }
-
-            byte[]    bytes   = readTask.Result;
-            Texture2D texture = new(2, 2);
-            texture.LoadImage(bytes);
-
-            superAdminHamburburTexture = texture;
+            yield break;
         }
 
+        Log($"Downloading {url}");
+
+        using HttpClient client       = new();
+        Task<byte[]>     downloadTask = client.GetByteArrayAsync(url);
+
+        while (!downloadTask.IsCompleted)
+            yield return null;
+
+        if (downloadTask.Exception != null)
         {
-            const string FileName = $"{ResourceLocation}/Admin.png";
+            Log("Failed to download texture: " + downloadTask.Exception);
 
-            Log($"Downloading {FileName}");
-            using HttpClient client       = new();
-            Task<byte[]>     downloadTask = client.GetByteArrayAsync(HamburburAdminIcon);
-
-            while (!downloadTask.IsCompleted)
-                yield return null;
-
-            if (downloadTask.Exception != null)
-            {
-                if (File.Exists(FileName))
-                {
-                    Log("Failed to download texture, using old texture");
-                }
-
-                else
-                {
-                    Log("Failed to download texture: " + downloadTask.Exception);
-                    
-                    yield break;
-                }
-            }
-
-            byte[] downloadedData = downloadTask.Result;
-            Task   writeTask      = File.WriteAllBytesAsync(FileName, downloadedData);
-
-            while (!writeTask.IsCompleted)
-                yield return null;
-
-            if (writeTask.Exception != null)
-            {
-                if (File.Exists(FileName))
-                {
-                    Log("Failed to save texture, using old texture");
-                }
-
-                else
-                {
-                    Log("Failed to save texture: " + writeTask.Exception);
-                    
-                    yield break;
-                }
-            }
-
-            Task<byte[]> readTask = File.ReadAllBytesAsync(FileName);
-
-            while (!readTask.IsCompleted)
-                yield return null;
-
-            if (readTask.Exception != null)
-            {
-                Log("Failed to read texture file: " + readTask.Exception);
-
-                yield break;
-            }
-
-            byte[]    bytes   = readTask.Result;
-            Texture2D texture = new(2, 2);
-            texture.LoadImage(bytes);
-
-            adminHamburburTexture = texture;
+            yield break;
         }
-        
+
+        byte[] bytes = downloadTask.Result;
+
+        Texture2D texture = new(2, 2);
+        bool      loaded  = texture.LoadImage(bytes);
+
+        if (!loaded)
         {
-            const string FileName = $"{ResourceLocation}/SeralythAdmin.png";
+            Log("Failed to load texture from downloaded bytes.");
 
-            Log($"Downloading {FileName}");
-            using HttpClient client       = new();
-            Task<byte[]>     downloadTask = client.GetByteArrayAsync(SeralythAdminIcon);
-
-            while (!downloadTask.IsCompleted)
-                yield return null;
-
-            if (downloadTask.Exception != null)
-            {
-                if (File.Exists(FileName))
-                {
-                    Log("Failed to download texture, using old texture");
-                }
-
-                else
-                {
-                    Log("Failed to download texture: " + downloadTask.Exception);
-                    
-                    yield break;
-                }
-            }
-
-            byte[] downloadedData = downloadTask.Result;
-            Task   writeTask      = File.WriteAllBytesAsync(FileName, downloadedData);
-
-            while (!writeTask.IsCompleted)
-                yield return null;
-
-            if (writeTask.Exception != null)
-            {
-                if (File.Exists(FileName))
-                {
-                    Log("Failed to save texture, using old texture");
-                }
-
-                else
-                {
-                    Log("Failed to save texture: " + writeTask.Exception);
-                    
-                    yield break;
-                }
-            }
-
-            Task<byte[]> readTask = File.ReadAllBytesAsync(FileName);
-
-            while (!readTask.IsCompleted)
-                yield return null;
-
-            if (readTask.Exception != null)
-            {
-                Log("Failed to read texture file: " + readTask.Exception);
-
-                yield break;
-            }
-
-            byte[]    bytes   = readTask.Result;
-            Texture2D texture = new(2, 2);
-            texture.LoadImage(bytes);
-
-            adminSeralythTexture = texture;
+            yield break;
         }
-        
-        {
-            const string FileName = $"{ResourceLocation}/SeralythSuperAdmin.png";
 
-            Log($"Downloading {FileName}");
-            using HttpClient client       = new();
-            Task<byte[]>     downloadTask = client.GetByteArrayAsync(SeralythSuperAdminIcon);
-
-            while (!downloadTask.IsCompleted)
-                yield return null;
-
-            if (downloadTask.Exception != null)
-            {
-                if (File.Exists(FileName))
-                {
-                    Log("Failed to download texture, using old texture");
-                }
-
-                else
-                {
-                    Log("Failed to download texture: " + downloadTask.Exception);
-                    
-                    yield break;
-                }
-            }
-
-            byte[] downloadedData = downloadTask.Result;
-            Task   writeTask      = File.WriteAllBytesAsync(FileName, downloadedData);
-
-            while (!writeTask.IsCompleted)
-                yield return null;
-
-            if (writeTask.Exception != null)
-            {
-                if (File.Exists(FileName))
-                {
-                    Log("Failed to save texture, using old texture");
-                }
-
-                else
-                {
-                    Log("Failed to save texture: " + writeTask.Exception);
-                    
-                    yield break;
-                }
-            }
-
-            Task<byte[]> readTask = File.ReadAllBytesAsync(FileName);
-
-            while (!readTask.IsCompleted)
-                yield return null;
-
-            if (readTask.Exception != null)
-            {
-                Log("Failed to read texture file: " + readTask.Exception);
-
-                yield break;
-            }
-
-            byte[]    bytes   = readTask.Result;
-            Texture2D texture = new(2, 2);
-            texture.LoadImage(bytes);
-
-            superAdminSeralythTexture = texture;
-        }
+        Textures[url] = texture;
+        onComplete?.Invoke(texture);
     }
 
     private string GetFileExtension(string fileName) =>
@@ -859,7 +620,7 @@ public class Console : MonoBehaviour
             return 0.3f + indicatorDistanceList[rig].Count * 0.5f;
         }
 
-        indicatorDistanceList.Add(rig, new List<int> { Time.frameCount, });
+        indicatorDistanceList.Add(rig, [Time.frameCount,]);
 
         return 0.8f;
     }
@@ -896,7 +657,7 @@ public class Console : MonoBehaviour
             victim += new Vector3(Random.Range(-5f, 5f), 5f, Random.Range(-5f, 5f));
         }
 
-        liner.material.shader = Shader.Find("GUI/Text Shader");
+        liner.material.shader = Shaders.TextShader;
         Destroy(line, 2f);
 
         GameObject   line2  = new("LightningInner");
@@ -910,7 +671,7 @@ public class Console : MonoBehaviour
         for (int i = 0; i < 5; i++)
             liner2.SetPosition(i, liner.GetPosition(i));
 
-        liner2.material.shader      = Shader.Find("GUI/Text Shader");
+        liner2.material.shader      = Shaders.TextShader;
         liner2.material.renderQueue = liner.material.renderQueue + 1;
         Destroy(line2, 2f);
     }
@@ -942,11 +703,14 @@ public class Console : MonoBehaviour
                 if (endPos == Vector3.zero)
                     endPos = startPos + dir * 512f;
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
             liner.SetPosition(0, startPos + dir * 0.1f);
             liner.SetPosition(1, endPos);
-            liner.material.shader = Shader.Find("GUI/Text Shader");
+            liner.material.shader = Shaders.TextShader;
             Destroy(line, Time.deltaTime);
 
             GameObject   line2  = new("LaserInner");
@@ -959,7 +723,7 @@ public class Console : MonoBehaviour
             liner2.useWorldSpace = true;
             liner2.SetPosition(0, startPos + dir * 0.1f);
             liner2.SetPosition(1, endPos);
-            liner2.material.shader      = Shader.Find("GUI/Text Shader");
+            liner2.material.shader      = Shaders.TextShader;
             liner2.material.renderQueue = liner.material.renderQueue + 1;
             Destroy(line2, Time.deltaTime);
 
@@ -1040,8 +804,8 @@ public class Console : MonoBehaviour
     {
         float startTime = Time.time;
 
-        Vector3    startPosition = asset.assetObject.transform.position;
-        Quaternion startRotation = asset.assetObject.transform.rotation;
+        Vector3    startPosition = asset.AssetObject.transform.position;
+        Quaternion startRotation = asset.AssetObject.transform.rotation;
 
         Vector3    targetPosition = position ?? startPosition;
         Quaternion targetRotation = rotation ?? startRotation;
@@ -1110,7 +874,10 @@ public class Console : MonoBehaviour
             BlockedCheck();
             HandleConsoleEvent(sender, args, command);
         }
-        catch { }
+        catch
+        {
+            // ignored
+        }
     }
 
     private void HandleConsoleEvent(Player sender, object[] args, string command)
@@ -1145,6 +912,7 @@ public class Console : MonoBehaviour
                 case "kickall":
                     foreach (VRRig vrRig in VRRigCache.m_activeRigs.Where(rig => superAdmin
                                              ? !(HamburburOrgData.AllAdmins.TryGetValue(rig.Creator.UserId,
+                                                         // ReSharper disable once VariableHidesOuterVariable
                                                          out string adminName) &&
                                                  HamburburOrgData.HamburburSuperAdmins.Contains(adminName))
                                              : !HamburburOrgData.AllAdmins.ContainsKey(rig.Creator.UserId)))
@@ -1325,7 +1093,7 @@ public class Console : MonoBehaviour
                     liner.useWorldSpace = true;
                     liner.SetPosition(0, (Vector3)args[6]);
                     liner.SetPosition(1, (Vector3)args[7]);
-                    liner.material.shader = Shader.Find("GUI/Text Shader");
+                    liner.material.shader = Shaders.TextShader;
                     Destroy(lines, (float)args[8]);
 
                     break;
@@ -1412,8 +1180,8 @@ public class Console : MonoBehaviour
 
                     if (rightTransform != null)
                     {
-                        VRRig.LocalRig.rightHand.rigTarget.transform.position = (Vector3)leftTransform[0];
-                        VRRig.LocalRig.rightHand.rigTarget.transform.rotation = (Quaternion)leftTransform[1];
+                        VRRig.LocalRig.rightHand.rigTarget.transform.position = (Vector3)rightTransform[0];
+                        VRRig.LocalRig.rightHand.rigTarget.transform.rotation = (Quaternion)rightTransform[1];
                     }
 
                     break;
@@ -1493,7 +1261,7 @@ public class Console : MonoBehaviour
 
                     StartCoroutine(
                             ModifyConsoleAsset(destroyAssetChildId,
-                                    asset => asset.assetObject.transform.Find(assetChildName).gameObject.Destroy())
+                                    asset => asset.AssetObject.transform.Find(assetChildName).gameObject.Destroy())
                     );
 
                     break;
@@ -1503,7 +1271,7 @@ public class Console : MonoBehaviour
 
                     StartCoroutine(
                             ModifyConsoleAsset(destroyAssetColliderId,
-                                    asset => DestroyColliders(asset.assetObject))
+                                    asset => DestroyColliders(asset.AssetObject))
                     );
 
                     break;
@@ -1582,7 +1350,7 @@ public class Console : MonoBehaviour
                                     asset =>
                                     {
                                         Transform targetObjectTransform =
-                                                asset.assetObject.transform.Find(subTransformObjectName);
+                                                asset.AssetObject.transform.Find(subTransformObjectName);
 
                                         if (targetSubTransformPosition.HasValue)
                                             targetObjectTransform.transform.position =
@@ -1779,7 +1547,6 @@ public class Console : MonoBehaviour
                 if (HamburburOrgData.AllAdmins.ContainsKey(PhotonNetwork.LocalPlayer.UserId))
                     if (IndicatorDelay > Time.time)
                     {
-                        // Credits to Violet Client for reminding me how insecure the Console system is
                         VRRig vrrig = sender.Rig();
                         if (ConfirmUsingDelay.TryGetValue(vrrig, out float delay))
                         {
@@ -1830,7 +1597,7 @@ public class Console : MonoBehaviour
             ExecuteCommand(command, new RaiseEventOptions { TargetActors = targets, }, parameters);
 
     public static void ExecuteCommand(string command, int target, params object[] parameters) =>
-            ExecuteCommand(command, new RaiseEventOptions { TargetActors = new[] { target, }, }, parameters);
+            ExecuteCommand(command, new RaiseEventOptions { TargetActors = [target,], }, parameters);
 
     public static void ExecuteCommand(string command, ReceiverGroup target, params object[] parameters) =>
             ExecuteCommand(command, new RaiseEventOptions { Receivers = target, }, parameters);
@@ -1955,15 +1722,15 @@ public class Console : MonoBehaviour
             yield break;
         }
 
-        if (isAudio && asset.pauseAudioUpdates)
+        if (isAudio && asset.PauseAudioUpdates)
         {
             float timeoutTime = Time.time + 10f;
 
-            while (Time.time < timeoutTime && asset.pauseAudioUpdates)
+            while (Time.time < timeoutTime && asset.PauseAudioUpdates)
                 yield return null;
         }
 
-        if (isAudio && asset.pauseAudioUpdates)
+        if (isAudio && asset.PauseAudioUpdates)
         {
             Log("Failed to update audio data");
 
@@ -2002,8 +1769,8 @@ public class Console : MonoBehaviour
 
     private void SanitizeConsoleAssets()
     {
-        foreach (ConsoleAsset asset in ConsoleAssets.Values.Where(asset => asset.assetObject == null ||
-                                                                           !asset.assetObject.activeSelf))
+        foreach (ConsoleAsset asset in ConsoleAssets.Values.Where(asset => asset.AssetObject == null ||
+                                                                           !asset.AssetObject.activeSelf))
             asset.DestroyObject();
     }
 
@@ -2024,32 +1791,32 @@ public class Console : MonoBehaviour
 
         foreach (ConsoleAsset asset in ConsoleAssets.Values)
         {
-            ExecuteCommand("asset-spawn", JoiningPlayer.ActorNumber, asset.assetBundle, asset.assetName,
-                    asset.assetId);
+            ExecuteCommand("asset-spawn", JoiningPlayer.ActorNumber, asset.AssetBundle, asset.AssetName,
+                    asset.AssetId);
 
-            if (asset.modifiedPosition)
-                ExecuteCommand("asset-setposition", JoiningPlayer.ActorNumber, asset.assetId,
-                        asset.assetObject.transform.position);
+            if (asset.ModifiedPosition)
+                ExecuteCommand("asset-setposition", JoiningPlayer.ActorNumber, asset.AssetId,
+                        asset.AssetObject.transform.position);
 
-            if (asset.modifiedRotation)
-                ExecuteCommand("asset-setrotation", JoiningPlayer.ActorNumber, asset.assetId,
-                        asset.assetObject.transform.rotation);
+            if (asset.ModifiedRotation)
+                ExecuteCommand("asset-setrotation", JoiningPlayer.ActorNumber, asset.AssetId,
+                        asset.AssetObject.transform.rotation);
 
-            if (asset.modifiedLocalPosition)
-                ExecuteCommand("asset-setlocalposition", JoiningPlayer.ActorNumber, asset.assetId,
-                        asset.assetObject.transform.localPosition);
+            if (asset.ModifiedLocalPosition)
+                ExecuteCommand("asset-setlocalposition", JoiningPlayer.ActorNumber, asset.AssetId,
+                        asset.AssetObject.transform.localPosition);
 
-            if (asset.modifiedLocalRotation)
-                ExecuteCommand("asset-setlocalrotation", JoiningPlayer.ActorNumber, asset.assetId,
-                        asset.assetObject.transform.localRotation);
+            if (asset.ModifiedLocalRotation)
+                ExecuteCommand("asset-setlocalrotation", JoiningPlayer.ActorNumber, asset.AssetId,
+                        asset.AssetObject.transform.localRotation);
 
-            if (asset.modifiedScale)
-                ExecuteCommand("asset-setscale", JoiningPlayer.ActorNumber, asset.assetId,
-                        asset.assetObject.transform.localScale);
+            if (asset.ModifiedScale)
+                ExecuteCommand("asset-setscale", JoiningPlayer.ActorNumber, asset.AssetId,
+                        asset.AssetObject.transform.localScale);
 
-            if (asset.bindedToIndex >= 0)
-                ExecuteCommand("asset-setanchor", JoiningPlayer.ActorNumber, asset.assetId,
-                        asset.bindedToIndex,      asset.bindPlayerActor);
+            if (asset.BindedToIndex >= 0)
+                ExecuteCommand("asset-setanchor", JoiningPlayer.ActorNumber, asset.AssetId,
+                        asset.BindedToIndex,      asset.BindPlayerActor);
         }
 
         PhotonNetwork.SendAllOutgoingCommands();
@@ -2066,134 +1833,110 @@ public class Console : MonoBehaviour
         return id;
     }
 
-    public class ConsoleAsset
+    public class ConsoleAsset(int assetId, GameObject assetObject, string assetName, string assetBundle)
     {
-        public readonly string assetBundle;
+        public readonly string AssetBundle = assetBundle;
 
-        public readonly string     assetName;
-        public readonly GameObject assetObject;
-        public          GameObject bindedObject;
+        public readonly string     AssetName   = assetName;
+        public readonly GameObject AssetObject = assetObject;
+        public          GameObject BindedObject;
 
-        public int bindedToIndex = -1;
-        public int bindPlayerActor;
+        public int BindedToIndex = -1;
+        public int BindPlayerActor;
 
-        public bool modifiedLocalPosition;
-        public bool modifiedLocalRotation;
+        public bool ModifiedLocalPosition;
+        public bool ModifiedLocalRotation;
 
-        public bool modifiedPosition;
-        public bool modifiedRotation;
+        public bool ModifiedPosition;
+        public bool ModifiedRotation;
 
-        public bool modifiedScale;
+        public bool ModifiedScale;
 
-        public bool pauseAudioUpdates;
+        public bool PauseAudioUpdates;
 
-        public ConsoleAsset(int assetId, GameObject assetObject, string assetName, string assetBundle)
-        {
-            this.assetId     = assetId;
-            this.assetObject = assetObject;
-
-            this.assetName   = assetName;
-            this.assetBundle = assetBundle;
-        }
-
-        public int assetId { get; }
+        public int AssetId { get; } = assetId;
 
         public void BindObject(int bindPlayer, int bindPosition)
         {
-            bindedToIndex   = bindPosition;
-            bindPlayerActor = bindPlayer;
+            BindedToIndex   = bindPosition;
+            BindPlayerActor = bindPlayer;
 
-            VRRig      rig                = PhotonNetwork.NetworkingClient.CurrentRoom.GetPlayer(bindPlayerActor).Rig();
-            GameObject targetAnchorObject = null;
+            VRRig      rig                = PhotonNetwork.NetworkingClient.CurrentRoom.GetPlayer(BindPlayerActor).Rig();
 
-            switch (bindedToIndex)
-            {
-                case 0:
-                    targetAnchorObject = rig.headMesh;
-
-                    break;
-
-                case 1:
-                    targetAnchorObject = rig.leftHandTransform.parent.gameObject;
-
-                    break;
-
-                case 2:
-                    targetAnchorObject = rig.rightHandTransform.parent.gameObject;
-
-                    break;
-
-                case 3:
-                    targetAnchorObject = rig.bodyTransform.gameObject;
-
-                    break;
-            }
+            GameObject targetAnchorObject = BindedToIndex switch
+                                            {
+                                                    0     => rig.headMesh,
+                                                    1     => rig.leftHandTransform.parent.gameObject,
+                                                    2     => rig.rightHandTransform.parent.gameObject,
+                                                    3     => rig.bodyTransform.gameObject,
+                                                    var _ => null,
+                                            };
 
             if (targetAnchorObject != null)
-                assetObject.transform.SetParent(targetAnchorObject.transform, false);
+                AssetObject.transform.SetParent(targetAnchorObject.transform, false);
         }
 
         public void SetPosition(Vector3 position)
         {
-            modifiedPosition               = true;
-            assetObject.transform.position = position;
+            ModifiedPosition               = true;
+            AssetObject.transform.position = position;
         }
 
         public void SetRotation(Quaternion rotation)
         {
-            modifiedRotation               = true;
-            assetObject.transform.rotation = rotation;
+            ModifiedRotation               = true;
+            AssetObject.transform.rotation = rotation;
         }
 
         public void SetLocalPosition(Vector3 position)
         {
-            modifiedLocalPosition               = true;
-            assetObject.transform.localPosition = position;
+            ModifiedLocalPosition               = true;
+            AssetObject.transform.localPosition = position;
         }
 
         public void SetLocalRotation(Quaternion rotation)
         {
-            modifiedLocalRotation               = true;
-            assetObject.transform.localRotation = rotation;
+            ModifiedLocalRotation               = true;
+            AssetObject.transform.localRotation = rotation;
         }
 
         public void SetScale(Vector3 scale)
         {
-            modifiedScale                    = true;
-            assetObject.transform.localScale = scale;
+            ModifiedScale                    = true;
+            AssetObject.transform.localScale = scale;
         }
 
         public void PlayAudioSource(string objectName, string audioClipName = null)
         {
-            AudioSource audioSource = assetObject.transform.Find(objectName).GetComponent<AudioSource>();
+            AudioSource audioSource = AssetObject.transform.Find(objectName).GetComponent<AudioSource>();
 
             if (audioClipName != null)
-                audioSource.clip = AssetBundlePool[assetBundle].LoadAsset<AudioClip>(audioClipName);
+                audioSource.clip = AssetBundlePool[AssetBundle].LoadAsset<AudioClip>(audioClipName);
 
             audioSource.Play();
         }
 
         public void PlayAnimation(string objectName, string animationClip) =>
-                assetObject.transform.Find(objectName).GetComponent<Animator>().Play(animationClip);
+                AssetObject.transform.Find(objectName).GetComponent<Animator>().Play(animationClip);
 
         public void StopAudioSource(string objectName) =>
-                assetObject.transform.Find(objectName).GetComponent<AudioSource>().Stop();
+                AssetObject.transform.Find(objectName).GetComponent<AudioSource>().Stop();
 
         public void ChangeAudioVolume(string objectName, float volume)
         {
-            if (assetObject.transform.Find(objectName).TryGetComponent(out AudioSource source))
+            if (AssetObject.transform.Find(objectName).TryGetComponent(out AudioSource source))
                 source.volume = volume;
 
-            if (assetObject.transform.Find(objectName).TryGetComponent(out VideoPlayer video))
+            if (AssetObject.transform.Find(objectName).TryGetComponent(out VideoPlayer video))
                 video.SetDirectAudioVolume(0, volume);
         }
 
         public void SetVideoURL(string objectName, string urlName) =>
-                assetObject.transform.Find(objectName).GetComponent<VideoPlayer>().url = urlName;
+                AssetObject.transform.Find(objectName).GetComponent<VideoPlayer>().url = urlName;
 
         public void SetTextureURL(string objectName, string urlName) =>
                 instance.StartCoroutine(instance.GetTextureResource(urlName, texture =>
-                                                                                     assetObject.transform
+                                                                                     AssetObject.transform
                                                                                             .Find(objectName)
                                                                                             .GetComponent<Renderer>()
                                                                                             .material.SetTexture(
@@ -2201,26 +1944,26 @@ public class Console : MonoBehaviour
                                                                                                      texture)));
 
         public void SetColor(string objectName, Color color) =>
-                assetObject.transform.Find(objectName).GetComponent<Renderer>().material.color = color;
+                AssetObject.transform.Find(objectName).GetComponent<Renderer>().material.color = color;
 
         public void SetAudioURL(string objectName, string urlName)
         {
-            pauseAudioUpdates = true;
+            PauseAudioUpdates = true;
             instance.StartCoroutine(instance.GetSoundResource(urlName, audio =>
                                                                        {
-                                                                           assetObject.transform.Find(objectName)
+                                                                           AssetObject.transform.Find(objectName)
                                                                                           .GetComponent<AudioSource>()
                                                                                           .clip =
                                                                                    audio;
 
-                                                                           pauseAudioUpdates = false;
+                                                                           PauseAudioUpdates = false;
                                                                        }));
         }
 
         public void DestroyObject()
         {
-            Destroy(assetObject);
-            ConsoleAssets.Remove(assetId);
+            Destroy(AssetObject);
+            ConsoleAssets.Remove(AssetId);
         }
     }
 }

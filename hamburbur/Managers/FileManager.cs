@@ -74,7 +74,7 @@ public class FileManager : Singleton<FileManager>
 
         RigUtils.OnRigCosmeticsLoaded += rig => SavePlayerData(rig.creator.UserId,   rig.creator.SanitizedNickName,
                                                  rig._playerOwnedCosmetics.Concat(), rig.IsOnSteam(),
-                                                 rig.creator.GetPlayerRef().CustomProperties);
+                                                 rig.GetPhotonPlayer().CustomProperties);
     }
 
     private void Update()
@@ -189,7 +189,7 @@ public class FileManager : Singleton<FileManager>
 
     private IEnumerator SendVote(bool voteForA)
     {
-        UnityWebRequest webRequest = new("https://hamburbur.org/polls/vote", "POST");
+        UnityWebRequest webRequest = new(Constants.HamburburUrl + "/polls/vote", "POST");
         string json = new JObject
         {
                 ["userId"]         = NetworkSystem.Instance.LocalPlayer.UserId,

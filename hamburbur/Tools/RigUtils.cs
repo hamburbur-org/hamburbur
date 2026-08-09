@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using GorillaLocomotion;
 using hamburbur.Components;
+using hamburbur.Managers;
 using hamburbur.Mods.Settings;
+using Photon.Pun;
 using UnityEngine;
 
 namespace hamburbur.Tools;
@@ -23,10 +25,9 @@ public class RigUtils : Singleton<RigUtils>
     public static bool       IsRigEnabled = true;
     public static Vector3    RigPosition;
     public static Quaternion RigRotation;
-    
+
     private GameObject rBall, lBall;
-
-
+    
     private void Start()
     {
         rBall = CreateBall(Utils.RealRightController);
@@ -38,18 +39,23 @@ public class RigUtils : Singleton<RigUtils>
         if (UseRigManager.IsEnabled)
         {
             VRRig.LocalRig.enabled = IsRigEnabled;
+
             if (!IsRigEnabled)
             {
                 VRRig.LocalRig.transform.position = RigPosition;
                 VRRig.LocalRig.transform.rotation = RigRotation;
             }
         }
-        
-        rBall.SetActive(!IsRigEnabled);
-        lBall.SetActive(!IsRigEnabled);
+        bool showControllerBalls = !IsRigEnabled;
+
+        rBall.SetActive(showControllerBalls);
+        lBall.SetActive(showControllerBalls);
 
         foreach (VRRig rig in LoadedRigs)
         {
+            if (rig == null)
+                continue;
+
             if (!RigPositions.TryGetValue(rig, out Vector3 position))
                 position = rig.transform.position;
 
@@ -67,11 +73,11 @@ public class RigUtils : Singleton<RigUtils>
     {
         if (!UseRigManager.IsEnabled)
         {
-            VRRig.LocalRig.enabled = toggled;
+            VRRig.LocalRig.enabled            = toggled;
             VRRig.LocalRig.transform.position = rigPosition;
             VRRig.LocalRig.transform.rotation = rigRotation;
         }
-        
+
         IsRigEnabled = toggled;
         RigPosition  = rigPosition;
         RigRotation  = rigRotation;
@@ -119,7 +125,7 @@ public class RigUtils : Singleton<RigUtils>
 
         GTPlayer.Instance.turnParent.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
     }
-    
+
     private static GameObject CreateBall(Transform parent)
     {
         GameObject ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -137,7 +143,7 @@ public class RigUtils : Singleton<RigUtils>
         ball.transform.localPosition = Vector3.zero;
         ball.transform.localRotation = Quaternion.identity;
         ball.transform.localScale    = Vector3.one * 0.1f;
-        
+
         return ball;
     }
 }

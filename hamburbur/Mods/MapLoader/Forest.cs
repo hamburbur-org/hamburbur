@@ -8,7 +8,7 @@ public class Forest : hamburburmod
 {
     protected override void Pressed()
     {
-        ZoneManagement.SetActiveZone(GTZone.forest);
+        Tools.Extensions.RecursiveInvoke(() => ZoneManagement.SetActiveZone(GTZone.forest), 3);
         Tools.Utils.TeleportPlayer(new Vector3(-76f, 5f, -80f));
     }
 }

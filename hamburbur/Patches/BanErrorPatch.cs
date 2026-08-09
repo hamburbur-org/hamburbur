@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using GorillaNetworking;
+using hamburbur.Managers;
 using hamburbur.Misc;
 using HarmonyLib;
 using PlayFab;
@@ -12,6 +14,8 @@ namespace hamburbur.Patches;
 
 public static class BanErrorPatch
 {
+    private const string IndefiniteExpiration = "Indefinite";
+
     private static string FormatTimeLeft(TimeSpan time)
     {
         if (time <= TimeSpan.Zero)
@@ -19,161 +23,337 @@ public static class BanErrorPatch
 
         List<string> parts = [];
 
-        int months = time.Days      / 30;
-        int weeks  = time.Days % 30 / 7;
-        int days   = time.Days      % 30 % 7;
+        int totalDays = Mathf.Max(0, (int)time.TotalDays);
+        int months    = totalDays      / 30;
+        int weeks     = totalDays % 30 / 7;
+        int days      = totalDays      % 7;
 
-        if (months > 0) parts.Add($"{months} month{(months == 1 ? "" : "s")}");
-        if (weeks  > 0) parts.Add($"{weeks} week{(weeks    == 1 ? "" : "s")}");
-        if (days   > 0) parts.Add($"{days} day{(days       == 1 ? "" : "s")}");
+        AddTimePart(parts, months, "month");
+        AddTimePart(parts, weeks,  "week");
+        AddTimePart(parts, days,   "day");
 
-        return parts.Count == 0 ? $"{time.Hours} hour{(time.Hours == 1 ? "" : "s")}" : string.Join(" ", parts);
+        if (parts.Count > 0)
+            return string.Join(" ", parts);
+
+        int hours = Mathf.Max(0, (int)time.TotalHours);
+
+        if (hours > 0)
+            return $"{hours} hour{GetPluralSuffix(hours)}";
+
+        int minutes = Mathf.Max(1, (int)time.TotalMinutes);
+
+        return $"{minutes} minute{GetPluralSuffix(minutes)}";
     }
 
-    [HarmonyPatch(typeof(PlayFabAuthenticator), nameof(PlayFabAuthenticator.ShowBanMessage))]
-    public static class ShowBanMessagePatch
+    private static void AddTimePart(
+            ICollection<string> parts,
+            int                 value,
+            string              name)
     {
-        private static bool Prefix(PlayFabAuthenticator.BanInfo banInfo)
-        {
-            try
-            {
-                if (banInfo.BanExpirationTime == null || banInfo.BanMessage == null)
-                    return false;
+        if (value <= 0)
+            return;
 
-                bool isIndefinite = string.Equals(banInfo.BanExpirationTime, "Indefinite",
-                        StringComparison.OrdinalIgnoreCase);
+        parts.Add($"{value} {name}{GetPluralSuffix(value)}");
+    }
 
-                string   formattedUnban = "Never";
-                TimeSpan remaining      = TimeSpan.Zero;
+    private static string GetPluralSuffix(int value) =>
+            value == 1 ? string.Empty : "s";
 
-                if (!isIndefinite && DateTime.TryParse(banInfo.BanExpirationTime, null,
-                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
-                            out DateTime unbanUtc))
-                {
-                    DateTime unbanLocal = unbanUtc.ToLocalTime();
-                    formattedUnban = unbanLocal.ToString("dd/MM/yyyy HH:mm:ss");
-                    remaining      = unbanUtc - DateTime.UtcNow;
-                }
-
-                GorillaComputer.instance.GeneralFailureMessage(
-                        !isIndefinite
-                                ? $"""
-                                   Your account [{SteamUser.GetSteamID().m_SteamID}] has been banned.
-
-                                   Ban Reason: {banInfo.BanMessage}
-
-                                   Time Left: {FormatTimeLeft(remaining)}
-                                   Unban Date: {formattedUnban}
-                                   """
-                                : $"""
-                                   Your account [{SteamUser.GetSteamID().m_SteamID}] has been INDEFINITELY banned.
-
-                                   Ban Reason: {banInfo.BanMessage}
-                                   """);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Failed to show custom ban message: {ex}");
-
-                return true;
-            }
-
+    private static bool ContainsBanText(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
             return false;
-        }
+
+        return value.IndexOf("ban", StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
-    [HarmonyPatch(typeof(PlayFabAuthenticator), nameof(PlayFabAuthenticator.OnPlayFabError))]
-    public static class OnPlayFabErrorPatch
+    private static bool IsBanError(PlayFabError error)
     {
-        private static bool Prefix(PlayFabAuthenticator __instance, PlayFabError obj)
+        if (error == null)
+            return false;
+
+        if (ContainsBanText(error.ErrorMessage))
+            return true;
+
+        if (ContainsBanText(error.Error.ToString()))
+            return true;
+
+        if (error.ErrorDetails == null)
+            return false;
+
+        foreach (KeyValuePair<string, List<string>> detail in error.ErrorDetails)
         {
-            try
-            {
-                __instance.LogMessage(obj.ErrorMessage);
-                Debug.Log("OnPlayFabError(): " + obj.ErrorMessage);
+            if (ContainsBanText(detail.Key))
+                return true;
 
-                __instance.loginFailed = true;
+            if (detail.Value == null)
+                continue;
 
-                switch (obj.ErrorMessage)
-                {
-                    case "The account making this request is currently banned":
-                    case "The IP making this request is currently banned":
-                    {
-                        using Dictionary<string, List<string>>.Enumerator enumerator =
-                                obj.ErrorDetails.GetEnumerator();
+            if (detail.Value.Any(ContainsBanText))
+                return true;
+        }
 
-                        if (!enumerator.MoveNext())
-                            return false;
+        return false;
+    }
 
-                        KeyValuePair<string, List<string>> current    = enumerator.Current;
-                        string                             reason     = current.Key;
-                        string                             expiration = current.Value[0];
+    private static bool TryGetBanDetails(
+            PlayFabError error,
+            out string   reason,
+            out string   expiration)
+    {
+        reason     = "Unknown";
+        expiration = IndefiniteExpiration;
 
-                        bool isIndefinite = string.Equals(expiration, "Indefinite",
-                                StringComparison.OrdinalIgnoreCase);
+        if (error?.ErrorDetails == null)
+            return false;
 
-                        string   formattedUnban = "Never";
-                        TimeSpan remaining      = TimeSpan.Zero;
+        foreach (KeyValuePair<string, List<string>> detail in error.ErrorDetails)
+        {
+            if (!string.IsNullOrWhiteSpace(detail.Key))
+                reason = detail.Key;
 
-                        if (!isIndefinite && DateTime.TryParse(expiration, null,
-                                    DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
-                                    out DateTime unbanUtc))
-                        {
-                            DateTime unbanLocal = unbanUtc.ToLocalTime();
-                            formattedUnban = unbanLocal.ToString("dd/MM/yyyy HH:mm:ss");
-                            remaining      = unbanUtc - DateTime.UtcNow;
+            if (detail.Value is { Count: > 0, } &&
+                !string.IsNullOrWhiteSpace(detail.Value[0]))
+                expiration = detail.Value[0];
 
-                            AccountBanLogger.AddOrUpdateCurrentAccount(reason, unbanUtc);
-                        }
+            return true;
+        }
 
-                        if (obj.ErrorMessage.Contains("account"))
-                            GorillaComputer.instance.GeneralFailureMessage(
-                                    !isIndefinite
-                                            ? $"""
-                                               {SteamFriends.GetPersonaName()} [{SteamUser.GetSteamID().m_SteamID}] has been banned for {reason.Split(" ")[0]}
+        return false;
+    }
 
-                                               Time Left: {FormatTimeLeft(remaining)}
-                                               Unban Date: {formattedUnban}
-                                               """
-                                            : $"""
-                                               {SteamFriends.GetPersonaName()} [{SteamUser.GetSteamID().m_SteamID}] has been INDEFINITELY banned.
+    private static bool TryParseExpiration(
+            string       expiration,
+            out DateTime expirationUtc,
+            out TimeSpan remaining)
+    {
+        expirationUtc = default(DateTime);
+        remaining     = TimeSpan.Zero;
 
-                                               Ban Reason: {reason}
-                                               """);
-                        else
-                            GorillaComputer.instance.GeneralFailureMessage(
-                                    !isIndefinite
-                                            ? $"""
-                                               This IP has been banned for {reason.Split(" ")[0]}
+        if (string.IsNullOrWhiteSpace(expiration))
+            return false;
 
-                                               Time Left: {FormatTimeLeft(remaining)}
-                                               Unban Date: {formattedUnban}
-                                               """
-                                            : $"""
+        if (string.Equals(
+                    expiration,
+                    IndefiniteExpiration,
+                    StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (!DateTime.TryParse(
+                    expiration,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AssumeUniversal |
+                    DateTimeStyles.AdjustToUniversal,
+                    out expirationUtc))
+            return false;
+
+        remaining = expirationUtc - DateTime.UtcNow;
+
+        return true;
+    }
+
+    private static string CreateAccountBanMessage(
+            string reason,
+            string expiration)
+    {
+        string account = GetAccountDescription();
+
+        if (!TryParseExpiration(
+                    expiration,
+                    out DateTime expirationUtc,
+                    out TimeSpan remaining))
+            return $"""
+                    {account} has been INDEFINITELY banned.
+
+                    Ban Reason: {reason}
+                    """;
+
+        AccountBanLogger.AddOrUpdateCurrentAccount(reason, expirationUtc);
+
+        return $"""
+                {account} has been banned.
+
+                Ban Reason: {reason}
+
+                Time Left: {FormatTimeLeft(remaining)}
+                Unban Date: {expirationUtc.ToLocalTime():dd/MM/yyyy HH:mm:ss}
+                """;
+    }
+
+    private static string CreateIpBanMessage(
+            string reason,
+            string expiration) =>
+            !TryParseExpiration(
+                    expiration,
+                    out DateTime expirationUtc,
+                    out TimeSpan remaining) ? $"""
                                                This IP has been INDEFINITELY banned.
 
                                                Ban Reason: {reason}
-                                               """);
+                                               """ : $"""
+                                                      This IP has been banned.
 
-                        break;
-                    }
+                                                      Ban Reason: {reason}
 
-                    default:
-                    {
-                        if (GorillaComputer.instance != null)
-                            GorillaComputer.instance.GeneralFailureMessage(
-                                    GorillaComputer.instance.unableToConnect);
+                                                      Time Left: {FormatTimeLeft(remaining)}
+                                                      Unban Date: {expirationUtc.ToLocalTime():dd/MM/yyyy HH:mm:ss}
+                                                      """;
 
-                        break;
-                    }
-                }
-            }
-            catch (Exception ex)
+    private static string GetAccountDescription()
+    {
+        try
+        {
+            string nickname = SteamFriends.GetPersonaName();
+            ulong  steamId  = SteamUser.GetSteamID().m_SteamID;
+
+            if (string.IsNullOrWhiteSpace(nickname))
+                nickname = "Your account";
+
+            if (steamId == 0)
+                return nickname;
+
+            return $"{nickname} [{steamId}]";
+        }
+        catch
+        {
+            return "Your account";
+        }
+    }
+
+    private static void ShowFailureMessage(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+            return;
+
+        if (GorillaComputer.instance == null)
+            return;
+
+        GorillaComputer.instance.GeneralFailureMessage(message);
+    }
+
+    [HarmonyPatch(
+            typeof(PlayFabAuthenticator),
+            nameof(PlayFabAuthenticator.ShowBanMessage))]
+    private static class ShowBanMessagePatch
+    {
+        private static bool Prefix(PlayFabAuthenticator.BanInfo banInfo)
+        {
+            if (banInfo == null)
+                return true;
+
+            if (string.IsNullOrWhiteSpace(banInfo.BanMessage))
+                return true;
+
+            try
             {
-                Debug.LogError($"Failed to handle custom PlayFab error: {ex}");
-            }
+                string expiration = string.IsNullOrWhiteSpace(banInfo.BanExpirationTime)
+                                            ? IndefiniteExpiration
+                                            : banInfo.BanExpirationTime;
 
-            return false;
+                string message = CreateAccountBanMessage(
+                        banInfo.BanMessage,
+                        expiration);
+
+                ShowFailureMessage(message);
+
+                return false;
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError(
+                        $"Failed to show custom ban message: {exception}");
+
+                return true;
+            }
+        }
+    }
+
+    [HarmonyPatch(
+            typeof(PlayFabAuthenticator),
+            nameof(PlayFabAuthenticator.OnPlayFabError))]
+    private static class OnPlayFabErrorPatch
+    {
+        private static void Postfix(PlayFabError obj)
+        {
+            if (!IsBanError(obj))
+                return;
+
+            try
+            {
+                TryGetBanDetails(
+                        obj,
+                        out string reason,
+                        out string expiration);
+
+                bool isIpBan = obj.ErrorMessage?.IndexOf(
+                                       "IP",
+                                       StringComparison.OrdinalIgnoreCase) >= 0;
+
+                string message = isIpBan
+                                         ? CreateIpBanMessage(reason, expiration)
+                                         : CreateAccountBanMessage(reason, expiration);
+
+                ShowFailureMessage(message);
+                BanNotificationHandler.TryNotify(message);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError(
+                        $"Failed to handle PlayFab ban error: {exception}");
+            }
+        }
+    }
+    
+    [HarmonyPatch(
+            typeof(GorillaComputer),
+            nameof(GorillaComputer.GeneralFailureMessage),
+            typeof(string))]
+    private static class GeneralFailureMessagePatch
+    {
+        private static void Postfix(string failMessage)
+        {
+            if (!ContainsBanText(failMessage))
+                return;
+
+            BanNotificationHandler.TryNotify(failMessage);
+        }
+    }
+
+    private static class BanNotificationHandler
+    {
+        private const float DuplicateNotificationDelay = 3f;
+
+        private static float  nextNotificationTime;
+        private static string lastMessage = string.Empty;
+
+        public static void TryNotify(string message)
+        {
+
+            if (!ContainsBanText(message))
+                return;
+
+            float currentTime = Time.realtimeSinceStartup;
+
+            bool isDuplicate =
+                    string.Equals(
+                            lastMessage,
+                            message,
+                            StringComparison.Ordinal) &&
+                    currentTime < nextNotificationTime;
+
+            if (isDuplicate)
+                return;
+
+            lastMessage = message;
+            nextNotificationTime =
+                    currentTime + DuplicateNotificationDelay;
+
+            NotificationManager.SendNotification(
+                    "<color=red>Account Ban</color>",
+                    "A ban response was received from Gorilla Tag",
+                    5f,
+                    true,
+                    true);
         }
     }
 }

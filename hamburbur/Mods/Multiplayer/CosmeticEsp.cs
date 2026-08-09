@@ -16,7 +16,7 @@ public class CosmeticEsp : hamburburmod
     protected override void OnEnable()
     {
         if (NetworkSystem.Instance.InRoom)
-            foreach (VRRig rig in VRRigCache.m_activeRigs.Where(r => !r.isLocal))
+            foreach (VRRig rig in NetworkSystem.Instance.Rigs())
                 InitRig(rig);
 
         RigUtils.OnRigCosmeticsLoaded += InitRig;
@@ -50,7 +50,7 @@ public class CosmeticEsp : hamburburmod
 
     private static void InitRig(VRRig rig)
     {
-        if (rig == null || rig.isLocal)
+        if (rig == null || rig.IsLocalRig())
             return;
 
         if (!rigRenderers.ContainsKey(rig))

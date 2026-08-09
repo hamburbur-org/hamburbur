@@ -2,10 +2,8 @@ using System.Runtime.InteropServices;
 
 namespace hamburbur.Misc;
 
-public class WindowsMediaController
+public abstract class WindowsMediaController
 {
-    //  https://github.com/The-Graze/MusicControls
-
     [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
     private static extern void keybd_event(uint bVk, uint bScan, uint dwFlags, uint dwExtraInfo);
 

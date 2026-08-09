@@ -114,6 +114,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
     private readonly List<PromptData> currentPrompts = [];
 
     public ModButton[] ModButtons;
+
     public void Initialize()
     {
         Instance = this;
@@ -130,7 +131,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         ButtonsPerPage--;
 
         ModButtons = buttons.ToArray();
-        
+
         UpdateButtons();
     }
 
@@ -143,11 +144,11 @@ public class ButtonHandler : Singleton<ButtonHandler>
     public void SetCategory(string category, bool cacheLastCategory = true)
     {
         MenuHandler.CategoryPageMemory[MenuHandler.Instance.Category] = MenuHandler.Instance.PageIndex;
-        
+
         if (cacheLastCategory)
             MenuHandler.LastCategories.Add((category, MenuHandler.Instance.PageIndex));
 
-        MenuHandler.Instance.Category  = category;
+        MenuHandler.Instance.Category = category;
 
         if (RememberLastCategory.IsEnabled && MenuHandler.CategoryPageMemory.TryGetValue(category, out int savedPage))
             MenuHandler.Instance.PageIndex = savedPage;
@@ -193,45 +194,60 @@ public class ButtonHandler : Singleton<ButtonHandler>
         ModRegistry.Register(mod, hamburburmodComp);
         hamburburmodComp.InvokeStart();
 
-        if (category == nameof(Main))
+        GUIHandler guiHandler = GUIHandler.Instance;
+
+        if (guiHandler                      != null &&
+            guiHandler.Menu                 != null &&
+            guiHandler.CategoryButtonPrefab != null &&
+            guiHandler.ModButtonPrefab      != null)
         {
-            Transform categoryContent =
-                    GUIHandler.Instance.Menu.transform.GetChild(1).GetChild(0).GetChild(0).GetChild(0);
+            if (category == nameof(Main))
+            {
+                Transform categoryContent =
+                        guiHandler.Menu.transform.GetChild(1).GetChild(0).GetChild(0).GetChild(0);
 
-            GameObject categoryButton = Instantiate(GUIHandler.Instance.CategoryButtonPrefab, categoryContent);
-            categoryButton.GetComponentInChildren<TextMeshProUGUI>().text = hamburburmodComp.ModName;
-            categoryButton.GetComponent<Button>().onClick
-                          .AddListener(() => hamburburmodComp.Toggle(ButtonState.Normal));
+                GameObject categoryButton = Instantiate(guiHandler.CategoryButtonPrefab, categoryContent);
+                categoryButton.GetComponentInChildren<TextMeshProUGUI>().text = hamburburmodComp.ModName;
+                categoryButton.GetComponent<Button>().onClick
+                              .AddListener(() => hamburburmodComp.Toggle(ButtonState.Normal));
 
-            hamburburmodComp.AssociatedGUIButton = categoryButton;
+                categoryButton.GetComponent<Button>().gameObject.GetOrAddComponent<ButtonPressAnimator>();
+                hamburburmodComp.AssociatedGUIButton = categoryButton;
+            }
+            else
+            {
+                Transform  modContent = guiHandler.Menu.transform.GetChild(2).GetChild(0).GetChild(0);
+                GameObject modButton  = Instantiate(guiHandler.ModButtonPrefab, modContent);
+                modButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = hamburburmodComp.ModName;
+                modButton.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text =
+                        hamburburmodComp.AssociatedAttribute.Description;
+
+                modButton.transform.GetChild(2).GetChild(0).gameObject
+                         .SetActive(hamburburmodComp.AssociatedAttribute.ButtonType != ButtonType.Incremental);
+
+                modButton.transform.GetChild(2).GetChild(1).gameObject
+                         .SetActive(hamburburmodComp.AssociatedAttribute.ButtonType == ButtonType.Incremental);
+
+                Button normalButton = modButton.transform.GetChild(2).GetChild(0).GetComponent<Button>();
+                Button minusButton  = modButton.transform.GetChild(2).GetChild(1).GetChild(0).GetComponent<Button>();
+                Button plusButton   = modButton.transform.GetChild(2).GetChild(1).GetChild(1).GetComponent<Button>();
+
+                normalButton.onClick.AddListener(() => hamburburmodComp.Toggle(ButtonState.Normal));
+                normalButton.gameObject.GetOrAddComponent<ButtonPressAnimator>();
+
+                minusButton.gameObject.GetOrAddComponent<HoldButtonRepeater>().Configure(
+                        () => hamburburmodComp.Toggle(ButtonState.Decrement),
+                        () => hamburburmodComp.Toggle(ButtonState.Decrement, false));
+
+                plusButton.gameObject.GetOrAddComponent<HoldButtonRepeater>().Configure(
+                        () => hamburburmodComp.Toggle(ButtonState.Increment),
+                        () => hamburburmodComp.Toggle(ButtonState.Increment, false));
+
+                hamburburmodComp.AssociatedGUIButton = modButton;
+            }
         }
-        else
-        {
-            Transform  modContent = GUIHandler.Instance.Menu.transform.GetChild(2).GetChild(0).GetChild(0);
-            GameObject modButton  = Instantiate(GUIHandler.Instance.ModButtonPrefab, modContent);
-            modButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = hamburburmodComp.ModName;
-            modButton.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text =
-                    hamburburmodComp.AssociatedAttribute.Description;
 
-            modButton.transform.GetChild(2).GetChild(0).gameObject
-                     .SetActive(hamburburmodComp.AssociatedAttribute.ButtonType != ButtonType.Incremental);
-
-            modButton.transform.GetChild(2).GetChild(1).gameObject
-                     .SetActive(hamburburmodComp.AssociatedAttribute.ButtonType == ButtonType.Incremental);
-
-            modButton.transform.GetChild(2).GetChild(0).GetComponent<Button>().onClick
-                     .AddListener(() => hamburburmodComp.Toggle(ButtonState.Normal));
-
-            modButton.transform.GetChild(2).GetChild(1).GetChild(0).GetComponent<Button>().onClick
-                     .AddListener(() => hamburburmodComp.Toggle(ButtonState.Decrement));
-
-            modButton.transform.GetChild(2).GetChild(1).GetChild(1).GetComponent<Button>().onClick
-                     .AddListener(() => hamburburmodComp.Toggle(ButtonState.Increment));
-
-            hamburburmodComp.AssociatedGUIButton = modButton;
-        }
-
-        Instance.UpdateButtons();
+        Instance?.UpdateButtons();
 
         return hamburburmodComp;
     }
@@ -246,12 +262,12 @@ public class ButtonHandler : Singleton<ButtonHandler>
             return;
 
         List<(Type, hamburburmod)> buttons = categoryEntry.Value.ToList();
-        
+
         Type modType = buttons.FirstOrDefault(button => button.Item2 == modComp).Item1;
 
         if (modComp.Enabled && modComp.AssociatedAttribute.ButtonType == ButtonType.Togglable)
             modComp.Toggle(ButtonState.Normal, false, false);
-        
+
         ModRuntime.Unregister(modComp);
 
         if (modType != null)
@@ -281,12 +297,12 @@ public class ButtonHandler : Singleton<ButtonHandler>
             {
                 case PromptType.AcceptAndDeny:
                     ModButtons[0].NormalButtonObject.SetActive(true);
-                    ModButtons[0].NormalButtonObject.GetComponent<Renderer>().enabled = false;
+                    ModButtons[0].NormalButtonObject.SetButtonRendererActive(false);
                     ModButtons[0].NormalButton.OnPress                                = null;
                     ModButtons[0].NormalTMP.text                                      = prompt.Title;
 
                     ModButtons[1].NormalButtonObject.SetActive(true);
-                    ModButtons[1].NormalButtonObject.GetComponent<Renderer>().enabled = true;
+                    ModButtons[1].NormalButtonObject.SetButtonRendererActive(true);
                     ModButtons[1].NormalTMP.text                                      = prompt.TopButtonText;
                     ModButtons[1].NormalButton.OnPress = () =>
                                                          {
@@ -296,7 +312,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
                                                          };
 
                     ModButtons[2].NormalButtonObject.SetActive(true);
-                    ModButtons[2].NormalButtonObject.GetComponent<Renderer>().enabled = true;
+                    ModButtons[2].NormalButtonObject.SetButtonRendererActive(true);
                     ModButtons[2].NormalTMP.text                                      = prompt.BottomButtonText;
                     ModButtons[2].NormalButton.OnPress = () =>
                                                          {
@@ -309,12 +325,12 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
                 case PromptType.Continue:
                     ModButtons[0].NormalButtonObject.SetActive(true);
-                    ModButtons[0].NormalButtonObject.GetComponent<Renderer>().enabled = false;
+                    ModButtons[0].NormalButtonObject.SetButtonRendererActive(false);
                     ModButtons[0].NormalButton.OnPress                                = null;
                     ModButtons[0].NormalTMP.text                                      = prompt.Title;
 
                     ModButtons[1].NormalButtonObject.SetActive(true);
-                    ModButtons[1].NormalButtonObject.GetComponent<Renderer>().enabled = true;
+                    ModButtons[1].NormalButtonObject.SetButtonRendererActive(true);
                     ModButtons[1].NormalTMP.text                                      = prompt.TopButtonText;
                     ModButtons[1].NormalButton.OnPress = () =>
                                                          {
@@ -327,7 +343,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
                 case PromptType.Keyboard:
                     ModButtons[0].NormalButtonObject.SetActive(true);
-                    ModButtons[0].NormalButtonObject.GetComponent<Renderer>().enabled = false;
+                    ModButtons[0].NormalButtonObject.SetButtonRendererActive(false);
                     ModButtons[0].NormalButton.OnPress                                = null;
                     ModButtons[0].NormalTMP.text                                      = prompt.Title;
 
@@ -409,7 +425,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
                         {
                             case ButtonType.Togglable:
                                 ModButtons[slot].NormalButton.OnPress = () => mod.Toggle(ButtonState.Normal);
-                                ModButtons[slot].NormalButtonObject.GetComponent<Renderer>().enabled = !mod.Enabled;
+                                ModButtons[slot].NormalButtonObject.SetButtonRendererActive(!mod.Enabled);
                                 ModButtons[slot].NormalButtonObject.SetActive(true);
                                 ModButtons[slot].IncrementalButtonObject.SetActive(false);
 
@@ -417,7 +433,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
                             case ButtonType.Fixed:
                                 ModButtons[slot].NormalButton.OnPress = () => mod.Toggle(ButtonState.Normal);
-                                ModButtons[slot].NormalButtonObject.GetComponent<Renderer>().enabled = true;
+                                ModButtons[slot].NormalButtonObject.SetButtonRendererActive(true);
                                 ModButtons[slot].NormalButtonObject.SetActive(true);
                                 ModButtons[slot].IncrementalButtonObject.SetActive(false);
 
@@ -426,6 +442,8 @@ public class ButtonHandler : Singleton<ButtonHandler>
                             case ButtonType.Incremental:
                                 ModButtons[slot].PlusButton.OnPress  = () => mod.Toggle(ButtonState.Increment);
                                 ModButtons[slot].MinusButton.OnPress = () => mod.Toggle(ButtonState.Decrement);
+                                ModButtons[slot].PlusButton.OnHold   = () => mod.Toggle(ButtonState.Increment, false);
+                                ModButtons[slot].MinusButton.OnHold  = () => mod.Toggle(ButtonState.Decrement, false);
                                 ModButtons[slot].IncrementalButtonObject.SetActive(true);
                                 ModButtons[slot].NormalButtonObject.SetActive(false);
 
@@ -464,7 +482,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
                         {
                             case ButtonType.Togglable:
                                 ModButtons[slot].NormalButton.OnPress = () => mod.Toggle(ButtonState.Normal);
-                                ModButtons[slot].NormalButtonObject.GetComponent<Renderer>().enabled = !mod.Enabled;
+                                ModButtons[slot].NormalButtonObject.SetButtonRendererActive(!mod.Enabled);
 
                                 ModButtons[slot].NormalButtonObject.SetActive(true);
                                 ModButtons[slot].IncrementalButtonObject.gameObject.SetActive(false);
@@ -473,7 +491,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
                             case ButtonType.Fixed:
                                 ModButtons[slot].NormalButton.OnPress = () => mod.Toggle(ButtonState.Normal);
-                                ModButtons[slot].NormalButtonObject.GetComponent<Renderer>().enabled = true;
+                                ModButtons[slot].NormalButtonObject.SetButtonRendererActive(true);
 
                                 ModButtons[slot].NormalButtonObject.SetActive(true);
                                 ModButtons[slot].IncrementalButtonObject.gameObject.SetActive(false);
@@ -483,6 +501,8 @@ public class ButtonHandler : Singleton<ButtonHandler>
                             case ButtonType.Incremental:
                                 ModButtons[slot].PlusButton.OnPress  = () => mod.Toggle(ButtonState.Increment);
                                 ModButtons[slot].MinusButton.OnPress = () => mod.Toggle(ButtonState.Decrement);
+                                ModButtons[slot].PlusButton.OnHold   = () => mod.Toggle(ButtonState.Increment, false);
+                                ModButtons[slot].MinusButton.OnHold  = () => mod.Toggle(ButtonState.Decrement, false);
 
                                 ModButtons[slot].IncrementalButtonObject.SetActive(true);
                                 ModButtons[slot].NormalButtonObject.gameObject.SetActive(false);
@@ -523,7 +543,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
                         {
                             case ButtonType.Togglable:
                                 ModButtons[slot].NormalButton.OnPress = () => mod.Toggle(ButtonState.Normal);
-                                ModButtons[slot].NormalButtonObject.GetComponent<Renderer>().enabled = !mod.Enabled;
+                                ModButtons[slot].NormalButtonObject.SetButtonRendererActive(!mod.Enabled);
 
                                 ModButtons[slot].NormalButtonObject.SetActive(true);
                                 ModButtons[slot].IncrementalButtonObject.gameObject.SetActive(false);
@@ -533,7 +553,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
                             case ButtonType.Category:
                             case ButtonType.Fixed:
                                 ModButtons[slot].NormalButton.OnPress = () => mod.Toggle(ButtonState.Normal);
-                                ModButtons[slot].NormalButtonObject.GetComponent<Renderer>().enabled = true;
+                                ModButtons[slot].NormalButtonObject.SetButtonRendererActive(true);
 
                                 ModButtons[slot].NormalButtonObject.SetActive(true);
                                 ModButtons[slot].IncrementalButtonObject.gameObject.SetActive(false);
@@ -543,6 +563,8 @@ public class ButtonHandler : Singleton<ButtonHandler>
                             case ButtonType.Incremental:
                                 ModButtons[slot].PlusButton.OnPress  = () => mod.Toggle(ButtonState.Increment);
                                 ModButtons[slot].MinusButton.OnPress = () => mod.Toggle(ButtonState.Decrement);
+                                ModButtons[slot].PlusButton.OnHold   = () => mod.Toggle(ButtonState.Increment, false);
+                                ModButtons[slot].MinusButton.OnHold  = () => mod.Toggle(ButtonState.Decrement, false);
                                 ModButtons[slot].IncrementalButtonObject.SetActive(true);
                                 ModButtons[slot].NormalButtonObject.gameObject.SetActive(false);
 
@@ -556,6 +578,27 @@ public class ButtonHandler : Singleton<ButtonHandler>
                     break;
                 }
             }
+        }
+    }
+
+    public void RefreshButtonText(hamburburmod mod)
+    {
+        int firstIndex = MenuHandler.Instance.PageIndex * ButtonsPerPage;
+
+        for (int slot = 0; slot < ButtonsPerPage; slot++)
+        {
+            int index = firstIndex + slot;
+
+            if (index >= Buttons.Categories[nameof(Main)].Length)
+                return;
+
+            if (Buttons.Categories[nameof(Main)][index].Item2 != mod)
+                continue;
+
+            ModButtons[slot].NormalTMP.text      = mod.ModName;
+            ModButtons[slot].IncrementalTMP.text = mod.ModName;
+
+            return;
         }
     }
 

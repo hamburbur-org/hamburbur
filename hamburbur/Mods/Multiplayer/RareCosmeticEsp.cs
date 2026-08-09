@@ -5,14 +5,15 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Multiplayer;
 
-[hamburburmod("Rare Cosmetic ESP", "If anyone has a special cosmetic it will be visible through walls", ButtonType.Togglable,
+[hamburburmod("Rare Cosmetic ESP", "If anyone has a special cosmetic it will be visible through walls",
+        ButtonType.Togglable,
         AccessSetting.BetaBuildOnly, EnabledType.Disabled, 0)]
 public class RareCosmeticEsp : hamburburmod
 {
     protected override void OnEnable()
     {
         if (NetworkSystem.Instance.InRoom)
-            foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
+            foreach (VRRig rig in NetworkSystem.Instance.Rigs())
                 CheckAndApplyEsp(rig);
 
         RigUtils.OnRigCosmeticsLoaded += CheckAndApplyEsp;
@@ -27,14 +28,15 @@ public class RareCosmeticEsp : hamburburmod
         if (!NetworkSystem.Instance.InRoom)
             return;
 
-        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
-            CheckAndApplyEsp(rig);
+        foreach (VRRig rig in NetworkSystem.Instance.Rigs())
+            RestoreCosmetics(rig);
     }
 
     private void CheckAndApplyEsp(VRRig rig)
     {
-        if (!Plugin.Instance.SpecialCosmetics.Keys.Any(cosmeticKey => rig._playerOwnedCosmetics.Contains(cosmeticKey)) ||
-            rig.isLocal)
+        if (!Plugin.Instance.SpecialCosmetics.Keys.Any(cosmeticKey =>
+                                                               rig._playerOwnedCosmetics.Contains(cosmeticKey)) ||
+            rig.IsLocalRig())
             return;
 
         foreach (GameObject cosmeticObject in rig.cosmetics.Where(cosmeticObject =>

@@ -26,4 +26,15 @@ public abstract class Shaders
             return field;
         }
     }
+    
+    public static Shader UniversalUnlitShader
+    {
+        get
+        {
+            if (field == null)
+                field = Shader.Find("Universal Render Pipeline/Unlit");
+                
+            return field;
+        }
+    }
 }

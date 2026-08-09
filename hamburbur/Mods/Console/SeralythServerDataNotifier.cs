@@ -17,13 +17,6 @@ public class SeralythServerDataNotifier : hamburburmod
 
     protected override void OnEnable()
     {
-        /*if (!HamburburData.SeralythAdmins.ContainsKey(PhotonNetwork.LocalPlayer.UserId) && HamburburData.shouldUseSeralythData)
-        {
-            NotificationManager.SendNotification("<color=red>Error</color>", "You're not a seralyth console admin!", 5f, true, true);
-            Toggle(ButtonState.Normal, false);
-            return;
-        }*/
-
         if (isRunning)
             return;
 
@@ -54,7 +47,7 @@ public class SeralythServerDataNotifier : hamburburmod
 
     private IEnumerator CheckStatus()
     {
-        using UnityWebRequest req = UnityWebRequest.Get(HamburburOrgData.SeralythUrl + "/serverdata");
+        using UnityWebRequest req = UnityWebRequest.Get(Constants.SeralythUrl + "/serverdata");
         yield return req.SendWebRequest();
 
         bool   isUp        = req.result == UnityWebRequest.Result.Success;

@@ -11,7 +11,7 @@ namespace hamburbur.Managers;
 
 public class CustomBoardManager : Singleton<CustomBoardManager>
 {
-    private const int StumpLeaderboardIndex = 4;
+    private const int StumpLeaderboardIndex = 5;
 
     private static readonly Dictionary<string, BoardInformation> BoardInformations =
             new()
@@ -85,93 +85,141 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
             };
 
     private readonly Dictionary<string, GameObject> objectBoards = new();
+    private          GameObject                     board;
 
-    private Renderer   computerMonitor;
-    private GameObject board;
+    private Renderer computerMonitor;
 
     private void Start()
     {
-        ReloadAllBoards();
         SceneManager.sceneLoaded += SceneLoaded;
 
-        board = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        board.transform.parent = GameObject
-                                .Find(
-                                         "Environment Objects/LocalObjects_Prefab/Forest/ForestScoreboardAnchor/GorillaScoreBoard")
-                                .transform;
+        Transform forestBoardParent = GameObject
+                                     .Find(
+                                              "Environment Objects/LocalObjects_Prefab/Forest/ForestScoreboardAnchor/GorillaScoreBoard")
+                                    ?.transform;
 
-        board.transform.localPosition = new Vector3(-22.1964f, -34.9f, 0.57f);
-        board.transform.localRotation = Quaternion.Euler(270f, 0f, 0f);
-        board.transform.localScale    = new Vector3(21.2f, 2f, 21.6f);
+        if (forestBoardParent != null)
+        {
+            board = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            board.transform.SetParent(forestBoardParent);
+            board.transform.localPosition = new Vector3(-22.1964f, -34.9f, 0.57f);
+            board.transform.localRotation = Quaternion.Euler(270f, 0f, 0f);
+            board.transform.localScale    = new Vector3(21.2f, 2f, 21.6f);
 
-        Destroy(board.GetComponent<Collider>());
-        board.GetComponent<Renderer>().material = CustomBoardMaterial.Current;
+            Destroy(board.GetComponent<Collider>());
+        }
+
+        ReloadAllBoards();
     }
 
-    private void Update() => computerMonitor.material = CustomBoardMaterial.Current;
+    private void Update()
+    {
+        FindComputerMonitor();
+
+        if (computerMonitor != null && computerMonitor.sharedMaterial != CustomBoardMaterial.Current)
+            ApplyMaterial(computerMonitor);
+    }
+
+    private void OnDestroy() => SceneManager.sceneLoaded -= SceneLoaded;
 
     public void ReloadAllBoards()
     {
         try
         {
             if (board != null)
-                board.GetComponent<Renderer>().material = CustomBoardMaterial.Current;
-            
-            Transform[] stumpChildren = GameObject.Find("Environment Objects/LocalObjects_Prefab/TreeRoom").transform
-                                                  .GetComponentsInChildren<Transform>(true)
-                                                  .Where(t => t.name.Contains("UnityTempFile")).ToArray();
+                ApplyMaterial(board.GetComponent<Renderer>());
 
-            if (StumpLeaderboardIndex >= 0 && StumpLeaderboardIndex < stumpChildren.Length)
+            foreach (GameObject objectBoard in objectBoards.Values)
             {
-                Transform stumpBoard = stumpChildren[StumpLeaderboardIndex];
-                if (stumpBoard != null)
-                    stumpBoard.GetComponent<Renderer>().material = CustomBoardMaterial.Current;
+                if (objectBoard == null)
+                    continue;
+
+                ApplyMaterial(objectBoard.GetComponent<Renderer>());
             }
 
-            foreach (GorillaNetworkJoinTrigger joinTrigger in PhotonNetworkController.Instance.allJoinTriggers)
-            {
-                try
-                {
-                    JoinTriggerUI         ui   = joinTrigger.ui;
-                    JoinTriggerUITemplate temp = ui.template;
+            Transform treeRoom = GameObject.Find("Environment Objects/LocalObjects_Prefab/TreeRoom")?.transform;
 
-                    temp.ScreenBG_AbandonPartyAndSoloJoin  = CustomBoardMaterial.Current;
-                    temp.ScreenBG_AlreadyInRoom            = CustomBoardMaterial.Current;
-                    temp.ScreenBG_ChangingGameModeSoloJoin = CustomBoardMaterial.Current;
-                    temp.ScreenBG_Error                    = CustomBoardMaterial.Current;
-                    temp.ScreenBG_InPrivateRoom            = CustomBoardMaterial.Current;
-                    temp.ScreenBG_LeaveRoomAndGroupJoin    = CustomBoardMaterial.Current;
-                    temp.ScreenBG_LeaveRoomAndSoloJoin     = CustomBoardMaterial.Current;
-                    temp.ScreenBG_NotConnectedSoloJoin     = CustomBoardMaterial.Current;
-                }
-                catch
+            if (treeRoom != null)
+            {
+                Transform[] stumpChildren = treeRoom.GetComponentsInChildren<Transform>(true)
+                                                    .Where(transform => transform.name.Contains("UnityTempFile"))
+                                                    .ToArray();
+
+                if (StumpLeaderboardIndex >= 0 && StumpLeaderboardIndex < stumpChildren.Length)
                 {
-                    // ignored
+                    Renderer stumpRenderer = stumpChildren[StumpLeaderboardIndex].GetComponent<Renderer>();
+                    ApplyMaterial(stumpRenderer);
                 }
             }
 
-            PhotonNetworkController.Instance.UpdateTriggerScreens();
+            if (PhotonNetworkController.Instance != null)
+            {
+                foreach (GorillaNetworkJoinTrigger joinTrigger in PhotonNetworkController.Instance.allJoinTriggers)
+                    ApplyJoinTriggerMaterial(joinTrigger);
 
-            if (computerMonitor == null)
-                computerMonitor = GameObject
-                                 .Find(
-                                          "Environment Objects/LocalObjects_Prefab/TreeRoom/TreeRoomInteractables/GorillaComputerObject/ComputerUI/monitor/monitorScreen")
-                                 .GetComponent<Renderer>();
+                PhotonNetworkController.Instance.UpdateTriggerScreens();
+            }
+
+            FindComputerMonitor();
+            ApplyMaterial(computerMonitor);
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            //ReloadAllBoards();
-            Debug.LogError(e);
+            Debug.LogError(exception);
         }
+    }
+
+    private static void ApplyMaterial(Renderer renderer)
+    {
+        if (renderer == null)
+            return;
+
+        renderer.sharedMaterial = CustomBoardMaterial.Current;
+    }
+
+    private static void ApplyJoinTriggerMaterial(GorillaNetworkJoinTrigger joinTrigger)
+    {
+        try
+        {
+            JoinTriggerUITemplate template = joinTrigger?.ui?.template;
+
+            if (template == null)
+                return;
+
+            Material material = CustomBoardMaterial.Current;
+            template.ScreenBG_AbandonPartyAndSoloJoin  = material;
+            template.ScreenBG_AlreadyInRoom            = material;
+            template.ScreenBG_ChangingGameModeSoloJoin = material;
+            template.ScreenBG_Error                    = material;
+            template.ScreenBG_InPrivateRoom            = material;
+            template.ScreenBG_LeaveRoomAndGroupJoin    = material;
+            template.ScreenBG_LeaveRoomAndSoloJoin     = material;
+            template.ScreenBG_NotConnectedSoloJoin     = material;
+        }
+        catch
+        {
+            // ignored
+        }
+    }
+
+    private void FindComputerMonitor()
+    {
+        if (computerMonitor != null)
+            return;
+
+        computerMonitor = GameObject
+                         .Find(
+                                  "Environment Objects/LocalObjects_Prefab/TreeRoom/TreeRoomInteractables/GorillaComputerObject/ComputerUI/monitor/monitorScreen")
+                        ?.GetComponent<Renderer>();
     }
 
     private void SceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        ReloadAllBoards();
+        if (BoardInformations.TryGetValue(scene.name, out BoardInformation boardInformation))
+            CreateObjectBoard(scene.name,      boardInformation.GameObjectPath, boardInformation.Position,
+                    boardInformation.Rotation, boardInformation.Scale);
 
-        if (!BoardInformations.TryGetValue(scene.name, out BoardInformation boardInformation)) return;
-        CreateObjectBoard(scene.name,      boardInformation.GameObjectPath, boardInformation.Position,
-                boardInformation.Rotation, boardInformation.Scale);
+        ReloadAllBoards();
     }
 
     private void CreateObjectBoard(string scene, string gameObject, Vector3? position = null, Vector3? rotation = null,
@@ -187,16 +235,21 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
                 objectBoards.Remove(scene);
             }
 
-            GameObject board = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            board.transform.parent        = GameObject.Find(gameObject).transform;
-            board.transform.localPosition = position ?? new Vector3(-22.1964f, -34.9f, 0.57f);
-            board.transform.localRotation = Quaternion.Euler(rotation ?? new Vector3(270f, 0f, 0f));
-            board.transform.localScale    = scale ?? new Vector3(21.6f, 2.4f, 22f);
+            Transform parent = GameObject.Find(gameObject)?.transform;
 
-            Destroy(board.GetComponent<Collider>());
-            board.GetComponent<Renderer>().material = CustomBoardMaterial.Current;
+            if (parent == null)
+                return;
 
-            objectBoards.Add(scene, board);
+            GameObject objectBoard = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            objectBoard.transform.SetParent(parent);
+            objectBoard.transform.localPosition = position ?? new Vector3(-22.1964f, -34.9f, 0.57f);
+            objectBoard.transform.localRotation = Quaternion.Euler(rotation ?? new Vector3(270f, 0f, 0f));
+            objectBoard.transform.localScale    = scale ?? new Vector3(21.6f, 2.4f, 22f);
+
+            Destroy(objectBoard.GetComponent<Collider>());
+            ApplyMaterial(objectBoard.GetComponent<Renderer>());
+
+            objectBoards.Add(scene, objectBoard);
         }
         catch
         {

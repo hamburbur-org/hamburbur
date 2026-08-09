@@ -1,4 +1,5 @@
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using Photon.Realtime;
 using UnityEngine;
 
@@ -28,7 +29,7 @@ public class Scythe : hamburburmod
             return;
 
         Components.Console.ConsoleAsset asset    = Components.Console.ConsoleAssets[scytheId];
-        Transform                       RayPoint = asset.assetObject.transform;
+        Transform                       RayPoint = asset.AssetObject.transform;
 
         Physics.SphereCast(RayPoint.position, 0.1f, RayPoint.forward, out RaycastHit Ray, 0.7f,
                 Tools.Utils.NoInvisLayerMask());
@@ -40,7 +41,7 @@ public class Scythe : hamburburmod
         {
             VRRig Target = Ray.collider.GetComponentInParent<VRRig>();
 
-            if (Target == null || Target.isLocal)
+            if (Target == null || Target.IsLocalRig())
                 return;
 
             slashDelay = Time.time + 0.5f;

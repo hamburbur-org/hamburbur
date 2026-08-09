@@ -25,16 +25,16 @@ using HarmonyLib;
 
 namespace hamburbur.Patches;
 
-public class SubscriptionPatches
+public abstract class SubscriptionPatches
 {
-    public static bool enabled;
+    public static bool Enabled;
 
     [HarmonyPatch(typeof(SubscriptionManager), nameof(SubscriptionManager.IsLocalSubscribed))]
     public class IsLocalSubscribed
     {
         private static bool Prefix(ref bool __result)
         {
-            if (!enabled)
+            if (!Enabled)
                 return true;
 
             __result = true;
@@ -48,7 +48,7 @@ public class SubscriptionPatches
     {
         private static bool Prefix(ref SubscriptionManager.SubscriptionStatus __result)
         {
-            if (!enabled)
+            if (!Enabled)
                 return true;
 
             __result = SubscriptionManager.SubscriptionStatus.Active;
@@ -62,7 +62,7 @@ public class SubscriptionPatches
     {
         private static bool Prefix(ref SubscriptionManager.SubscriptionDetails __result)
         {
-            if (!enabled)
+            if (!Enabled)
                 return true;
 
             __result = new SubscriptionManager.SubscriptionDetails

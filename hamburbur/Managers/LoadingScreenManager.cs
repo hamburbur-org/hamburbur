@@ -17,7 +17,7 @@ public class LoadingScreenManager : Singleton<LoadingScreenManager>
         GameObject worldCanvasPrefab =
                 Plugin.Instance.HamburburBundle.LoadAsset<GameObject>("LoadingScreenCanvasWorldSpace");
 
-        AudioClip clip = MenuSoundsHandler.LoadWavFromResource("hamburbur.Resources.StartupSound.wav");
+        AudioClip clip = Plugin.Instance.HamburburBundle.LoadAsset<AudioClip>("StartupSound");
 
         GameObject canvasInstance = Instantiate(canvasPrefab);
 

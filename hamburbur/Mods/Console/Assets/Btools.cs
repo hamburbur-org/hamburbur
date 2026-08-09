@@ -35,7 +35,7 @@ public class Btools : hamburburmod
             return;
         }
 
-        GameObject gameObject = Components.Console.ConsoleAssets[btoolsId].assetObject;
+        GameObject gameObject = Components.Console.ConsoleAssets[btoolsId].AssetObject;
 
         if (rightGrab && !lastGripBtools)
             toolId++;
@@ -82,7 +82,7 @@ public class Btools : hamburburmod
                         {
                             grabUpdateCooldown = Time.time + 0.05f;
                             Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All,
-                                    grabbingObject.assetId, endPos + Vector3.up);
+                                    grabbingObject.AssetId, endPos + Vector3.up);
                         }
                     }
                 }
@@ -104,16 +104,16 @@ public class Btools : hamburburmod
 
                         int cloneId = Components.Console.GetFreeAssetID();
                         Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All,
-                                targetObject.assetBundle, targetObject.assetName, cloneId);
+                                targetObject.AssetBundle, targetObject.AssetName, cloneId);
 
                         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, cloneId,
-                                targetObject.assetObject.transform.position + Vector3.up);
+                                targetObject.AssetObject.transform.position + Vector3.up);
 
                         Components.Console.ExecuteCommand("asset-setrotation", ReceiverGroup.All, cloneId,
-                                targetObject.assetObject.transform.rotation);
+                                targetObject.AssetObject.transform.rotation);
 
                         Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, cloneId,
-                                targetObject.assetObject.transform.localScale);
+                                targetObject.AssetObject.transform.localScale);
                     }
                 }
 
@@ -125,9 +125,9 @@ public class Btools : hamburburmod
                     btoolState = "HammerHover";
                     if (rightTrigger && !lastTrigger)
                     {
-                        Explode(targetObject.assetObject.transform.position);
+                        Explode(targetObject.AssetObject.transform.position);
                         Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All,
-                                targetObject.assetId);
+                                targetObject.AssetId);
                     }
                 }
 
@@ -158,9 +158,9 @@ public class Btools : hamburburmod
     {
         if (obj == null) return null;
 
-        return Components.Console.ConsoleAssets.Values.FirstOrDefault(asset => asset.assetObject != null &&
+        return Components.Console.ConsoleAssets.Values.FirstOrDefault(asset => asset.AssetObject != null &&
                                                                                obj.transform.IsChildOf(asset
-                                                                                      .assetObject.transform));
+                                                                                      .AssetObject.transform));
     }
 
     private void Explode(Vector3 position, Vector3? scale = null, bool sound = true)

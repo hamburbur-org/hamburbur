@@ -67,7 +67,7 @@ public static class SpiderWalkRigPatch
 {
     private static void Postfix(VRRig __instance)
     {
-        if (!SpiderWalk.Active || !__instance.isLocal)
+        if (!SpiderWalk.Active || !__instance.IsLocalRig())
             return;
 
         Quaternion target =

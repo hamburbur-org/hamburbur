@@ -3,6 +3,7 @@ using System.Linq;
 using GorillaLocomotion;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using Photon.Realtime;
 using UnityEngine;
 
@@ -50,7 +51,7 @@ public class BanHammer : hamburburmod
         if (!Components.Console.ConsoleAssets.ContainsKey(allocatedBanHammerId)) return;
 
         Components.Console.ConsoleAsset asset    = Components.Console.ConsoleAssets[allocatedBanHammerId];
-        Transform                       RayPoint = asset.assetObject.transform.Find("Model/HitBox");
+        Transform                       RayPoint = asset.AssetObject.transform.Find("Model/HitBox");
 
         if (!RayPoint.TryGetComponent(out MeshCollider _))
             RayPoint.gameObject.AddComponent<MeshCollider>();
@@ -70,7 +71,7 @@ public class BanHammer : hamburburmod
             if (Ray.collider != null)
             {
                 VRRig Target = Ray.collider.GetComponentInParent<VRRig>();
-                if (Target != null && !Target.isLocal)
+                if (Target != null && !Target.IsLocalRig())
                 {
                     slashDelay = Time.time + 1f;
                     pauseSfx   = Time.time + 1f;

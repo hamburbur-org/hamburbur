@@ -7,6 +7,8 @@ namespace hamburbur.Components;
 public class GreetingHandler : MonoBehaviour
 {
     private TextMeshProUGUI greetingText;
+
+    private string          playerName = "BADGORILLA";
     private TextMeshProUGUI roomInfoText;
 
     private void Start()
@@ -20,8 +22,8 @@ public class GreetingHandler : MonoBehaviour
 
     private void Update()
     {
-        string playerName = "BADGORILLA";
-        if (!NetworkSystem.Instance.LocalPlayer.SanitizedNickName.IsNullOrEmpty())
+        if (!NetworkSystem.Instance.LocalPlayer.SanitizedNickName.IsNullOrEmpty() &&
+            NetworkSystem.Instance.LocalPlayer.SanitizedNickName != playerName)
             playerName = NetworkSystem.Instance.LocalPlayer.SanitizedNickName;
 
         greetingText.text = $"Hey, {playerName}!";

@@ -23,9 +23,6 @@ namespace hamburbur.Server_Api_Communicator;
 
 public class HamburburOrgData : Singleton<HamburburOrgData>
 {
-    public const string HamburburUrl = "https://hamburbur.org";
-    public const string SeralythUrl  = "https://menu.seralyth.software";
-
     public static Action<JObject> OnDataReloaded;
 
     private static readonly Dictionary<string, string>         allAdmins         = [];
@@ -36,16 +33,10 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
 
     private static readonly HashSet<string> hamburburSuperAdmins = [];
 
-    private static readonly ReadOnlyCollection<string> hamburburSuperAdminsReadonly =
-            hamburburSuperAdmins.ToList().AsReadOnly();
-
     private static readonly Dictionary<string, string>         seralythAdmins         = [];
     private static readonly ReadOnlyDictionary<string, string> seralythAdminsReadonly = new(seralythAdmins);
 
     private static readonly HashSet<string> seralythSuperAdmins = [];
-
-    private static readonly ReadOnlyCollection<string> seralythSuperAdminsReadonly =
-            seralythSuperAdmins.ToList().AsReadOnly();
 
     private static Action<bool> onPlayerConfirmedToBeAdmin;
     private static bool         hasSubscribedToAddingAdminMods;
@@ -60,9 +51,9 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
     private       bool                                hasLoadedConsole;
     public static IReadOnlyDictionary<string, string> AllAdmins            => allAdminsReadonly;
     public static IReadOnlyDictionary<string, string> HamburburAdmins      => hamburburAdminsReadonly;
-    public static IReadOnlyCollection<string>         HamburburSuperAdmins => hamburburSuperAdminsReadonly;
+    public static IReadOnlyCollection<string>         HamburburSuperAdmins => hamburburSuperAdmins;
     public static IReadOnlyDictionary<string, string> SeralythAdmins       => seralythAdminsReadonly;
-    public static IReadOnlyCollection<string>         SeralythSuperAdmins  => seralythSuperAdminsReadonly;
+    public static IReadOnlyCollection<string>         SeralythSuperAdmins  => seralythSuperAdmins;
     public static JObject                             Data                 { get; private set; }
     public static bool                                DataLoaded           { get; private set; }
 
@@ -80,7 +71,7 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
 
         while (true)
         {
-            UnityWebRequest hamburburWebRequest = UnityWebRequest.Get(Constants.HamburburDataUrl);
+            UnityWebRequest hamburburWebRequest = UnityWebRequest.Get(Constants.HamburburUrl + "/data");
             UnityWebRequest seralythWebRequest  = UnityWebRequest.Get("https://menu.seralyth.software/serverdata");
 
             Task.Run(async () =>
@@ -115,7 +106,7 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"Failed to parse JSON from {Constants.HamburburDataUrl}: {e}");
+                    Debug.LogError($"Failed to parse JSON from {Constants.HamburburUrl}/data: {e}");
                     errored = true;
                 }
 
@@ -184,12 +175,12 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
             {
                 NotificationManager.SendNotification(
                         "<color=red>Error</color>",
-                        $"Failed to fetch necessary data from {Constants.HamburburDataUrl}: {hamburburWebRequest.error}",
+                        $"Failed to fetch necessary data from {Constants.HamburburUrl}/data: {hamburburWebRequest.error}",
                         5f,
                         true,
                         true);
 
-                Debug.LogError($"Failed to fetch data from {Constants.HamburburDataUrl}: {hamburburWebRequest.error}");
+                Debug.LogError($"Failed to fetch data from {Constants.HamburburUrl}/data: {hamburburWebRequest.error}");
             }
 
             yield return new WaitForSeconds(120);
@@ -213,8 +204,8 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
     {
         string json = JsonConvert.SerializeObject(new
         {
-                directory = Tools.Utils.CleanString(directory),
-                identity  = Tools.Utils.CleanString(identity),
+                directory = Tools.Utils.CleanString(directory, 12),
+                identity  = Tools.Utils.CleanString(identity, 12),
                 region    = Tools.Utils.CleanString(region, 3),
                 userid    = Tools.Utils.CleanString(userid, 20),
                 isPrivate,
@@ -227,14 +218,14 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
 
         byte[] raw = Encoding.UTF8.GetBytes(json);
 
-        UnityWebRequest hamburburRequest = new(HamburburUrl + "/telemetry", "POST");
+        UnityWebRequest hamburburRequest = new(Constants.HamburburUrl + "/telemetry", "POST");
         hamburburRequest.uploadHandler = new UploadHandlerRaw(raw);
         hamburburRequest.SetRequestHeader("Content-Type", "application/json");
         hamburburRequest.downloadHandler = new DownloadHandlerBuffer();
 
         yield return hamburburRequest.SendWebRequest();
 
-        UnityWebRequest seralythRequest = new(SeralythUrl + "/telemetry", "POST");
+        UnityWebRequest seralythRequest = new(Constants.SeralythUrl + "/telemetry", "POST");
         seralythRequest.uploadHandler = new UploadHandlerRaw(raw);
         seralythRequest.SetRequestHeader("Content-Type", "application/json");
         seralythRequest.downloadHandler = new DownloadHandlerBuffer();

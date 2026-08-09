@@ -1,5 +1,6 @@
 using hamburbur.Mod_Backend;
 using Photon.Realtime;
+using UnityEngine;
 using Vector3 = System.Numerics.Vector3;
 
 namespace hamburbur.Mods.Console.Assets;
@@ -22,7 +23,7 @@ public class ModMenu : hamburburmod
                 new Vector3(-0.09f, 0.125f, 0f));
 
         Components.Console.ExecuteCommand("asset-setlocalrotation", ReceiverGroup.All, allocatedId,
-                new Vector3(0f, 110f, 80f));
+                Quaternion.Euler(0f, 110f, 80f));
     }
 
     protected override void OnDisable()

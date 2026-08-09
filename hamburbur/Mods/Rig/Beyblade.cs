@@ -3,6 +3,7 @@ using HarmonyLib;
 using GorillaLocomotion;
 using hamburbur.Managers;
 using hamburbur.Mods.Settings;
+using hamburbur.Tools;
 using UnityEngine;
 
 namespace hamburbur.Mods.Rig;
@@ -48,7 +49,7 @@ public static class BeybladePatch
 
     private static void Postfix(VRRig __instance)
     {
-        if (!Beyblade.IsEnabled || !__instance.isLocal)
+        if (!Beyblade.IsEnabled || !__instance.IsLocalRig())
             return;
 
         yRot = (yRot + 1350 * Time.deltaTime) % 360f;

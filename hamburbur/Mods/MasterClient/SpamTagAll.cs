@@ -32,7 +32,7 @@ public class SpamTagAll : hamburburmod
         if (!(Time.time > spamTagDelay))
             return;
         
-        spamTagDelay = Time.time + 0.01f;
+        spamTagDelay = Time.time + 0.035f;
 
         foreach (VRRig rig in VRRigCache.m_activeRigs)
         {

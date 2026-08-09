@@ -51,17 +51,8 @@ public static class AccountBanPatches
     [HarmonyPatch(typeof(GorillaGameManager), nameof(GorillaGameManager.ForceStopGame_DisconnectAndDestroy))]
     public class NoQuitOnBan
     {
-        private static bool Prefix()
-        {
-            NotificationManager.SendNotification(
-                    "<color=red>Anti Cheat</color>",
-                    "Your account has been banned from Gorilla Tag",
-                    5f,
-                    true,
-                    true);
-
-            return false;
-        }
+        private static bool Prefix() => 
+                false;
     }
 
     [HarmonyPatch(typeof(MonkeAgent), nameof(MonkeAgent.ShouldDisconnectFromRoom))]

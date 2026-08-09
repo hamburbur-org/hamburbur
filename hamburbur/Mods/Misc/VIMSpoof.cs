@@ -7,7 +7,7 @@ namespace hamburbur.Mods.Misc;
         ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class VIMSpoof : hamburburmod
 {
-    protected override void OnEnable()  => SubscriptionPatches.enabled = true;
+    protected override void OnEnable()  => SubscriptionPatches.Enabled = true;
     
-    protected override void OnDisable() => SubscriptionPatches.enabled = false;
+    protected override void OnDisable() => SubscriptionPatches.Enabled = false;
 }

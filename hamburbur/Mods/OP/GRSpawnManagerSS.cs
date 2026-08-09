@@ -3,6 +3,7 @@ using GorillaLocomotion;
 using hamburbur.Libs;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
@@ -79,14 +80,14 @@ public class GRBlindAll : hamburburmod
     {
         foreach (VRRig rig in VRRigCache.m_activeRigs)
         {
-            if (rig.isLocal)
+            if (rig.IsLocalRig())
                 continue;
 
             Vector3    position = rig.headMesh.transform.position;
             Quaternion rotation = rig.headMesh.transform.rotation;
 
             GRSpawnManagerSS.SpawnObject(
-                    rig.Creator.GetPlayerRef(),
+                    rig.GetPhotonPlayer(),
                     position,
                     rotation
             );

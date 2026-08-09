@@ -1,5 +1,6 @@
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using Photon.Realtime;
 using UnityEngine;
 
@@ -29,7 +30,7 @@ public class Laser : hamburburmod
             {
                 Physics.Raycast(startPos + dir / 3f, dir, out RaycastHit Ray, 512f, Tools.Utils.NoInvisLayerMask());
                 VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
-                if (gunTarget && !gunTarget.isLocal)
+                if (gunTarget && !gunTarget.IsLocalRig())
                     Components.Console.ExecuteCommand("silkick", ReceiverGroup.All,
                             gunTarget.Creator.UserId);
             }

@@ -5,6 +5,7 @@ using ExitGames.Client.Photon;
 using GorillaLocomotion;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using HarmonyLib;
 using Photon.Pun;
 using Photon.Realtime;
@@ -65,7 +66,7 @@ public static class RigTweaksV2_LateUpdatePatch
             if (!RigTweaksV2.IsEnabled)
                 return;
 
-            if (!__instance.isLocal)
+            if (!__instance.IsLocalRig())
                 return;
 
             __instance.transform.rotation =

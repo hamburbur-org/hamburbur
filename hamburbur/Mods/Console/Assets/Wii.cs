@@ -1,6 +1,7 @@
 using GorillaLocomotion;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using Photon.Realtime;
 using UnityEngine;
 
@@ -47,9 +48,9 @@ public class Wii : hamburburmod
         if (!Components.Console.ConsoleAssets.TryGetValue(clickerAssetId, out Components.Console.ConsoleAsset consoleAsset))
             return;
 
-        GameObject gameObject = consoleAsset.assetObject;
+        GameObject gameObject = consoleAsset.AssetObject;
 
-        GameObject remote = Components.Console.ConsoleAssets[remoteAssetId].assetObject;
+        GameObject remote = Components.Console.ConsoleAssets[remoteAssetId].AssetObject;
             
         Vector3 startPos  = remote.transform.position;
         Vector3 direction = remote.transform.up;
@@ -61,7 +62,7 @@ public class Wii : hamburburmod
 
         if (InputManager.Instance.RightPrimary.WasPressed)
         {
-            if (selectedRig == null && hitRig && !hitRig.isLocal)
+            if (selectedRig == null && hitRig && !hitRig.IsLocalRig())
             {
                 Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, nameof(AudioSource), "wiistart");
                 
@@ -93,7 +94,7 @@ public class Wii : hamburburmod
 
         if (InputManager.Instance.RightTrigger.WasPressed)
         {
-            if (hitRig != null && !hitRig.isLocal)
+            if (hitRig != null && !hitRig.IsLocalRig())
             {
                 Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, nameof(AudioSource), "wiistart");
                 

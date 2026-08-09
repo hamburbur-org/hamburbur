@@ -59,7 +59,7 @@ public class Boombox : hamburburmod
         if (boomboxId < 0) return;
         if (!Components.Console.ConsoleAssets.ContainsKey(boomboxId)) return;
 
-        GameObject  targetObject = Components.Console.ConsoleAssets[boomboxId].assetObject;
+        GameObject  targetObject = Components.Console.ConsoleAssets[boomboxId].AssetObject;
         AudioSource audioSource  = targetObject.transform.Find("Model").GetComponent<AudioSource>();
 
         if (audioSource == null || targetObject == null || !audioSource.isPlaying) return;

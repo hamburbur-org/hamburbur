@@ -17,14 +17,20 @@ public class MenuHandler : Singleton<MenuHandler>
 {
     public static List<(string, int)>     LastCategories     = [];
     public static Dictionary<string, int> CategoryPageMemory = new();
-    public        string                  Category           = nameof(Main);
-    public        int                     PageIndex;
-    public        GameObject              ButtonPresser;
-    public        bool                    MenuOpen;
 
-    public  bool        IsWaiting;
-    public  TMP_Text MenuName;
-    private Coroutine   typingCoroutine;
+    public static bool       IsInitialised;
+    public        string     Category = nameof(Main);
+    public        int        PageIndex;
+    public        GameObject ButtonPresser;
+    public        bool       MenuOpen;
+
+    public bool IsCanvasMenu;
+
+    public Color currentMainColour, currentSecondaryColour;
+
+    public  bool      IsWaiting;
+    public  TMP_Text  MenuName;
+    private Coroutine typingCoroutine;
 
     public GameObject Menu { get; private set; }
 
@@ -55,7 +61,6 @@ public class MenuHandler : Singleton<MenuHandler>
         ModRegistry.Clear();
 
         foreach (KeyValuePair<string, ValueTuple<Type, hamburburmod>[]> category in Buttons.Categories)
-        {
             for (int button = 0; button < category.Value.Length; button++)
             {
                 Type modType = category.Value[button].Item1;
@@ -68,6 +73,7 @@ public class MenuHandler : Singleton<MenuHandler>
                 if (attribute == null)
                 {
                     Debug.LogError($"[hamburbur] {modType.FullName} is missing hamburburmodAttribute");
+
                     continue;
                 }
 
@@ -79,7 +85,6 @@ public class MenuHandler : Singleton<MenuHandler>
 
                 ModRegistry.Register(modType, hamburburMod);
             }
-        }
 
         foreach (KeyValuePair<string, ValueTuple<Type, hamburburmod>[]> category in Buttons.Categories)
         {
@@ -113,7 +118,10 @@ public class MenuHandler : Singleton<MenuHandler>
 
     private void Update()
     {
-        if (KeyboardManager.Instance.KeyboardOpen)
+        if (Menu == null || InputManager.Instance == null)
+            return;
+
+        if (KeyboardManager.Instance != null && KeyboardManager.Instance.KeyboardOpen)
             return;
 
         InputManager inputs = InputManager.Instance;
@@ -141,43 +149,76 @@ public class MenuHandler : Singleton<MenuHandler>
 
     private void OnDisable() => CoroutineManager.Instance.StartCoroutine(CloseMenu());
 
-    public void SetUpMenu(GameObject menuPrefab, Transform menuParent, Vector3 position, Quaternion rotation,
-                          Color      mainColour, bool      active)
+    public void SetUpMenu(GameObject menuPrefab, Transform menuParent,      Vector3 position, Quaternion rotation,
+                          Color      mainColour, Color     secondaryColour, float keyboardHeight, bool isCanvasMenu, bool    active)
     {
-        CategoryPageMemory.Clear();
-        
-        if (Menu != null)
+        if (menuPrefab == null || menuParent == null)
         {
-            Menu.Obliterate();
-            Menu = null;
+            Debug.LogError("[hamburbur] Cannot create menu because its prefab or parent is null.");
+
+            return;
         }
 
-        if (ButtonPresser != null)
-            ButtonPresser.GetComponent<Renderer>().material.color = mainColour;
+        CategoryPageMemory.Clear();
 
-        if (KeyboardManager.Instance.nonDominantButtonPresser != null)
-            KeyboardManager.Instance.nonDominantButtonPresser.GetComponent<Renderer>().material.color = mainColour;
+        IsCanvasMenu = isCanvasMenu;
 
-        GameObject menu = Instantiate(menuPrefab, menuParent);
+        GameObject previousMenu = Menu;
+        GameObject menu         = Instantiate(menuPrefab, menuParent);
+
         menu.RecursivelySetLayer(UnityLayer.IgnoreRaycast);
         menu.SetActive(false);
 
         menu.transform.localPosition = position;
         menu.transform.localRotation = rotation;
 
-        Menu = menu;
-        Menu.transform.Find(nameof(Version)).GetComponent<TMP_Text>().text = $"v{Constants.PluginVersion}";
-        MenuName = Menu.transform.Find("Title").GetComponent<TMP_Text>();
+        Transform version     = menu.transform.Find(nameof(Version));
+        Transform title       = menu.transform.Find("Title");
+        Transform miscButtons = menu.transform.Find("MiscButtons");
+        Transform modButtons  = menu.transform.Find("ModButtons");
 
-        Transform miscButtons = Menu.transform.Find("MiscButtons");
-        miscButtons.Find("Disconnect").AddComponent<ButtonCollider>().OnPress =
-                () => NetworkSystem.Instance.ReturnToSinglePlayer();
+        if (version == null || title == null || miscButtons == null || modButtons == null)
+        {
+            Debug.LogError($"[hamburbur] Theme {menuPrefab.name} is missing required objects.");
+            menu.Obliterate();
 
-        miscButtons.Find(nameof(LastPage)).AddComponent<ButtonCollider>().OnPress = LastPage;
-        miscButtons.Find(nameof(NextPage)).AddComponent<ButtonCollider>().OnPress = NextPage;
-        miscButtons.Find("Return").AddComponent<ButtonCollider>().OnPress         = ReturnToLastCategory;
+            return;
+        }
 
-        Menu.transform.Find("ModButtons").AddComponent<ButtonHandler>().Initialize();
+        Transform disconnect   = miscButtons.Find("Disconnect");
+        Transform lastPage     = miscButtons.Find("LastPage");
+        Transform nextPage     = miscButtons.Find("NextPage");
+        Transform returnButton = miscButtons.Find("Return");
+
+        if (disconnect == null || lastPage == null || nextPage == null || returnButton == null)
+        {
+            Debug.LogError($"[hamburbur] Theme {menuPrefab.name} is missing required misc buttons.");
+            menu.Obliterate();
+
+            return;
+        }
+
+        Menu     = menu;
+        MenuName = title.GetComponent<TMP_Text>();
+
+        currentMainColour      = mainColour;
+        currentSecondaryColour = secondaryColour;
+
+        if (ButtonPresser != null && ButtonPresser.TryGetComponent(out Renderer buttonPresserRenderer))
+            buttonPresserRenderer.material.color = mainColour;
+
+        KeyboardManager.Instance?.UpdateColoursAndHeight(mainColour, secondaryColour, keyboardHeight);
+
+        version.GetComponent<TMP_Text>().text = $"v{Constants.PluginVersion}";
+
+        disconnect.AddComponent<ButtonCollider>().OnPress   = () => NetworkSystem.Instance.ReturnToSinglePlayer();
+        lastPage.AddComponent<ButtonCollider>().OnPress     = LastPage;
+        nextPage.AddComponent<ButtonCollider>().OnPress     = NextPage;
+        returnButton.AddComponent<ButtonCollider>().OnPress = ReturnToLastCategory;
+
+        modButtons.gameObject.AddComponent<ButtonHandler>().Initialize();
+
+        previousMenu?.Obliterate();
 
         if (active)
             StartCoroutine(SetActiveAfterAFrame());
@@ -211,23 +252,31 @@ public class MenuHandler : Singleton<MenuHandler>
         ButtonHandler.Instance.UpdateButtons();
     }
 
-    public static bool IsInitialised;
-
     private IEnumerator SetActiveAfterAFrame()
     {
         yield return new WaitForEndOfFrame();
         Menu.SetActive(true);
-        
+
         IsInitialised = true;
     }
 
     private IEnumerator OnStart()
     {
+        while (Menu == null || FileManager.Instance == null)
+            yield return null;
+
         yield return new WaitForSeconds(0.1f);
+
+        if (Menu == null)
+            yield break;
+
         Menu.SetActive(true);
 
         yield return new WaitForSeconds(0.1f);
-        StartCoroutine(CloseMenu());
+
+        if (Menu != null)
+            StartCoroutine(CloseMenu());
+
         FileManager.Instance.LoadSaveData();
     }
 
@@ -359,7 +408,7 @@ public class MenuHandler : Singleton<MenuHandler>
         if (typingCoroutine != null)
             StopCoroutine(typingCoroutine);
 
-        typingCoroutine = StartCoroutine(TypeMenuTitle(Constants.PluginName));
+        typingCoroutine = StartCoroutine(TypeMenuTitle());
 
         IsWaiting = false;
     }
@@ -403,13 +452,15 @@ public class MenuHandler : Singleton<MenuHandler>
         MenuName.text = "";
     }
 
-    private IEnumerator TypeMenuTitle(string text, float typingSpeed = 0.2f, float pauseTime = 2f)
+    private IEnumerator TypeMenuTitle(float typingSpeed = 0.2f, float pauseTime = 2f)
     {
         while (Menu.activeSelf)
         {
+            string text = GetMenuTitle();
+
             for (int i = 0; i <= text.Length && Menu.activeSelf; i++)
             {
-                MenuName.text = text.Substring(0, i);
+                MenuName.text = text[..i];
 
                 yield return new WaitForSeconds(typingSpeed);
             }
@@ -424,7 +475,7 @@ public class MenuHandler : Singleton<MenuHandler>
 
             for (int i = text.Length; i >= 0 && Menu.activeSelf; i--)
             {
-                MenuName.text = text.Substring(0, i);
+                MenuName.text = text[..i];
 
                 yield return new WaitForSeconds(typingSpeed / 2f);
             }
@@ -433,5 +484,36 @@ public class MenuHandler : Singleton<MenuHandler>
         }
 
         MenuName.text = "";
+    }
+
+    public void RefreshMenuTitle()
+    {
+        if (MenuName == null)
+            return;
+
+        if (typingCoroutine != null)
+        {
+            StopCoroutine(typingCoroutine);
+            typingCoroutine = null;
+        }
+
+        if (Menu == null || !Menu.activeSelf)
+        {
+            MenuName.text = "";
+
+            return;
+        }
+
+        typingCoroutine = StartCoroutine(TypeMenuTitle());
+    }
+
+    private static string GetMenuTitle()
+    {
+        if (!string.IsNullOrEmpty(CustomMenuName.CurrentName))
+            return CustomMenuName.CurrentName;
+
+        return MenuTitleThemeName.IsEnabled
+                       ? Themes.AllThemes[Themes.Instance.IncrementalValue].Item2
+                       : Constants.PluginName;
     }
 }

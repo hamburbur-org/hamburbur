@@ -97,7 +97,9 @@ public class VoiceControls : Singleton<VoiceControls>
             Plugin.Instance.JarvisDidFirstInitialisation = true;
         }
 
-        yield return AudioLib.Instance.SpeakRoutine("Hamburbur Voice Assistant active", 1f);
+        // This gets annoying over time
+        
+        /*yield return AudioLib.Instance.SpeakRoutine("Hamburbur Voice Assistant active", 1f);
 
         string text = wakeWords.Aggregate("", (current, word) => current + $"[{word}]" + " ");
 
@@ -106,7 +108,7 @@ public class VoiceControls : Singleton<VoiceControls>
                 $"Speak a wake word to begin: {text}",
                 5f,
                 false,
-                false);
+                false);*/
 
         wakeRecognizer                    =  new KeywordRecognizer(wakeWords);
         wakeRecognizer.OnPhraseRecognized += OnWakeWordRecognized;
@@ -403,12 +405,27 @@ public class VoiceControls : Singleton<VoiceControls>
 
     private IEpoopenator ProcessVoiceCommand(string input)
     {
-        input = Uri.EscapeDataString(input);
-        string prompt = Uri.EscapeDataString(string.Format(Constants.AIprompt));
-        string api    = $"https://text.pollinations.ai/{input}?system={prompt}?private=true?model=openai";
+        // Legacy Pollinations API.
+        //
+        // input = Uri.EscapeDataString(input);
+        // string prompt = Uri.EscapeDataString(Constants.AIprompt);
+        // string api = $"https://text.pollinations.ai/{input}?system={prompt}?private=true?model=openai";
+        //
+        // using UnityWebRequest request = UnityWebRequest.Get(api);
 
-        using UnityWebRequest request = UnityWebRequest.Get(api);
+        const string Api = "https://chat.hamburbur.org/api/chat";
+
+        string json = JsonUtility.ToJson(new ChatRequest
+        {
+                message = input,
+        });
+
+        using UnityWebRequest request = new(Api, UnityWebRequest.kHttpVerbPOST);
+
+        request.uploadHandler   = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
         request.downloadHandler = new DownloadHandlerBuffer();
+
+        request.SetRequestHeader("Content-Type", "application/json");
 
         yield return request.SendWebRequest();
 
@@ -417,16 +434,31 @@ public class VoiceControls : Singleton<VoiceControls>
             VoiceManager.Get().AudioClip(MenuSoundsHandler.Instance.CancelSound);
 
             Debug.LogError(request.error);
+
             yield return TTSSpeak("Could not fetch a response from the AI");
 
             yield break;
         }
 
-        string reply = request.downloadHandler.text;
+        ChatResponse response = JsonUtility.FromJson<ChatResponse>(request.downloadHandler.text);
 
         VoiceManager.Get().AudioClip(MenuSoundsHandler.Instance.GotResponseSound);
 
-        yield return TTSSpeak(reply);
+        yield return TTSSpeak(response.response);
+    }
+
+    [Serializable]
+    private class ChatRequest
+    {
+        // ReSharper disable once InconsistentNaming
+        public string message;
+    }
+
+    [Serializable]
+    private class ChatResponse
+    {
+        // ReSharper disable once InconsistentNaming
+        public string response;
     }
 
 #endregion

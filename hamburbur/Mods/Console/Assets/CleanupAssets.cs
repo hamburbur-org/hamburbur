@@ -16,8 +16,8 @@ public class CleanupAssets : hamburburmod
             if (NetworkSystem.Instance.InRoom)
                 Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, kvp.Key);
 
-            if (kvp.Value.assetObject != null)
-                kvp.Value.assetObject.Obliterate();
+            if (kvp.Value.AssetObject != null)
+                kvp.Value.AssetObject.Obliterate();
         }
     }
 }

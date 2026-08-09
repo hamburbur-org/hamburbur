@@ -16,7 +16,7 @@ public class SpecialUserActivityNotifications : Singleton<SpecialUserActivityNot
 
     private void OnRigCosmeticsLoaded(VRRig rig)
     {
-        if (rig.isLocal || rig._playerOwnedCosmetics == null || !SpecialUserNotification.IsEnabled)
+        if (rig.IsLocalRig() || rig._playerOwnedCosmetics == null || !SpecialUserNotification.IsEnabled)
             return;
 
         string specialCosmetics = HamburburOrgData.Data["specialCosmetics"]

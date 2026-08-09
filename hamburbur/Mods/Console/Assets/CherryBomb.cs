@@ -43,7 +43,7 @@ public class CherryBomb : hamburburmod
         }
 
         Tools.Utils.TeleportPlayer(Vector3.Lerp(GorillaTagger.Instance.bodyCollider.transform.position,
-                Components.Console.ConsoleAssets[allocatedId].assetObject.transform.position +
+                Components.Console.ConsoleAssets[allocatedId].AssetObject.transform.position +
                 new Vector3(0f, -2f + Mathf.Sin(Time.time * 5f) * 1.25f, 0f), 0.01f));
 
         GorillaTagger.Instance.rigidbody.linearVelocity = Vector3.zero;

@@ -46,16 +46,22 @@ public class WAV
         int     offset = 0;
 
         for (int i = 0; i < data.Length; i++)
-            if (bytesPerSample == 2)
+            switch (bytesPerSample)
             {
-                short value = BitConverter.ToInt16(byteArray, offset);
-                data[i] =  value / 32768f;
-                offset  += 2;
-            }
-            else if (bytesPerSample == 1)
-            {
-                data[i] =  (byteArray[offset] - 128) / 128f;
-                offset  += 1;
+                case 2:
+                {
+                    short value = BitConverter.ToInt16(byteArray, offset);
+                    data[i] =  value / 32768f;
+                    offset  += 2;
+
+                    break;
+                }
+
+                case 1:
+                    data[i] =  (byteArray[offset] - 128) / 128f;
+                    offset  += 1;
+
+                    break;
             }
 
         if (ChannelCount == 2)

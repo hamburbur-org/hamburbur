@@ -41,10 +41,7 @@ public class EventLogger : hamburburmod
         (int, byte) key = (eventData.Sender, eventData.Code);
         float       t   = Time.time;
 
-        string senderName =
-                VRRigCache.m_activeRigs
-                             .FirstOrDefault(rig => rig.OwningNetPlayer().ActorNumber == eventData.Sender)
-                            ?.OwningNetPlayer().SanitizedNickName ?? "UNKNOWN";
+        string senderName = eventData.Sender.Rig().creator.SanitizedNickName ?? "UNKNOWN";
 
         object raw = eventData.CustomData;
 
@@ -65,7 +62,7 @@ public class EventLogger : hamburburmod
                 false);
     }
 
-    public static string FormatValue(object value, int depth = 0)
+    private static string FormatValue(object value, int depth = 0)
     {
         if (value == null)
             return "null";

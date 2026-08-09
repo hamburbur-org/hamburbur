@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using GorillaLocomotion;
 using hamburbur.Components;
 using hamburbur.Mods.Settings;
 using hamburbur.Tools;
@@ -37,30 +38,32 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
 
     private void Start()
     {
-        MenuOpenSound            = LoadWavFromResource("hamburbur.Resources.openMenu.wav");
-        MenuDynamicOpenSound     = LoadWavFromResource("hamburbur.Resources.DynamicOpen.wav");
-        MenuDynamicCloseSound    = LoadWavFromResource("hamburbur.Resources.DynamicClose.wav");
-        NotificationSound        = LoadWavFromResource("hamburbur.Resources.notification.wav");
-        DynamicNotificationSound = LoadWavFromResource("hamburbur.Resources.DynamicNotification.wav");
-        CancelSound              = LoadWavFromResource("hamburbur.Resources.cancel.wav");
-        ThinkingSound            = LoadWavFromResource("hamburbur.Resources.thinking.wav");
-        GotResponseSound         = LoadWavFromResource("hamburbur.Resources.gotresponse.wav");
-        CameraShutterSound       = LoadWavFromResource("hamburbur.Resources.cameraShutter.wav");
+        AssetBundle bundle = Plugin.Instance.HamburburBundle;
+        
+        MenuOpenSound            = bundle.LoadAsset<AudioClip>("openMenu");
+        MenuDynamicOpenSound     = bundle.LoadAsset<AudioClip>("DynamicOpen");
+        MenuDynamicCloseSound    = bundle.LoadAsset<AudioClip>("DynamicClose");
+        NotificationSound        = bundle.LoadAsset<AudioClip>("notification");
+        DynamicNotificationSound = bundle.LoadAsset<AudioClip>("DynamicNotification");
+        CancelSound              = bundle.LoadAsset<AudioClip>("cancel");
+        ThinkingSound            = bundle.LoadAsset<AudioClip>("thinking");
+        GotResponseSound         = bundle.LoadAsset<AudioClip>("gotresponse");
+        CameraShutterSound       = bundle.LoadAsset<AudioClip>("cameraShutter");
 
         //Button Press Sounds
-        Default       = LoadWavFromResource("hamburbur.Resources.Default.wav");
-        KeyboardClick = LoadWavFromResource("hamburbur.Resources.Keyboard.wav");
-        Pop           = LoadWavFromResource("hamburbur.Resources.Pop.wav");
-        Discord       = LoadWavFromResource("hamburbur.Resources.Discord.wav");
-        SmoothClick   = LoadWavFromResource("hamburbur.Resources.SmoothClick.wav");
-        HardClick     = LoadWavFromResource("hamburbur.Resources.HardClick.wav");
-        UiEnter       = LoadWavFromResource("hamburbur.Resources.UiEnter.wav");
-        Wii           = LoadWavFromResource("hamburbur.Resources.Wii.wav");
-        Minecraft     = LoadWavFromResource("hamburbur.Resources.Minecraft.wav");
-        Untitled      = LoadWavFromResource("hamburbur.Resources.untitled.wav");
-        Destiny       = LoadWavFromResource("hamburbur.Resources.destiny.wav");
-        Watch         = LoadWavFromResource("hamburbur.Resources.watch.wav");
-        Creamy        = LoadWavFromResource("hamburbur.Resources.creamy.wav");
+        Default       = bundle.LoadAsset<AudioClip>("Default");
+        KeyboardClick = bundle.LoadAsset<AudioClip>("Keyboard");
+        Pop           = bundle.LoadAsset<AudioClip>("Pop");
+        Discord       = bundle.LoadAsset<AudioClip>("Discord");
+        SmoothClick   = bundle.LoadAsset<AudioClip>("SmoothClick");
+        HardClick     = bundle.LoadAsset<AudioClip>("HardClick");
+        UiEnter       = bundle.LoadAsset<AudioClip>("UiEnter");
+        Wii           = bundle.LoadAsset<AudioClip>("Wii");
+        Minecraft     = bundle.LoadAsset<AudioClip>("Minecraft");
+        Untitled      = bundle.LoadAsset<AudioClip>("untitled");
+        Destiny       = bundle.LoadAsset<AudioClip>("destiny");
+        Watch         = bundle.LoadAsset<AudioClip>("watch");
+        Creamy        = bundle.LoadAsset<AudioClip>("creamy");
     }
 
     public void PlayButtonPressSound(bool leftHand)
@@ -78,17 +81,29 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
         }
     }
 
+    public void PlayButtonPressSound()
+    {
+        try
+        {
+            Plugin.Instance.PlaySound(GetCurrentButtonPressedSound());
+        }
+        catch
+        {
+            PlayHandTapMenu(GetSoundIndex());
+        }
+    }
+
     private int GetSoundIndex() => ButtonPressSound.Sounds[ButtonPressSound.Instance.IncrementalValue] switch
                                    {
-                                           "Og Sound"            => 67,
-                                           nameof(KeyboardClick) => 66,
-                                           "Glass"               => 106,
-                                           "Krisp Wood"          => 114,
-                                           "Rustic Click"        => 271,
-                                           "Drip"                => 311,
-                                           "Jman Okay"           => 336,
-                                           "Jman Ahhhh"          => 337,
-                                           var _                 => 67,
+                                           "Og Sound"       => 67,
+                                           "Keyboard Click" => 66,
+                                           "Glass"          => 106,
+                                           "Krisp Wood"     => 114,
+                                           "Rustic Click"   => 271,
+                                           "Drip"           => 311,
+                                           "Jman Okay"      => 336,
+                                           "Jman Ahhhh"     => 337,
+                                           var _            => 67,
                                    };
 
     private AudioClip GetCurrentButtonPressedSound() =>
@@ -108,6 +123,17 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
                     nameof(Creamy)      => Creamy,
                     var _               => throw new ArgumentOutOfRangeException(),
             };
+
+    public void PlayHandTapMenu(int audioClipIndex)
+    {
+        if (audioClipIndex <= -1 || audioClipIndex >= GTPlayer.Instance.materialData.Count)
+            return;
+
+        GTPlayer.MaterialData materialData = GTPlayer.Instance.materialData[audioClipIndex];
+        Plugin.Instance.PlaySound(materialData.overrideAudio
+                                          ? materialData.audio
+                                          : GTPlayer.Instance.materialData[0].audio);
+    }
 
     public static AudioClip LoadWavFromResource(string resourcePath)
     {

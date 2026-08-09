@@ -1,6 +1,7 @@
 using System;
 using GorillaLocomotion;
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using HarmonyLib;
 using UnityEngine;
 
@@ -26,7 +27,7 @@ public class PCRig : hamburburmod
 
     protected override void Update()
     {
-        if (Tools.Utils.InVR)
+        if (Tools.Utils.InVR || !RigUtils.IsRigEnabled)
             return;
 
         switch (CurrentRigMode)
@@ -133,7 +134,7 @@ public static class PCRigPatch
 
     private static void Postfix(VRRig __instance)
     {
-        if (Tools.Utils.InVR || !PCRig.IsEnabled || !__instance.isLocal)
+        if (Tools.Utils.InVR || RigUtils.IsRigEnabled || !PCRig.IsEnabled || !__instance.IsLocalRig())
             return;
 
         switch (PCRig.CurrentRigMode)

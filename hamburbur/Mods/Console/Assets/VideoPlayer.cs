@@ -80,6 +80,7 @@ public class VideoPlayerType : hamburburmod
             { "Guardians of the Galaxy Vol 2", "https://files.hamburbur.org/Guardians%20of%20the%20Galaxy%20Vol.%202%20(2017)%20(Awafim.tv).mp4" },
             { "Five Nights at Freddy's 2", "https://files.hamburbur.org/FNaF2_UnityReady.mp4" },
             { "Cloudy with a Chance of Meatballs", "https://files.hamburbur.org/Cloudy-With-A-Chance-Of-Meatballs-2009-1080p-BluRay.mp4" },
+            { "White Chicks", "https://files.hamburbur.org/White%20Chicks%202004%201080p.mp4" },
     };
 
     private static readonly List<string> Keys = Videos.Keys.ToList();

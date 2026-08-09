@@ -36,7 +36,7 @@ public class TagSelf : hamburburmod
             yield break;
         }
         VRRig taggedPlayer = VRRigCache.m_activeRigs
-            .FirstOrDefault(rig => rig != null && !rig.isLocal && rig.IsTagged());
+            .FirstOrDefault(rig => rig != null && !rig.IsLocalRig() && rig.IsTagged());
 
         if (taggedPlayer == null)
         {

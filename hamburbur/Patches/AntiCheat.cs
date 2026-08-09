@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace hamburbur.Patches;
 
+[PatchManager.CriticalPatch]
 [HarmonyPatch(typeof(MonkeAgent), nameof(MonkeAgent.SendReport))]
 public static class AntiCheat
 {

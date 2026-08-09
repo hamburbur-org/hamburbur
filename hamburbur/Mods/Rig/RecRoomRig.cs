@@ -1,5 +1,6 @@
 using GorillaLocomotion;
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using HarmonyLib;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ public static class RecRoomRigPatch
 {
     private static void Postfix(VRRig __instance)
     {
-        if (!RecRoomRig.IsEnabled || !__instance.isLocal)
+        if (!RecRoomRig.IsEnabled || !__instance.IsLocalRig())
             return;
 
         Transform cameraTransform = GorillaTagger.Instance.mainCamera.transform;

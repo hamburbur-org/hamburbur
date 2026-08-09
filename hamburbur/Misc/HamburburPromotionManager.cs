@@ -18,10 +18,6 @@ public class HamburburPromotionManager : Singleton<HamburburPromotionManager>
 
     private void Start()
     {
-        GameObject.Find(
-                           "Environment Objects/LocalObjects_Prefab/TreeRoom/TreeRoomInteractables/UI/SatelliteWardrobe/LCKWallCameraSpawner")
-                  .Obliterate();
-
         Fin = GameObject.CreatePrimitive(PrimitiveType.Cube);
         Fin.transform.localScale = new Vector3(0.8f,    0.9f, 0.0001f);
         Fin.transform.position   = new Vector3(-64.72f, 12f,  -84.72f);

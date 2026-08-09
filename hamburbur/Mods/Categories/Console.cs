@@ -43,7 +43,7 @@ public class Console : hamburburmod
             }
 
             animatedName = sb.ToString();
-            ButtonHandler.Instance.UpdateButtons();
+            ButtonHandler.Instance.RefreshButtonText(this);
 
             yield return null;
         }

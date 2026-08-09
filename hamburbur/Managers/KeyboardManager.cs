@@ -19,6 +19,13 @@ public class KeyboardManager : Singleton<KeyboardManager>
     public bool KeyboardOpen;
 
     public GameObject Keyboard;
+    
+    private float keyboardHeight = -0.29f;
+
+    public GameObject NonDominantButtonPresser;
+    public Renderer   NonDominantButtonPresserRenderer;
+
+    private readonly List<TextMeshPro> letterKeyLabels = [];
 
     private readonly Dictionary<Key, string> physicalKeyMap = new()
     {
@@ -64,46 +71,73 @@ public class KeyboardManager : Singleton<KeyboardManager>
 
     private Coroutine closeRoutine;
 
-    private bool  isLower      = true;
-    private bool  isShiftLower = true;
-    private float lastTimePositionSerialized;
+    private bool isLower      = true;
+    private bool isShiftLower = true;
 
-    private Coroutine  moveRoutine;
-    public GameObject nonDominantButtonPresser;
+    private Material keyboardMainMaterial, keyboardSecondaryMaterial;
+    private float    lastTimePositionSerialized;
+
+    private Coroutine moveRoutine;
 
     private       Action<string> onEnterPressed;
-    public static string         TypedText { get; private set; } = "";
+    private       bool           ShouldUseUppercase => isLower != isShiftLower;
+    public static string         TypedText          { get; private set; } = "";
 
-    private void Start()
+    private IEnumerator Start()
     {
-        GameObject keyboardPrefab = Plugin.Instance.HamburburBundle.LoadAsset<GameObject>(nameof(Keyboard));
-        Keyboard = Instantiate(keyboardPrefab, MenuHandler.Instance.Menu.transform.parent);
+        while (Plugin.Instance                            == null ||
+               Plugin.Instance.HamburburBundle            == null ||
+               MenuHandler.Instance                       == null ||
+               MenuHandler.Instance.Menu                  == null ||
+               MenuHandler.Instance.Menu.transform.parent == null)
+            yield return null;
+
+        GameObject keyboardPrefab =
+                Plugin.Instance.HamburburBundle.LoadAsset<GameObject>(nameof(Keyboard));
+
+        if (keyboardPrefab == null)
+        {
+            Debug.LogError("Failed to load the keyboard prefab from HamburburBundle.");
+
+            yield break;
+        }
+
+        Keyboard = Instantiate(
+                keyboardPrefab,
+                MenuHandler.Instance.Menu.transform.parent
+        );
 
         Keyboard.transform.localScale    = Vector3.one * 0.3f;
-        Keyboard.transform.localPosition = new Vector3(-0.12f, 0f, -0.29f);
+        Keyboard.transform.localPosition = new Vector3(-0.12f, 0f, keyboardHeight);
         Keyboard.transform.localRotation = Quaternion.Euler(0f, 250f, 270f);
+
+        keyboardMainMaterial = Keyboard.transform.TakeChild(0).gameObject.GetComponent<Renderer>().sharedMaterial;
+        keyboardSecondaryMaterial =
+                Keyboard.transform.TakeChild(0, 1, 0).gameObject.GetComponent<Renderer>().sharedMaterial;
 
         Keyboard.SetActive(false);
 
-        nonDominantButtonPresser = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        NonDominantButtonPresser = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 
-        nonDominantButtonPresser.name  = "hamburbur button presser";
-        nonDominantButtonPresser.layer = 2;
-        nonDominantButtonPresser.SetActive(false);
+        NonDominantButtonPresser.name  = "hamburbur button presser";
+        NonDominantButtonPresser.layer = 2;
+        NonDominantButtonPresser.SetActive(false);
 
-        nonDominantButtonPresser.transform.SetParent(Tools.Utils.RealLeftController);
-        nonDominantButtonPresser.transform.localPosition = new Vector3(0f, -0.01f, 0.13f);
-        nonDominantButtonPresser.transform.localScale    = Vector3.one * 0.01f;
+        NonDominantButtonPresser.transform.SetParent(Tools.Utils.RealLeftController);
+        NonDominantButtonPresser.transform.localPosition = new Vector3(0f, -0.01f, 0.13f);
+        NonDominantButtonPresser.transform.localScale    = Vector3.one * 0.01f;
 
-        if (nonDominantButtonPresser.TryGetComponent(out MeshRenderer meshRenderer))
+        if (NonDominantButtonPresser.TryGetComponent(out MeshRenderer meshRenderer))
         {
             meshRenderer.material.shader = Shaders.UberShader;
             meshRenderer.material.color  = Plugin.Instance.MainColour;
+
+            NonDominantButtonPresserRenderer = meshRenderer;
         }
 
-        nonDominantButtonPresser.GetComponent<SphereCollider>().isTrigger = true;
-        nonDominantButtonPresser.AddComponent<Rigidbody>().isKinematic    = true;
-        nonDominantButtonPresser.AddComponent<ButtonPresser>().isLeft     = true;
+        NonDominantButtonPresser.GetComponent<SphereCollider>().isTrigger = true;
+        NonDominantButtonPresser.AddComponent<Rigidbody>().isKinematic    = true;
+        NonDominantButtonPresser.AddComponent<ButtonPresser>().isLeft     = true;
 
         foreach (Transform child in Keyboard.transform.GetChild(0))
         {
@@ -111,18 +145,49 @@ public class KeyboardManager : Singleton<KeyboardManager>
                 continue;
 
             foreach (Transform button in child)
+            {
+                TextMeshPro keyText = button.GetComponentInChildren<TextMeshPro>();
+
+                if (keyText == null)
+                    continue;
+                
+                keyText.text = keyText.text.Trim();
+
+                if (keyText.text.Length == 1 && char.IsLetter(keyText.text[0]))
+                    letterKeyLabels.Add(keyText);
+
                 button.AddComponent<ButtonCollider>().OnPress =
-                        () => HandleKeyboardButtonPress(button.GetComponentInChildren<TextMeshPro>().text);
+                        () => HandleKeyboardButtonPress(keyText.text);
+            }
         }
+
+        UpdateKeyCapitalisation();
+
+        UpdateColoursAndHeight(
+                MenuHandler.Instance.currentMainColour,
+                MenuHandler.Instance.currentSecondaryColour,
+                keyboardHeight
+        );
     }
 
     private void Update()
     {
-        if (!MenuHandler.Instance.Menu.activeSelf && KeyboardOpen)
-            CloseKeyboard();
-
         if (!KeyboardOpen)
             return;
+
+        if (Keyboard                       == null ||
+            MenuHandler.Instance           == null ||
+            MenuHandler.Instance.Menu      == null ||
+            GTPlayer.Instance              == null ||
+            GTPlayer.Instance.bodyCollider == null)
+            return;
+
+        if (!MenuHandler.Instance.Menu.activeSelf)
+        {
+            CloseKeyboard();
+
+            return;
+        }
 
         Transform menuParent = MenuHandler.Instance.Menu.transform.parent;
 
@@ -160,6 +225,28 @@ public class KeyboardManager : Singleton<KeyboardManager>
             return;
 
         lastTimePositionSerialized = Time.time;
+    }
+
+    public void UpdateColoursAndHeight(Color mainColour, Color secondaryColour, float height)
+    {
+        keyboardHeight = height;
+        
+        if (NonDominantButtonPresserRenderer != null)
+            NonDominantButtonPresserRenderer.material.color = mainColour;
+
+        if (keyboardMainMaterial != null)
+            keyboardMainMaterial.color = mainColour;
+
+        if (keyboardSecondaryMaterial != null)
+            keyboardSecondaryMaterial.color = secondaryColour;
+    }
+
+    private void UpdateKeyCapitalisation()
+    {
+        foreach (TextMeshPro keyText in letterKeyLabels)
+            keyText.text = ShouldUseUppercase
+                                   ? keyText.text.ToUpper()
+                                   : keyText.text.ToLower();
     }
 
     private IEnumerator MoveMenu()
@@ -212,16 +299,22 @@ public class KeyboardManager : Singleton<KeyboardManager>
 
         input = input.Trim();
 
-        if (specialCharacters.TryGetValue(input, out Action special))
+        if (specialCharacters.TryGetValue(input.ToLowerInvariant(), out Action special))
             special?.Invoke();
         else
-            TypedText += isShiftLower ? isLower ? input.ToLower() : input.ToUpper() : input.ToUpper();
+            TypedText += ShouldUseUppercase
+                                 ? input.ToUpperInvariant()
+                                 : input.ToLowerInvariant();
 
         if (!wasShiftLower)
             isShiftLower = true;
 
+        UpdateKeyCapitalisation();
+
         Keyboard.transform.GetChild(0).GetChild(0).GetComponent<TextMeshPro>().text =
-                string.IsNullOrEmpty(TypedText) ? "You haven't typed any text" : TypedText;
+                string.IsNullOrEmpty(TypedText)
+                        ? "You haven't typed any text"
+                        : TypedText;
 
         OnTextChanged?.Invoke(TypedText);
     }
@@ -255,7 +348,7 @@ public class KeyboardManager : Singleton<KeyboardManager>
         Keyboard.transform.GetChild(0).GetChild(0).GetComponent<TextMeshPro>().text = "You haven't typed any text";
         TypedText                                                                   = "";
         Keyboard.SetActive(false);
-        nonDominantButtonPresser.SetActive(false);
+        NonDominantButtonPresser.SetActive(false);
         if (MenuHandler.Instance.Menu.activeSelf)
             closeRoutine = StartCoroutine(GUIHandler.Instance.CloseMenu());
     }
@@ -275,6 +368,15 @@ public class KeyboardManager : Singleton<KeyboardManager>
 
     private IEnumerator SpawnKeyboard()
     {
+        while (Keyboard                       == null ||
+               MenuHandler.Instance           == null ||
+               MenuHandler.Instance.Menu      == null ||
+               GTPlayer.Instance              == null ||
+               GTPlayer.Instance.bodyCollider == null)
+            yield return null;
+        
+        Keyboard.transform.localPosition = new Vector3(-0.12f, 0f, keyboardHeight);
+
         KeyboardOpen = true;
         TypedText    = "";
 
@@ -291,12 +393,12 @@ public class KeyboardManager : Singleton<KeyboardManager>
         if (!MenuHandler.Instance.Menu.activeSelf)
             yield return MenuHandler.Instance.OpenMenu();
 
-        nonDominantButtonPresser.SetActive(true);
-        nonDominantButtonPresser.transform.SetParent(RightHanded.IsEnabled
+        NonDominantButtonPresser.SetActive(true);
+        NonDominantButtonPresser.transform.SetParent(RightHanded.IsEnabled
                                                              ? Tools.Utils.RealRightController
                                                              : Tools.Utils.RealLeftController);
 
-        nonDominantButtonPresser.transform.localPosition = new Vector3(0f, -0.01f, 0.13f);
+        NonDominantButtonPresser.transform.localPosition = new Vector3(0f, -0.01f, 0.13f);
 
         Keyboard.SetActive(true);
     }

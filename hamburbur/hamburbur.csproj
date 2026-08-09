@@ -15,6 +15,9 @@
         <Reference Include="Assembly-CSharp-firstpass">
             <HintPath>$(GameAssemblyPath)\Assembly-CSharp-firstpass.dll</HintPath>
         </Reference>
+        <Reference Include="Backtrace.Unity">
+          <HintPath>$(GameAssemblyPath)\Backtrace.Unity.dll</HintPath>
+        </Reference>
         <Reference Include="BakeryRuntimeAssembly">
             <HintPath>$(GameAssemblyPath)\BakeryRuntimeAssembly.dll</HintPath>
         </Reference>
@@ -41,6 +44,9 @@
         </Reference>
         <Reference Include="LIV.LCK" Publicize="True">
             <HintPath>$(GameAssemblyPath)\LIV.LCK.dll</HintPath>
+        </Reference>
+        <Reference Include="LIV.LCK_GorillaTag">
+          <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\LIV.LCK_GorillaTag.dll</HintPath>
         </Reference>
         <Reference Include="Mono.Security">
             <HintPath>$(GameAssemblyPath)\Mono.Security.dll</HintPath>
@@ -327,63 +333,9 @@
 
     <ItemGroup>
         <None Remove="Resources\hamburbur"/>
-        <None Remove="Resources\hamburger.wav"/>
-        <None Remove="Resources\notification.wav"/>
-        <None Remove="Resources\openMenu.wav"/>
-        <EmbeddedResource Include="Resources\hamburger.wav"/>
-        <EmbeddedResource Include="Resources\notification.wav"/>
-        <EmbeddedResource Include="Resources\openMenu.wav"/>
-        <None Remove="Resources\hamburburscenes"/>
-        <None Remove="Resources\travis"/>
-        <None Remove="Resources\cancel.wav"/>
-        <EmbeddedResource Include="Resources\cancel.wav"/>
-        <None Remove="Resources\thinking.wav"/>
-        <None Remove="Resources\gotresponse.wav"/>
-        <None Remove="Resources\cameraShutter.wav"/>
-        <EmbeddedResource Include="Resources\cameraShutter.wav"/>
         <None Remove="Resources\error.png"/>
         <EmbeddedResource Include="Resources\error.png"/>
-        <None Remove="Resources\hamburbur (2).png"/>
         <EmbeddedResource Include="Resources\hamburbur.png"/>
-        <None Remove="Resources\hamburburkeyboard"/>
-        <None Remove="Resources\Default.wav"/>
-        <EmbeddedResource Include="Resources\Default.wav"/>
-        <None Remove="Resources\Discord.wav"/>
-        <EmbeddedResource Include="Resources\Discord.wav"/>
-        <None Remove="Resources\HardClick.wav"/>
-        <EmbeddedResource Include="Resources\HardClick.wav"/>
-        <None Remove="Resources\KeyboardClick.wav"/>
-        <EmbeddedResource Include="Resources\KeyboardClick.wav"/>
-        <None Remove="Resources\Minecraft.wav"/>
-        <EmbeddedResource Include="Resources\Minecraft.wav"/>
-        <None Remove="Resources\Pop.wav"/>
-        <EmbeddedResource Include="Resources\Pop.wav"/>
-        <None Remove="Resources\SmoothClick.wav"/>
-        <EmbeddedResource Include="Resources\SmoothClick.wav"/>
-        <None Remove="Resources\StartupSound.wav"/>
-        <EmbeddedResource Include="Resources\StartupSound.wav"/>
-        <None Remove="Resources\UiEnter.wav"/>
-        <EmbeddedResource Include="Resources\UiEnter.wav"/>
-        <None Remove="Resources\Wii.wav"/>
-        <EmbeddedResource Include="Resources\Wii.wav"/>
-        <None Remove="Resources\creamy.wav"/>
-        <EmbeddedResource Include="Resources\creamy.wav"/>
-        <None Remove="Resources\watch.wav"/>
-        <EmbeddedResource Include="Resources\watch.wav"/>
-        <None Remove="Resources\untitled.wav"/>
-        <EmbeddedResource Include="Resources\untitled.wav"/>
-        <None Remove="Resources\destiny.wav"/>
-        <EmbeddedResource Include="Resources\destiny.wav"/>
-        <None Remove="Resources\playboicarti"/>
-        <None Remove="Resources\DynamicOpen.mp3"/>
-        <None Remove="Resources\DynamicClose.mp3"/>
-        <None Remove="Resources\DynamicClose.wav"/>
-        <EmbeddedResource Include="Resources\DynamicClose.wav"/>
-        <None Remove="Resources\DynamicOpen.wav"/>
-        <EmbeddedResource Include="Resources\DynamicOpen.wav"/>
-        <None Remove="Resources\DynamicNotification.mp3"/>
-        <None Remove="Resources\DynamicNotification.wav"/>
-        <EmbeddedResource Include="Resources\DynamicNotification.wav"/>
         <None Remove="Resources\fin.png"/>
         <EmbeddedResource Include="Resources\fin.png"/>
         <None Remove="Resources\realHamburbur.png"/>
@@ -392,13 +344,5 @@
 
     <ItemGroup>
         <EmbeddedResource Include="Resources\hamburbur"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Include="Resources\thinking.wav"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Include="Resources\gotresponse.wav"/>
     </ItemGroup>
 </Project>

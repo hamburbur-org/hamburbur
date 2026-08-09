@@ -32,9 +32,13 @@ public class CustomBoardMaterial : hamburburmod
         materials.Add("Caves Purple Crystal", GameObject.Find("Environment Objects/LocalObjects_Prefab/ForestToCave/C_Crystal_Chunk").GetComponent<MeshRenderer>().material);
         
         //These one here make it so you can't see text on the coc + motd, and the proportions on them are off.
-        /*materials.Add("Holo Portal Space", Plugin.Instance.HamburburBundle.LoadAsset<Material>("HoloPortalSpaceMaterial"));
+        materials.Add("Holo Portal Space", Plugin.Instance.HamburburBundle.LoadAsset<Material>("HoloPortalSpaceMaterial"));
+        materials.Add("Animated Galaxy", Plugin.Instance.HamburburBundle.LoadAsset<Material>("AnimatedGalaxyMat"));
+        //
         
-        materials.Add("Animated Galaxy", Plugin.Instance.HamburburBundle.LoadAsset<Material>("AnimatedGalaxyMat"));*/
+        materials.Add("Black", new Material(Shaders.UberShader) { color = Color.gray1,});
+        
+        materials.Add("Slate Blue", new Material(Shaders.UberShader) { color = Color.mediumSlateBlue,});
         
         materials.Add("Default Gorilla Tag", new Material(Shaders.UberShader) { color = new Color32(0, 53, 3, 255),});
         
@@ -53,5 +57,9 @@ public class CustomBoardMaterial : hamburburmod
         CustomBoardManager.Instance.ReloadAllBoards();
     }
 
-    protected override void OnIncrementalStateLoaded() => CustomBoardManager.Instance.ReloadAllBoards();
+    protected override void OnIncrementalStateLoaded()
+    {
+        IncrementalValue = Mathf.Clamp(IncrementalValue, 0, Keys.Length - 1);
+        CustomBoardManager.Instance.ReloadAllBoards();
+    }
 }

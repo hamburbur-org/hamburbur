@@ -28,7 +28,7 @@ public class HandTracers : hamburburmod
 
     protected override void OnEnable()
     {
-        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
+        foreach (VRRig rig in NetworkSystem.Instance.Rigs())
             CreateTracer(rig);
 
         RigUtils.OnRigLoaded   += CreateTracer;
@@ -40,13 +40,13 @@ public class HandTracers : hamburburmod
 
     protected override void OnDisable()
     {
-        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
+        foreach (VRRig rig in tracers.Keys.ToArray())
             DestroyTracer(rig);
 
         RigUtils.OnRigLoaded   -= CreateTracer;
         RigUtils.OnRigUnloaded -= DestroyTracer;
 
-        FirstPersonVisuals.OnFirstPersonOnlyChange += UpdateTracerVisuals;
+        FirstPersonVisuals.OnFirstPersonOnlyChange -= UpdateTracerVisuals;
 
         tracers.Clear();
     }
@@ -61,6 +61,9 @@ public class HandTracers : hamburburmod
 
     private void CreateTracer(VRRig rig)
     {
+        if (rig == null || rig.IsLocalRig() || tracers.ContainsKey(rig))
+            return;
+
         GameObject   lineObject = new("hamburbur tracer");
         LineRenderer line       = lineObject.AddComponent<LineRenderer>();
 

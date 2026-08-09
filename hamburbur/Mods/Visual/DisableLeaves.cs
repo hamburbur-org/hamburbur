@@ -1,58 +1,62 @@
+using System.Linq;
+using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Mods.Settings;
 using UnityEngine;
 
 namespace hamburbur.Mods.Visual;
 
-[hamburburmod("Disable Leaves", "Disables the Leaves", ButtonType.Togglable, AccessSetting.BetaBuildOnly, EnabledType.Disabled,
+[hamburburmod("Disable Leaves", "Disables the Leaves", ButtonType.Togglable, AccessSetting.BetaBuildOnly,
+        EnabledType.Disabled,
         0)]
 public class DisableLeaves : hamburburmod
 {
-    private const int    LeavesIndex = 3;
-    private       string leavesName;
+    private const int    LeavesIndex = 10;
 
-    protected override void Start()
+    private string LeavesName
     {
-        int index = 0;
-
-        foreach (Transform child in GameObject.Find("Environment Objects/LocalObjects_Prefab/Forest").transform)
+        get
         {
-            if (child.gameObject.name.StartsWith("UnityTempFile"))
-                continue;
-
-            if (index == LeavesIndex)
+            // ReSharper disable once InvertIf
+            if (field == null)
             {
-                leavesName = child.gameObject.name;
+                Transform[] forestChildren = GameObject.Find("Environment Objects/LocalObjects_Prefab/Forest").transform
+                                                       .GetComponentsInChildren<Transform>(true)
+                                                       .Where(t => t.name.Contains("UnityTempFile")).ToArray();
 
-                break;
+                if (LeavesIndex >= 0 && LeavesIndex < forestChildren.Length)
+                    field = forestChildren[LeavesIndex].gameObject.name;
             }
-
-            index++;
+            
+            return field;
         }
     }
 
     protected override void OnEnable()
     {
-        if (leavesName == null)
-            return;
+        ChangeObjectVisibility(FirstPersonVisuals.FirstPersonOnly);
+        FirstPersonVisuals.OnFirstPersonOnlyChange += ChangeObjectVisibility;
+    }
+
+    protected override void OnDisable()
+    {
+        FirstPersonVisuals.OnFirstPersonOnlyChange -= ChangeObjectVisibility;
 
         foreach (Transform child in GameObject.Find("Environment Objects/LocalObjects_Prefab/Forest").transform)
-            if (leavesName == child.gameObject.name)
+            if (child.gameObject.name == LeavesName)
             {
                 child.gameObject.SetActive(true);
                 child.gameObject.SetLayer(UnityLayer.Default);
             }
     }
-    
-    protected override void OnDisable()
-    {
-        if (leavesName == null)
-            return;
 
+    private void ChangeObjectVisibility(bool firstPersonOnly)
+    {
         foreach (Transform child in GameObject.Find("Environment Objects/LocalObjects_Prefab/Forest").transform)
-            if (leavesName == child.gameObject.name)
+            if (child.gameObject.name == LeavesName)
             {
-                child.gameObject.SetActive(false);
-                child.gameObject.SetLayer(UnityLayer.Default);
+                child.gameObject.SetActive(firstPersonOnly);
+                child.gameObject.SetLayer(firstPersonOnly ? UnityLayer.MirrorOnly : UnityLayer.Default);
             }
     }
 }

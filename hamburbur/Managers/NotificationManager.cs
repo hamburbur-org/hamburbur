@@ -21,7 +21,7 @@ public class NotificationManager : Singleton<NotificationManager>
 
     public static string ChosenFontName = "JetBrains_Mono";
 
-    private static bool GorillaNotificationsPresentInChainloader;
+    private static bool gorillaNotificationsPresentInChainloader;
 
     private static Type fontType;
     private static Type stylingOptionsType;
@@ -33,10 +33,10 @@ public class NotificationManager : Singleton<NotificationManager>
     {
         while (!MenuHandler.IsInitialised)
             yield return null;
-        
-        GorillaNotificationsPresentInChainloader = IsGorillaNotificationsInChainloader();
 
-        if (GorillaNotificationsPresentInChainloader)
+        gorillaNotificationsPresentInChainloader = IsGorillaNotificationsInChainLoader();
+
+        if (gorillaNotificationsPresentInChainloader)
             yield break;
 
         RemoveNotificationSettingButtons();
@@ -59,30 +59,25 @@ public class NotificationManager : Singleton<NotificationManager>
                 "Download it for me"));
     }
 
-    private static bool IsGorillaNotificationsInChainloader() =>
+    private static bool IsGorillaNotificationsInChainLoader() =>
             Chainloader.PluginInfos.ContainsKey(GorillaNotificationsGuid);
 
     private static void RemoveNotificationSettingButtons()
     {
-        if (!Buttons.Categories.TryGetValue("Legacy Settings", out (Type, hamburburmod)[] legacySettings))
+        const string Category = "Notification Settings";
+
+        if (!Buttons.Categories.TryGetValue(Category, out (Type, hamburburmod)[] notificationSettings))
             return;
 
-        hamburburmod[] notificationSettingButtons = legacySettings
-                                                   .Where(mod => mod.Item1 == typeof(NotificationFont) ||
-                                                                 mod.Item1 == typeof(BlackBackgroundNotifs))
-                                                   .Select(mod => mod.Item2)
-                                                   .ToArray();
-
-        if (notificationSettingButtons.Length == 0)
-            return;
-
-        Buttons.Categories["Legacy Settings"] = legacySettings
-                                               .Where(mod => !notificationSettingButtons.Contains(mod.Item2))
-                                               .ToArray(); }
+        Buttons.Categories[Category] = notificationSettings
+                                      .Where(mod => mod.Item1 != typeof(NotificationFont) &&
+                                                    mod.Item1 != typeof(BlackBackgroundNotifs))
+                                      .ToArray();
+    }
 
     private static bool TryCacheGorillaNotificationsTypes()
     {
-        if (!IsGorillaNotificationsInChainloader())
+        if (!IsGorillaNotificationsInChainLoader())
             return false;
 
         if (fontType                   != null &&
@@ -131,7 +126,7 @@ public class NotificationManager : Singleton<NotificationManager>
 
     public static string[] GetAvailableFontNames()
     {
-        if (!IsGorillaNotificationsInChainloader())
+        if (!IsGorillaNotificationsInChainLoader())
             return [];
 
         return TryCacheGorillaNotificationsTypes()
@@ -157,10 +152,10 @@ public class NotificationManager : Singleton<NotificationManager>
     {
         if (DisableNotifications.IsEnabled)
             return null;
-        
-        GorillaNotificationsPresentInChainloader = IsGorillaNotificationsInChainloader();
 
-        if (!GorillaNotificationsPresentInChainloader)
+        gorillaNotificationsPresentInChainloader = IsGorillaNotificationsInChainLoader();
+
+        if (!gorillaNotificationsPresentInChainloader)
             return null;
 
         if (!TryCacheGorillaNotificationsTypes())
@@ -197,14 +192,13 @@ public class NotificationManager : Singleton<NotificationManager>
         for (int i = 0; i < stylingOptions.Count; i++)
             stylingOptionsArray.SetValue(stylingOptions[i], i);
 
-        return sendNotificationMethod.Invoke(null, new[]
-        {
-                source,
-                notification,
-                duration,
-                chosenFont,
-                stylingOptionsArray,
-        });
+        return sendNotificationMethod.Invoke(null, [
+                                                           source,
+                                                           notification,
+                                                           duration,
+                                                           chosenFont,
+                                                           stylingOptionsArray,
+                                                   ]);
     }
 
     public static void UpdateNotificationEntry(object notificationEntry, string source, string notification,

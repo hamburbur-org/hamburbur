@@ -14,10 +14,7 @@ public class CopyIdGun : hamburburmod
 
     private bool wasShooting;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {
@@ -36,4 +33,6 @@ public class CopyIdGun : hamburburmod
 
         wasShooting = isShooting;
     }
+
+    protected override void OnDisable() => gunLib.OnDisable();
 }

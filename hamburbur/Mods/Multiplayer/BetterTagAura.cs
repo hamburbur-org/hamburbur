@@ -1,6 +1,8 @@
 using GorillaGameModes;
+using GorillaLocomotion;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Mods.Misc;
 using hamburbur.Mods.Settings;
 using hamburbur.Tools;
 using UnityEngine;
@@ -27,10 +29,13 @@ public class BetterTagAura : hamburburmod
 
         foreach (VRRig vrrig in VRRigCache.m_activeRigs)
         {
-            if (vrrig == null || vrrig.isLocal)
+            if (vrrig == null || vrrig.IsLocalRig())
                 continue;
 
             if (vrrig.IsTagged())
+                continue;
+            
+            if (!GTPlayer.Instance.mainCamera.PointInCameraView(vrrig.transform.position))
                 continue;
 
             float distance = Vector3.Distance(VRRig.LocalRig.transform.position, vrrig.transform.position);

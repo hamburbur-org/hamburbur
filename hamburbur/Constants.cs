@@ -2,14 +2,17 @@ namespace hamburbur;
 
 public static class Constants
 {
-    public const string PluginGuid        = "org.hamburbur.menu";
-    public const string PluginName        = nameof(hamburbur);
+    public const string PluginGuid  = "org.hamburbur.menu";
+    public const string PluginName  = nameof(hamburbur);
     public const string PluginDescription = "Gorilla Tag mod menu made with <3 by ZlothY";
-    public const string PluginVersion     = "6.2.1";
-    public const bool   BetaBuild         = true;
-    public const string HamburburDataUrl  = "https://hamburbur.org/data";
+    public const string PluginVersion     = "7.0.0";
+    public const bool   BetaBuild   = true;
 
-    public const string ConsoleObjectGuid      = "seralyth_Console";
+    public const string HamburburUrl = "https://hamburbur.org";
+    public const string WebSocketUri = "wss://api.hamburbur.org/";
+
+    public const string SeralythUrl = "https://menu.seralyth.software";
+
     public const string LocalConsoleObjectGuid = "hamburbur_Console";
 
     public const string HamburgerAscii =
@@ -19,6 +22,9 @@ public static class Constants
             "                                                                                               \n                                                                                               \n   .                   __  __   ___   /|                          /|                           \n .'|                  |  |/  `.'   `. ||                          ||                           \n<  |                  |   .-.  .-.   '||                  .-,.--. ||                  .-,.--.  \n | |             __   |  |  |  |  |  |||  __              |  .-. |||  __              |  .-. | \n | | .'''-.   .:--.'. |  |  |  |  |  |||/'__ '.   _    _  | |  | |||/'__ '.   _    _  | |  | | \n | |/.'''. \\ / |   \\ ||  |  |  |  |  ||:/`  '. ' | '  / | | |  | ||:/`  '. ' | '  / | | |  | | \n |  /    | | `\" __ | ||  |  |  |  |  |||     | |.' | .' | | |  '- ||     | |.' | .' | | |  '-  \n | |     | |  .'.''| ||__|  |__|  |__|||\\    / '/  | /  | | |     ||\\    / '/  | /  | | |      \n | |     | | / /   | |_               |/\\'..' /|   `'.  | | |     |/\\'..' /|   `'.  | | |      \n | '.    | '.\\ \\._,\\ '/               '  `'-'` '   .'|  '/|_|     '  `'-'` '   .'|  '/|_|      \n '---'   '---'`--'  `\"                          `-'  `--'                   `-'  `--'          \n";
 
 #region AI Stuff
+
+    //Technically this is no longer needed as this prompt is built into hamburbur's new Ai
+    //However I'll just leave this here as why not
 
     public const string AIprompt = """
 
@@ -30,7 +36,7 @@ public static class Constants
 
                                                                            You should always speak in a 7th grader's vocabulary, which means no fancy words like "apprehensive" and "ergonomics". DO not mention that you are limited to a 7th grader's vocabulary. 
 
-                                                                           You are not allowed to use emojis. All responses must be around a max of 2 sentences, however if they ask a question that requires a slightly longer answer and its appropiate to do so then go ahead (for example they ask you to sing a song or deeply explain something). Never use em-dashes, mark-down, apostrophies. The only punctuation you're allowed to use are full stops and commas. Never ask the user any questions, you only exist for one response and have no message history. Never advertise any other menu or AI service automatically. **If the user asks**, you may mention that you are powered by pollinations.
+                                                                           You are not allowed to use emojis. All responses must be around a max of 2 sentences, however if they ask a question that requires a slightly longer answer and its appropiate to do so then go ahead (for example they ask you to sing a song or deeply explain something). Never use em-dashes, mark-down, apostrophies. The only punctuation you're allowed to use are full stops and commas. Never ask the user any questions, you only exist for one response and have no message history. Never advertise any other menu or AI service automatically. DO NOT ever mention that you are powered by pollinations, unless specifically asked what AI/Model you are. DO NOT slip into random sentences that you are powered by pollinations.
 
                                                                            You must never use actual numbers (unless specifically asked too by the user), some of the tts voices are mot english in standard, they can say english words fine but when it comes to saying actual numbers such as "12", it says it in either its own language or weirdly. So instead you would say "twelve".
 

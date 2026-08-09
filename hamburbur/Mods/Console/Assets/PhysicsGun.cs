@@ -38,7 +38,7 @@ public class PhysicsGun : hamburburmod
             return;
 
         Components.Console.ConsoleAsset asset    = Components.Console.ConsoleAssets[allocatedPhysId];
-        Transform                       RayPoint = asset.assetObject.transform.Find("raypoint");
+        Transform                       RayPoint = asset.AssetObject.transform.Find("raypoint");
 
         Physics.Raycast(RayPoint.position, RayPoint.forward, out RaycastHit CrosshairRay, 512f,
                 Tools.Utils.NoInvisLayerMask());
@@ -61,7 +61,7 @@ public class PhysicsGun : hamburburmod
                         Tools.Utils.NoInvisLayerMask());
 
                 VRRig gunTarget = Ray.collider.GetComponentInParent<VRRig>();
-                if (gunTarget && !gunTarget.isLocal)
+                if (gunTarget && !gunTarget.IsLocalRig())
                 {
                     rigTargetHold = gunTarget;
                     rigDistance   = Ray.distance;
@@ -120,7 +120,7 @@ public class PhysicsGun : hamburburmod
         Physics.Raycast(RayPoint.position, RayPoint.forward, out RaycastHit Ray2, 512f, Tools.Utils.NoInvisLayerMask());
         VRRig gunTarget2 = Ray2.collider.GetComponentInParent<VRRig>();
 
-        if (!gunTarget2 || gunTarget2.isLocal)
+        if (!gunTarget2 || gunTarget2.IsLocalRig())
             return;
 
         physGunStandaloneTriggerDelay = Time.time + 0.5f;

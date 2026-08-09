@@ -1,5 +1,6 @@
 using GorillaLocomotion;
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using Photon.Realtime;
 using UnityEngine;
 
@@ -35,10 +36,10 @@ public class Karambit : hamburburmod
         }
 
         if (!Components.Console.ConsoleAssets.TryGetValue(allocatedAssetId,
-                    out Components.Console.ConsoleAsset asset) || asset.assetObject == null)
+                    out Components.Console.ConsoleAsset asset) || asset.AssetObject == null)
             return;
 
-        Transform rayPoint = asset.assetObject.transform.Find(nameof(Collider));
+        Transform rayPoint = asset.AssetObject.transform.Find(nameof(Collider));
 
         if (rayPoint == null) return;
 
@@ -49,7 +50,7 @@ public class Karambit : hamburburmod
             try
             {
                 VRRig Target = Ray.collider.GetComponentInParent<VRRig>();
-                if (Target != null && !Target.isLocal)
+                if (Target != null && !Target.IsLocalRig())
                 {
                     slashDelay = Time.time + 0.5f;
                     pauseSfx   = Time.time + 1f;

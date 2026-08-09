@@ -37,7 +37,7 @@ public class BoxESP3D : hamburburmod
 
     protected override void OnEnable()
     {
-        foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => !rig.isLocal))
+        foreach (VRRig rig in NetworkSystem.Instance.Rigs())
             CreateBox(rig);
 
         RigUtils.OnRigLoaded   += CreateBox;
@@ -52,10 +52,10 @@ public class BoxESP3D : hamburburmod
         RigUtils.OnRigLoaded   -= CreateBox;
         RigUtils.OnRigUnloaded -= ObliterateBox;
 
-        foreach (VRRig rig in VRRigCache.m_activeRigs)
+        foreach (VRRig rig in boxes.Keys.ToArray())
             ObliterateBox(rig);
 
-        FirstPersonVisuals.OnFirstPersonOnlyChange += UpdateBoxVisuals;
+        FirstPersonVisuals.OnFirstPersonOnlyChange -= UpdateBoxVisuals;
 
         boxes.Clear();
     }
@@ -90,7 +90,7 @@ public class BoxESP3D : hamburburmod
 
     private void CreateBox(VRRig rig)
     {
-        if (rig.isLocal || boxes.ContainsKey(rig))
+        if (rig == null || rig.IsLocalRig() || boxes.ContainsKey(rig))
             return;
 
         GameObject box = GameObject.CreatePrimitive(PrimitiveType.Cube);

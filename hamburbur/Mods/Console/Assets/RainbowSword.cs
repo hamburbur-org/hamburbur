@@ -1,5 +1,6 @@
 using GorillaLocomotion;
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using Photon.Realtime;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -38,7 +39,7 @@ public class RainbowSword : hamburburmod
                     out Components.Console.ConsoleAsset asset))
             return;
 
-        Transform rayPoint = asset.assetObject.transform.Find("Sword/HitBox");
+        Transform rayPoint = asset.AssetObject.transform.Find("Sword/HitBox");
 
         Physics.SphereCast(rayPoint.position, 0.1f, rayPoint.forward, out RaycastHit Ray, 0.7f,
                 Tools.Utils.NoInvisLayerMask());
@@ -47,7 +48,7 @@ public class RainbowSword : hamburburmod
             try
             {
                 VRRig Target = Ray.collider.GetComponentInParent<VRRig>();
-                if (Target != null && !Target.isLocal)
+                if (Target != null && !Target.IsLocalRig())
                 {
                     slashDelay = Time.time + 0.5f;
                     pauseSfx   = Time.time + 1f;

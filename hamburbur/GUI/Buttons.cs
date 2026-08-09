@@ -62,39 +62,49 @@ public static class Buttons
             [
                     (typeof(MenuSettings), null),
                     (typeof(NotificationSettings), null),
+                    (typeof(VisualSettings), null),
+                    (typeof(MovementSettings), null),
+                    (typeof(RigSettings), null),
+                    (typeof(MultiplayerSettings), null),
+                    (typeof(MacroSettings), null),
                     (typeof(GunSettings), null),
                     (typeof(JarvisSettings), null),
-                    (typeof(LegacySettings), null),
+                    (typeof(SafetySettings), null),
             ],
 
             ["Menu Settings"] =
             [
                     (typeof(Themes), null),
+                    (typeof(MenuTitleThemeName), null),
+                    (typeof(CustomMenuName), null),
                     (typeof(ToggleMenu), null),
                     (typeof(ChangeMenuSize), null),
                     (typeof(ChangePointerSize), null),
                     (typeof(RightHanded), null),
+                    (typeof(AnimateButtons), null),
+                    (typeof(HoldIncrementalButtons), null),
                     (typeof(DynamicMenuSounds), null),
                     (typeof(ButtonPressSound), null),
                     (typeof(DoLoadingScreen), null),
                     (typeof(RememberLastCategory), null),
                     (typeof(CustomBoardMaterial), null),
+                    (typeof(DisableCustomBoards), null),
                     (typeof(ArrayList), null),
                     (typeof(DiscordRpc), null),
             ],
-            
+
             ["Notification Settings"] =
             [
-                            (typeof(DisableNotifications), null),
-                            (typeof(NotificationFont), null),
-                            (typeof(BlackBackgroundNotifs), null),
-                            (typeof(DynamicNotificationSounds), null),
-                            (typeof(ModNotifications), null),
-                            (typeof(RoomNotifications), null),
-                            (typeof(MasterNotification), null),
-                            (typeof(SpecialUserNotification), null),
-                            (typeof(AntiCheatNotification), null),
-                            (typeof(ServerStatusNotifications), null),
+                    (typeof(DisableNotifications), null),
+                    (typeof(NotificationFont), null),
+                    (typeof(BlackBackgroundNotifs), null),
+                    (typeof(DynamicNotificationSounds), null),
+                    (typeof(ModNotifications), null),
+                    (typeof(RoomNotifications), null),
+                    (typeof(MasterNotification), null),
+                    (typeof(SpecialUserNotification), null),
+                    (typeof(AntiCheatNotification), null),
+                    (typeof(ServerStatusNotifications), null),
             ],
 
             ["Gun Settings"] =
@@ -114,29 +124,52 @@ public static class Buttons
                     (typeof(AIJarvis), null),
             ],
 
-            ["Legacy Settings"] =
+            ["Visual Settings"] =
             [
-                    (typeof(AntiReportType), null),
                     (typeof(ScreenShotCamera), null),
                     (typeof(FirstPersonVisuals), null),
-                    (typeof(ChangePullStrength), null),
-                    (typeof(WallAssistStrength), null),
-                    (typeof(SpeedBoostMultiplier), null),
-                    (typeof(ChangePCRig), null),
                     (typeof(FPSChangerHighest), null),
                     (typeof(FPSChangerLowest), null),
                     (typeof(ChangeLavaPingDistance), null),
-                    (typeof(TagAuraRG), null),
-                    (typeof(MoveHands), null),
+                    (typeof(SlaughterTravisScoot), null),
+            ],
+
+            ["Movement Settings"] =
+            [
+                    (typeof(ChangePullStrength), null),
+                    (typeof(WallAssistStrength), null),
+                    (typeof(SpeedBoostMultiplier), null),
                     (typeof(StickyPlatforms), null),
                     (typeof(PredRG), null),
                     (typeof(ChangePredStrength), null),
                     (typeof(ChangeArmLength), null),
                     (typeof(GravityModifierType), null),
                     (typeof(ChangeFlySpeed), null),
-                    (typeof(SlaughterTravisScoot), null),
                     (typeof(BarkFlyBob), null),
+            ],
+
+            ["Rig Settings"] =
+            [
+                    (typeof(ChangePCRig), null),
+                    (typeof(MoveHands), null),
                     (typeof(UseRigManager), null),
+            ],
+
+            ["Multiplayer Settings"] =
+            [
+                    (typeof(TagAuraRG), null),
+                    (typeof(TagAuraInView), null),
+            ],
+
+            ["Macro Settings"] =
+            [
+                    (typeof(LoopMacros), null),
+            ],
+
+            ["Safety Settings"] =
+            [
+                    (typeof(AntiReportType), null),
+                    (typeof(RapidMasterSwitchProtection), null),
             ],
 
             [nameof(Movement)] =
@@ -149,6 +182,7 @@ public static class Buttons
                     (typeof(WASDFly), null),
                     (typeof(PullMod), null),
                     (typeof(Speedboost), null),
+                    (typeof(GripSpeedBoost), null),
                     (typeof(WallAssist), null),
                     (typeof(Fly), null),
                     (typeof(NoClipFly), null),
@@ -167,6 +201,8 @@ public static class Buttons
                     (typeof(SpiderWalk), null),
                     (typeof(WebShooter), null),
                     (typeof(IronMan), null),
+                    (typeof(ProjectileMonke), null),
+                    (typeof(Mods.Movement.SizeChanger), null),
             ],
 
             [nameof(Room)] =
@@ -174,6 +210,7 @@ public static class Buttons
                     (typeof(Reauthenticate), null),
                     (typeof(JoinHamburburCode), null),
                     (typeof(JoinRandom), null),
+                    (typeof(JoinPrivate), null),
                     (typeof(JoinPeakest), null),
                     (typeof(NoNetworkTriggers), null),
                     (typeof(CreatePublic), null),
@@ -181,6 +218,7 @@ public static class Buttons
                     (typeof(USRegion), null),
                     (typeof(USWRegion), null),
                     (typeof(EURegion), null),
+                    (typeof(AntiModerator), null),
             ],
 
             [nameof(Macros)] =
@@ -201,6 +239,7 @@ public static class Buttons
                     (typeof(TagFix), null),
                     (typeof(HandTracers), null),
                     (typeof(BodyTracers), null),
+                    (typeof(TrailsESP), null),
                     (typeof(BoxESP3D), null),
                     (typeof(BoxESP2D), null),
                     (typeof(BoxESP4D), null),
@@ -268,6 +307,7 @@ public static class Buttons
                     (typeof(GhostAnimations), null),
                     (typeof(SmoothRig), null),
                     (typeof(CopyMovementGun), null),
+                    (typeof(ShadowCloneGun), null),
                     (typeof(Beyblade), null),
             ],
 
@@ -283,6 +323,7 @@ public static class Buttons
                     (typeof(PayGornMenuConsoleSpoof), null),
                     (typeof(FuckWithGShirtsNetworking), null),
                     (typeof(ReportGun), null),
+                    (typeof(SolidPlayers), null),
             ],
 
             [nameof(SoundBoard)] =
@@ -294,6 +335,10 @@ public static class Buttons
             [nameof(OP)] =
             [
                     (typeof(EmojiName), null),
+                    (typeof(LagGun), null),
+                    (typeof(VStumpCrashGun), null),
+                    (typeof(VStumpCrashAll), null),
+                    (typeof(BadBarrelFlingGun), null),
                     (typeof(ElevatorKickAll), null),
                     (typeof(FuckOffGroupJoining), null),
                     (typeof(TickDoesSomething), null),
@@ -313,12 +358,19 @@ public static class Buttons
                     (typeof(GrayZone), null),
                     (typeof(SpamTagGun), null),
                     (typeof(SpamTagAll), null),
+                    (typeof(GuardianSpam), null),
+                    (typeof(TargetSpam), null),
             ],
 
             ["Map Loader"] =
             [
+                    (typeof(Stump), null),
                     (typeof(Forest), null),
                     (typeof(City), null),
+                    (typeof(Canyon), null),
+                    (typeof(Clouds), null),
+                    (typeof(Mountains), null),
+                    (typeof(Space), null),
             ],
 
             ["Custom Maps"] =
@@ -368,6 +420,7 @@ public static class Buttons
                     (typeof(NoAdminIndicator), null),
                     (typeof(NetworkedCosmetX), null),
                     (typeof(TpAllGun), null),
+                    (typeof(Telekinesis), null),
                     (typeof(ConsoleLagGun), null),
                     (typeof(ConsoleFreezeGun), null),
                     (typeof(BlockGun), null),

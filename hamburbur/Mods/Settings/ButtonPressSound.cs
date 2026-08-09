@@ -10,7 +10,7 @@ public class ButtonPressSound : hamburburmod
     [
             "Default", //Bark
             "Og Sound",
-            "KeyboardClick",
+            "Keyboard Click",
             "Pop",
             "Discord",
             "SmoothClick",

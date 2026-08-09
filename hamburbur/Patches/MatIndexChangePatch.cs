@@ -1,8 +1,10 @@
+using hamburbur.Managers;
 using hamburbur.Tools;
 using HarmonyLib;
 
 namespace hamburbur.Patches;
 
+[PatchManager.CriticalPatch]
 [HarmonyPatch(typeof(VRRig), nameof(VRRig.ChangeMaterialLocal))]
 public static class MatIndexChangePatch
 {

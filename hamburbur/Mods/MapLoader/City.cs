@@ -8,7 +8,7 @@ public class City : hamburburmod
 {
     protected override void Pressed()
     {
-        ZoneManagement.SetActiveZone(GTZone.city);
-        Tools.Utils.TeleportPlayer(new Vector3(-56f, 17f, -100f));
+        Tools.Extensions.RecursiveInvoke(() => ZoneManagement.SetActiveZone(GTZone.city), 3);
+        Tools.Utils.TeleportPlayer(new Vector3(-58f, 17.2f, -103f));
     }
 }

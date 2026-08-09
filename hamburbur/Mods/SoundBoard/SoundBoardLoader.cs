@@ -13,18 +13,24 @@ public static class SoundBoardLoader
 {
     private static readonly Dictionary<string, AudioClip> AudioFilePool = [];
     public static           bool                          HasLoadedAllSounds;
+    private static          bool                          hasLoadedSoundButtons;
 
     private static readonly Queue<(string path, string name, Action<AudioClip> cb)> loadQueue = new();
     private static          bool                                                    isLoading;
 
     public static void LoadSoundButtons()
     {
+        if (hasLoadedSoundButtons || FileManager.Instance == null)
+            return;
+
+        hasLoadedSoundButtons = true;
+
         foreach (string path in FileManager.Instance.GetSoundFiles())
         {
             string fileName = Path.GetFileName(path);
 
-            Sound mod =
-                    (Sound)ButtonHandler.AddButton(nameof(SoundBoard), typeof(Sound));
+            if (ButtonHandler.AddButton(nameof(SoundBoard), typeof(Sound)) is not Sound mod)
+                continue;
 
             mod.SoundName = fileName;
             mod.SoundPath = path;
@@ -66,7 +72,7 @@ public static class SoundBoardLoader
                 $"file://{filePath}",
                 GetAudioType(Path.GetExtension(filePath))
         );
-        
+
         yield return request.SendWebRequest();
 
         if (request.result != UnityWebRequest.Result.Success)
@@ -78,7 +84,7 @@ public static class SoundBoardLoader
         }
 
         AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
-        
+
         AudioFilePool[fileName] = clip;
         callback?.Invoke(clip);
     }

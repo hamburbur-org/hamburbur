@@ -13,8 +13,6 @@ namespace hamburbur.Server_Api_Communicator;
 
 public class MenuWebsocket : Singleton<MenuWebsocket>
 {
-    private const string WebSocketUri = "wss://api.hamburbur.org/";
-
     private const float PingDelay      = 10f;
     private const float ReconnectDelay = 5f;
     private const float ConnectTimeout = 10f;
@@ -132,7 +130,7 @@ public class MenuWebsocket : Singleton<MenuWebsocket>
     {
         CloseSocket();
 
-        string uri = $"{WebSocketUri}?modname={Uri.EscapeDataString(Constants.PluginName)}";
+        string uri = $"{Constants.WebSocketUri}?modname={Uri.EscapeDataString(Constants.PluginName)}";
 
         MainWebSocket = new WebSocket(uri);
 
