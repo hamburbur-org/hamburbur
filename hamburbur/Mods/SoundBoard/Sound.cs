@@ -10,7 +10,10 @@ namespace hamburbur.Mods.SoundBoard;
         EnabledType.AlwaysDisabled, 0)]
 public class Sound : hamburburmod
 {
-    private Guid   playingSound;
+    private Guid playingSound;
+    private bool isLoading;
+    private int  playRequestVersion;
+
     public  string SoundName = "";
     public  string SoundPath = "";
 
@@ -19,10 +22,18 @@ public class Sound : hamburburmod
     protected override void OnEnable()
     {
         if (playingSound != Guid.Empty)
-            VoiceManager.Get().StopAudioClip(playingSound);
+            VoiceManager.Instance?.StopAudioClip(playingSound);
+
+        isLoading = true;
+        int requestVersion = ++playRequestVersion;
 
         SoundBoardLoader.LoadSound(SoundPath, SoundName, audioClip =>
                                                          {
+                                                             if (!Enabled || requestVersion != playRequestVersion)
+                                                                 return;
+
+                                                             isLoading = false;
+
                                                              if (audioClip == null)
                                                                  return;
 
@@ -35,13 +46,23 @@ public class Sound : hamburburmod
 
     protected override void Update()
     {
-        if (VoiceManager.Get().AudioClips.Where(c => c.Id == playingSound).ToArray().Length < 1)
+        if (isLoading)
+            return;
+
+        if (playingSound == Guid.Empty ||
+            VoiceManager.Instance == null ||
+            VoiceManager.Instance.AudioClips.All(c => c.Id != playingSound))
             Toggle(ButtonState.Normal, false, false);
     }
 
     protected override void OnDisable()
     {
-        VoiceManager.Get().StopAudioClip(playingSound);
+        playRequestVersion++;
+        isLoading = false;
+
+        if (playingSound != Guid.Empty)
+            VoiceManager.Instance?.StopAudioClip(playingSound);
+
         playingSound = Guid.Empty;
     }
 }

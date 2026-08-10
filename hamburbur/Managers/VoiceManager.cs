@@ -20,6 +20,7 @@ public class VoiceManager : IAudioReader<float>
 
     private int       lastSamplePosition;
     private AudioClip microphoneClip;
+    private NetworkSystem subscribedNetworkSystem;
 
     private int   outputRate = 48000;
     private float pitch      = 1f;
@@ -33,6 +34,7 @@ public class VoiceManager : IAudioReader<float>
     {
         this.loopLength = loopLength;
         StartRecording(device);
+        EnsureRoomLeaveHook();
     }
 
     /// <summary>
@@ -172,10 +174,10 @@ public class VoiceManager : IAudioReader<float>
         if (PostProcessClip)
             foreach (Action<float[]> postProcess in PostProcessors.Values)
                 postProcess?.Invoke(buffer);
-        
+
         if (lastMixedBuffer == null || lastMixedBuffer.Length != buffer.Length)
             lastMixedBuffer = new float[buffer.Length];
-        
+
         Array.Copy(buffer, lastMixedBuffer, buffer.Length);
 
         lastSamplePosition = (lastSamplePosition + samples) % microphoneClip.samples;
@@ -185,6 +187,13 @@ public class VoiceManager : IAudioReader<float>
 
     public void Dispose()
     {
+        if (subscribedNetworkSystem != null)
+        {
+            subscribedNetworkSystem.OnReturnedToSinglePlayer -= (Action)StopAudioClips;
+            subscribedNetworkSystem = null;
+        }
+
+        StopAudioClips();
         StopRecording();
         Instance = null;
     }
@@ -200,7 +209,10 @@ public class VoiceManager : IAudioReader<float>
     /// <returns></returns>
     public static VoiceManager Get(int loopLength = 1, string device = null)
     {
-        return Instance ??= new VoiceManager(loopLength, device);
+        Instance ??= new VoiceManager(loopLength, device);
+        Instance.EnsureRoomLeaveHook();
+
+        return Instance;
     }
 
     /// <summary>
@@ -385,7 +397,7 @@ public class VoiceManager : IAudioReader<float>
 
         if (index == -1) return false;
 
-        audioClips[index].LocalAudioSource.GTStop();
+        StopLocalPlayback(audioClips[index]);
         audioClips.RemoveAt(index);
 
         return true;
@@ -397,7 +409,7 @@ public class VoiceManager : IAudioReader<float>
     public void StopAudioClips()
     {
         foreach (Clip clip in audioClips)
-            clip.LocalAudioSource.GTStop();
+            StopLocalPlayback(clip);
 
         audioClips.Clear();
     }
@@ -420,6 +432,7 @@ public class VoiceManager : IAudioReader<float>
 
             if (index >= clip.Samples.Length)
             {
+                StopLocalPlayback(clip);
                 audioClips.RemoveAt(i);
 
                 continue;
@@ -429,6 +442,7 @@ public class VoiceManager : IAudioReader<float>
             if (nextIndex >= clip.Samples.Length)
             {
                 mixed += clip.Samples[index];
+                StopLocalPlayback(clip);
                 audioClips.RemoveAt(i);
 
                 continue;
@@ -441,6 +455,30 @@ public class VoiceManager : IAudioReader<float>
         }
 
         return mixed;
+    }
+
+    private void EnsureRoomLeaveHook()
+    {
+        NetworkSystem networkSystem = NetworkSystem.Instance;
+
+        if (networkSystem == null || networkSystem == subscribedNetworkSystem)
+            return;
+
+        if (subscribedNetworkSystem != null)
+            subscribedNetworkSystem.OnReturnedToSinglePlayer -= (Action)StopAudioClips;
+
+        subscribedNetworkSystem = networkSystem;
+        subscribedNetworkSystem.OnReturnedToSinglePlayer += (Action)StopAudioClips;
+    }
+
+    private static void StopLocalPlayback(Clip clip)
+    {
+        if (clip?.LocalAudioSource == null)
+            return;
+
+        clip.LocalAudioSource.Stop();
+        UnityEngine.Object.Destroy(clip.LocalAudioSource.gameObject);
+        clip.LocalAudioSource = null;
     }
 
     public sealed class Clip

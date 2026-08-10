@@ -133,6 +133,17 @@ public class Themes : hamburburmod
                 -0.29f,
                 false
             ),
+            
+            (
+                "untitled",
+                "Untitled Menu",
+                Vector3.zero,
+                Quaternion.Euler(0f, 90f, 90f),
+                new Color(0.2313725f, 0.05098037f, 0.08235291f, 1f),
+                new Color(0.4470588f, 0.145098f,   0.1960784f),
+                -0.31f,
+                false
+            ),
 
             (
                 "zlothsimple",
@@ -361,6 +372,17 @@ public class Themes : hamburburmod
                 Quaternion.Euler(0f, 270f, 270f),
                 new Color(0.09801987f, 0.05664827f, 0.1792453f, 1f),
                 new Color(0.1825759f,  0.06314526f, 0.4056604f, 1f),
+                -0.29f,
+                true
+            ),
+            
+            (
+                "Sweet",
+                "Magma",
+                new Vector3(0f, 0f, 0f),
+                Quaternion.Euler(0f, 90f, 90f),
+                new Color(0.1509434f,  0.1509434f,  0.1509434f, 1f),
+                new Color(0.09433959f, 0.09433959f, 0.09433959f, 1f),
                 -0.29f,
                 true
             ),

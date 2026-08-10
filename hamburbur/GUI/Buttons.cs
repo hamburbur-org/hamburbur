@@ -111,7 +111,16 @@ public static class Buttons
             [
                     (typeof(BlankGun), null),
                     (typeof(LeftHandedGun), null),
+                    (typeof(ChangeGunOrigin), null),
+                    (typeof(ChangeGunOriginOffset), null),
+                    (typeof(ChangeGunDirection), null),
                     (typeof(ChangeGunType), null),
+                    (typeof(ChangeGunLineThickness), null),
+                    (typeof(ChangeGunColour), null),
+                    (typeof(GunTargetMarker), null),
+                    (typeof(ChangeGunMarkerSize), null),
+                    (typeof(GunVibrations), null),
+                    (typeof(ChangeGunVibrationStrength), null),
                     (typeof(AlwaysAnimateGun), null),
             ],
 
@@ -328,6 +337,8 @@ public static class Buttons
 
             [nameof(SoundBoard)] =
             [
+                    (typeof(ReloadSounds), null),
+                    (typeof(LoadAllSoundsNow), null),
                     (typeof(GliderVisualizer), null),
                     (typeof(AudioOrbsVisualizer), null),
             ],

@@ -1,8 +1,5 @@
-using System.IO;
 using hamburbur.GUI;
-using hamburbur.Managers;
 using hamburbur.Mod_Backend;
-using hamburbur.Mods.SoundBoard;
 
 namespace hamburbur.Mods.Categories;
 
@@ -10,21 +7,5 @@ namespace hamburbur.Mods.Categories;
         EnabledType.Disabled, 0)]
 public class SoundBoard : hamburburmod
 {
-    protected override void Pressed()
-    {
-        if (!SoundBoardLoader.HasLoadedAllSounds)
-            ButtonHandler.Instance.Prompt(new PromptData(PromptType.AcceptAndDeny,
-                    "You must preload all sounds to use the soundboard. Do you want to do that?",
-                    () =>
-                    {
-                        foreach (string filePath in FileManager.Instance.GetSoundFiles())
-                            SoundBoardLoader.LoadSound(filePath, Path.GetFileName(filePath), null);
-
-                        ButtonHandler.Instance.SetCategory(nameof(SoundBoard));
-                        SoundBoardLoader.HasLoadedAllSounds = true;
-                    }, () => ButtonHandler.Instance.SetCategory(nameof(Main)), "Yes <size=80%>(load all sounds)\n[may cause temporary lag]</size>",
-                    "No <size=80%>(return to main)</size>"));
-        else
-            ButtonHandler.Instance.SetCategory(nameof(SoundBoard));
-    }
+    protected override void Pressed() => ButtonHandler.Instance.SetCategory(nameof(SoundBoard));
 }

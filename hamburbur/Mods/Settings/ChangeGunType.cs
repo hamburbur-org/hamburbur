@@ -5,7 +5,7 @@ using hamburbur.Mod_Backend;
 namespace hamburbur.Mods.Settings;
 
 [hamburburmod("Gun Type: ", "Lets you change the gun type", ButtonType.Incremental, AccessSetting.Public,
-        EnabledType.Disabled, 2)]
+        EnabledType.Disabled, 3)]
 public class ChangeGunType : hamburburmod
 {
     private static GunType[] cachedGunTypes;
@@ -45,6 +45,7 @@ public class ChangeGunType : hamburburmod
     protected override void OnIncrementalStateLoaded()
     {
         EnsureCache();
+        IncrementalValue = Math.Clamp(IncrementalValue, 0, cachedGunTypes.Length - 1);
         GunLib.GunType = cachedGunTypes[IncrementalValue];
     }
 }
