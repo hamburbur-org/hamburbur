@@ -11,7 +11,6 @@ public class ButtonPressAnimator : MonoBehaviour, IPointerDownHandler
     private const float ShrinkDuration     = 0.08f;
     private const float HoldGrowDuration   = 0.015f;
     private const float HoldShrinkDuration = 0.025f;
-    private const float ScaleMultiplier    = 1.08f;
 
     private Coroutine animationCoroutine;
     private Vector3   baseScale;
@@ -58,36 +57,53 @@ public class ButtonPressAnimator : MonoBehaviour, IPointerDownHandler
 
     private IEnumerator Animate(float growDuration, float shrinkDuration)
     {
-        Vector3 grownScale = baseScale * ScaleMultiplier;
-        float   elapsed    = 0f;
-
-        while (elapsed < growDuration)
+        switch (ButtonPressAnimation.CurrentIndex)
         {
-            elapsed += Time.unscaledDeltaTime;
+            case 1:
+                yield return ScaleTo(baseScale * 0.92f, growDuration);
+                yield return ScaleTo(baseScale, shrinkDuration);
+                break;
 
-            transform.localScale = Vector3.Lerp(
-                    baseScale,
-                    grownScale,
-                    elapsed / growDuration);
+            case 2:
+                yield return ScaleTo(baseScale * 1.1f, growDuration);
+                yield return ScaleTo(baseScale * 0.96f, shrinkDuration * 0.55f);
+                yield return ScaleTo(baseScale, shrinkDuration * 0.45f);
+                break;
 
-            yield return null;
-        }
+            case 3:
+                yield return ScaleTo(baseScale * 1.06f, growDuration * 0.65f);
+                yield return ScaleTo(baseScale * 0.96f, growDuration * 0.65f);
+                yield return ScaleTo(baseScale * 1.025f, shrinkDuration * 0.45f);
+                yield return ScaleTo(baseScale, shrinkDuration * 0.55f);
+                break;
 
-        elapsed = 0f;
-
-        while (elapsed < shrinkDuration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-
-            transform.localScale = Vector3.Lerp(
-                    grownScale,
-                    baseScale,
-                    elapsed / shrinkDuration);
-
-            yield return null;
+            default:
+                yield return ScaleTo(baseScale * 1.08f, growDuration);
+                yield return ScaleTo(baseScale, shrinkDuration);
+                break;
         }
 
         transform.localScale = baseScale;
         animationCoroutine   = null;
+    }
+
+    private IEnumerator ScaleTo(Vector3 targetScale, float duration)
+    {
+        Vector3 startScale = transform.localScale;
+        float   elapsed    = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            transform.localScale = Vector3.Lerp(
+                    startScale,
+                    targetScale,
+                    Mathf.SmoothStep(0f, 1f, elapsed / duration));
+
+            yield return null;
+        }
+
+        transform.localScale = targetScale;
     }
 }

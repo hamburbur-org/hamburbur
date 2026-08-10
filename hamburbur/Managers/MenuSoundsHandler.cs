@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using GorillaLocomotion;
@@ -11,9 +12,6 @@ namespace hamburbur.Managers;
 
 public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
 {
-    public AudioClip MenuOpenSound            { get; private set; }
-    public AudioClip MenuDynamicOpenSound     { get; private set; }
-    public AudioClip MenuDynamicCloseSound    { get; private set; }
     public AudioClip NotificationSound        { get; private set; }
     public AudioClip DynamicNotificationSound { get; private set; }
     public AudioClip CancelSound              { get; private set; }
@@ -36,13 +34,37 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
     private AudioClip Watch         { get; set; }
     private AudioClip Creamy        { get; set; }
 
+    private readonly List<MenuSoundSet> menuSoundSets = [];
+
+    public int MenuSoundSetCount => menuSoundSets.Count;
+
     private void Start()
     {
         AssetBundle bundle = Plugin.Instance.HamburburBundle;
         
-        MenuOpenSound            = bundle.LoadAsset<AudioClip>("openMenu");
-        MenuDynamicOpenSound     = bundle.LoadAsset<AudioClip>("DynamicOpen");
-        MenuDynamicCloseSound    = bundle.LoadAsset<AudioClip>("DynamicClose");
+        RegisterMenuSoundSet("Default", bundle.LoadAsset<AudioClip>("openMenu"));
+        
+        RegisterMenuSoundSet(
+                "ZlothY",
+                bundle.LoadAsset<AudioClip>("DynamicOpen"),
+                bundle.LoadAsset<AudioClip>("DynamicClose"));
+        
+        RegisterMenuSoundSet(
+                "Untitled",
+                bundle.LoadAsset<AudioClip>("UntitledOpen"),
+                bundle.LoadAsset<AudioClip>("UntitledClose"));
+        
+        RegisterMenuSoundSet(
+                "Seralyth",
+                bundle.LoadAsset<AudioClip>("SeralythOpen"),
+                bundle.LoadAsset<AudioClip>("SeralythClose"));
+        
+        RegisterMenuSoundSet(
+                "UI",
+                bundle.LoadAsset<AudioClip>("UiEnter"));
+        
+        RegisterMenuSoundSet("Silent");
+
         NotificationSound        = bundle.LoadAsset<AudioClip>("notification");
         DynamicNotificationSound = bundle.LoadAsset<AudioClip>("DynamicNotification");
         CancelSound              = bundle.LoadAsset<AudioClip>("cancel");
@@ -64,6 +86,38 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
         Destiny       = bundle.LoadAsset<AudioClip>("destiny");
         Watch         = bundle.LoadAsset<AudioClip>("watch");
         Creamy        = bundle.LoadAsset<AudioClip>("creamy");
+    }
+
+    public void RegisterMenuSoundSet(string name, AudioClip openSound = null, AudioClip closeSound = null)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return;
+
+        MenuSoundSet soundSet      = new(name, openSound, closeSound);
+        int          existingIndex = menuSoundSets.FindIndex(set => set.Name == name);
+
+        if (existingIndex >= 0)
+            menuSoundSets[existingIndex] = soundSet;
+        else
+            menuSoundSets.Add(soundSet);
+    }
+
+    public string GetMenuSoundSetName(int index) => GetMenuSoundSet(index).Name;
+
+    public void PlayMenuOpenSound() => Plugin.Instance.PlaySound(GetCurrentMenuSoundSet().OpenSound);
+
+    public void PlayMenuCloseSound() => Plugin.Instance.PlaySound(GetCurrentMenuSoundSet().CloseSound);
+
+    private MenuSoundSet GetCurrentMenuSoundSet() => GetMenuSoundSet(MenuSoundTheme.CurrentIndex);
+
+    private MenuSoundSet GetMenuSoundSet(int index)
+    {
+        if (menuSoundSets.Count == 0)
+            return new MenuSoundSet("Silent", null, null);
+
+        int wrappedIndex = (index % menuSoundSets.Count + menuSoundSets.Count) % menuSoundSets.Count;
+
+        return menuSoundSets[wrappedIndex];
     }
 
     public void PlayButtonPressSound(bool leftHand)
@@ -164,5 +218,12 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
         audioClip.SetData(samples, 0);
 
         return audioClip;
+    }
+
+    public readonly struct MenuSoundSet(string name, AudioClip openSound, AudioClip closeSound)
+    {
+        public readonly string    Name       = name;
+        public readonly AudioClip OpenSound  = openSound;
+        public readonly AudioClip CloseSound = closeSound;
     }
 }

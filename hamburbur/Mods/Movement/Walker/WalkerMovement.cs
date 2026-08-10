@@ -1,5 +1,6 @@
 using BepInEx;
 using GorillaLocomotion;
+using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Tools;
 using UnityEngine;
@@ -80,6 +81,14 @@ public class WalkerMovement : hamburburmod
 
     protected override void OnEnable()
     {
+        if (!Tools.Utils.InVR)
+        {
+            NotificationManager.SendNotification("<color=grey>Info</color>", "You cannot use PC Walking whilst in VR",
+                    3f, true, true);
+            
+            Toggle(ButtonState.Normal, false, false);
+        }
+        
         Vector3 euler = GorillaTagger.Instance.headCollider.transform.eulerAngles;
         yaw   = euler.y;
         pitch = euler.x;

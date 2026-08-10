@@ -1,3 +1,4 @@
+using hamburbur.GUI;
 using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
@@ -7,6 +8,15 @@ public class MenuTitleThemeName : hamburburmod
 {
     public static bool IsEnabled;
     
-    protected override void OnEnable() => IsEnabled = true;
-    protected override void OnDisable() => IsEnabled = false;
+    protected override void OnEnable()
+    {
+        IsEnabled = true;
+        MenuHandler.Instance?.RefreshMenuTitle();
+    }
+
+    protected override void OnDisable()
+    {
+        IsEnabled = false;
+        MenuHandler.Instance?.RefreshMenuTitle();
+    }
 }

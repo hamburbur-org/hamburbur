@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -105,13 +106,19 @@ public class PromptData
 
 public class ButtonHandler : Singleton<ButtonHandler>
 {
+    private const float TransitionSlideDistance = 0.08f;
+
     public static Dictionary<string, ModSaveInfo> SavedModInfo = new();
 
     public static int ButtonsPerPage = 1; // DO NOT MODIFY IT GETS AUTO SET AT RUNTIME
+    public static int UpdateRevision { get; private set; }
 
     public static readonly Dictionary<AccessSetting, List<(string, Type)>> InaccessibleButtons = new();
 
     private readonly List<PromptData> currentPrompts = [];
+    private readonly Dictionary<Transform, ButtonTransformState> animatedButtonStates = new();
+
+    private Coroutine transitionCoroutine;
 
     public ModButton[] ModButtons;
 
@@ -141,7 +148,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
     [AccessSettingsAllowedCheck(AccessSetting.BetaBuildOnly)]
     public static bool BetaModsAccessible() => Constants.BetaBuild;
 
-    public void SetCategory(string category, bool cacheLastCategory = true)
+    public void SetCategory(string category, bool cacheLastCategory = true, bool animateTransition = true)
     {
         MenuHandler.CategoryPageMemory[MenuHandler.Instance.Category] = MenuHandler.Instance.PageIndex;
 
@@ -158,7 +165,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         if (category == nameof(Main))
             MenuHandler.LastCategories.Clear();
 
-        UpdateButtons();
+        UpdateButtons(animateTransition);
     }
 
     /// <summary>
@@ -279,8 +286,10 @@ public class ButtonHandler : Singleton<ButtonHandler>
         Buttons.Categories[categoryEntry.Key] = buttons.ToArray();
     }
 
-    public void UpdateButtons()
+    public void UpdateButtons(bool animateTransition = false)
     {
+        UpdateRevision++;
+        StopTransitionAnimation();
         GUIHandler.Instance?.UpdateButtons();
 
         for (int i = 0; i < ModButtons.Length; i++)
@@ -579,7 +588,168 @@ public class ButtonHandler : Singleton<ButtonHandler>
                 }
             }
         }
+
+        if (animateTransition)
+            PlayTransitionAnimation(true);
     }
+
+    public void PlayTransitionAnimation(bool waitForNextFrame = false)
+    {
+        StopTransitionAnimation();
+
+        if (waitForNextFrame)
+        {
+            transitionCoroutine = StartCoroutine(BeginTransitionAfterFrame());
+            return;
+        }
+
+        BeginTransition();
+    }
+
+    private IEnumerator BeginTransitionAfterFrame()
+    {
+        yield return null;
+
+        transitionCoroutine = null;
+        BeginTransition();
+    }
+
+    private void BeginTransition()
+    {
+
+        if (!AnimateButtons.IsEnabled ||
+            ButtonTransitionAnimation.CurrentIndex == 4 ||
+            MenuHandler.Instance?.MenuOpen != true ||
+            ModButtons == null ||
+            !gameObject.activeInHierarchy)
+            return;
+
+        List<GameObject> visibleButtons = [];
+
+        foreach (ModButton modButton in ModButtons)
+        {
+            if (modButton.NormalButtonObject != null && modButton.NormalButtonObject.activeSelf)
+                visibleButtons.Add(modButton.NormalButtonObject);
+            else if (modButton.IncrementalButtonObject != null && modButton.IncrementalButtonObject.activeSelf)
+                visibleButtons.Add(modButton.IncrementalButtonObject);
+        }
+
+        if (visibleButtons.Count == 0)
+            return;
+
+        transitionCoroutine = StartCoroutine(AnimateTransition(
+                visibleButtons,
+                ButtonTransitionAnimation.CurrentIndex));
+    }
+
+    private IEnumerator AnimateTransition(IReadOnlyList<GameObject> buttons, int animationIndex)
+    {
+        bool slide  = animationIndex is 1 or 3;
+        bool shrink = animationIndex is 2 or 3;
+
+        foreach (GameObject button in buttons)
+        {
+            if (button == null)
+                continue;
+
+            Transform transformToAnimate = button.transform;
+            ButtonTransformState state = new(
+                    transformToAnimate.localPosition,
+                    transformToAnimate.localScale);
+
+            animatedButtonStates[transformToAnimate] = state;
+
+            if (slide)
+                transformToAnimate.localPosition = state.LocalPosition + Vector3.up * TransitionSlideDistance;
+
+            if (shrink)
+                transformToAnimate.localScale = Vector3.zero;
+
+            button.SetActive(false);
+        }
+
+        float duration = ButtonTransitionSpeed.Duration;
+        float delay    = ButtonTransitionSpeed.StaggerDelay;
+        float totalDuration = delay * Mathf.Max(0, buttons.Count - 1) +
+                              (animationIndex == 0 ? 0.01f : duration);
+        float elapsed = 0f;
+
+        while (elapsed < totalDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            for (int i = 0; i < buttons.Count; i++)
+            {
+                GameObject button = buttons[i];
+
+                if (button == null)
+                    continue;
+
+                float buttonElapsed = elapsed - delay * i;
+
+                if (buttonElapsed < 0f)
+                    continue;
+
+                button.SetActive(true);
+
+                Transform transformToAnimate = button.transform;
+
+                if (!animatedButtonStates.TryGetValue(transformToAnimate, out ButtonTransformState state))
+                    continue;
+
+                if (animationIndex == 0)
+                {
+                    transformToAnimate.localPosition = state.LocalPosition;
+                    transformToAnimate.localScale    = state.LocalScale;
+                    continue;
+                }
+
+                float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(buttonElapsed / duration));
+
+                if (slide)
+                    transformToAnimate.localPosition = Vector3.Lerp(
+                            state.LocalPosition + Vector3.up * TransitionSlideDistance,
+                            state.LocalPosition,
+                            progress);
+
+                if (shrink)
+                    transformToAnimate.localScale = Vector3.Lerp(Vector3.zero, state.LocalScale, progress);
+            }
+
+            yield return null;
+        }
+
+        RestoreAnimatedButtons();
+        transitionCoroutine = null;
+    }
+
+    private void StopTransitionAnimation()
+    {
+        if (transitionCoroutine != null)
+        {
+            StopCoroutine(transitionCoroutine);
+            transitionCoroutine = null;
+        }
+
+        RestoreAnimatedButtons();
+    }
+
+    private void RestoreAnimatedButtons()
+    {
+        foreach ((Transform transformToRestore, ButtonTransformState state) in animatedButtonStates)
+        {
+            if (transformToRestore == null)
+                continue;
+
+            transformToRestore.localPosition = state.LocalPosition;
+            transformToRestore.localScale    = state.LocalScale;
+            transformToRestore.gameObject.SetActive(true);
+        }
+
+        animatedButtonStates.Clear();
+    }
+
+    private void OnDisable() => StopTransitionAnimation();
 
     public void RefreshButtonText(hamburburmod mod)
     {
@@ -646,5 +816,11 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
         public TMP_Text NormalTMP;
         public TMP_Text IncrementalTMP;
+    }
+
+    private readonly struct ButtonTransformState(Vector3 localPosition, Vector3 localScale)
+    {
+        public readonly Vector3 LocalPosition = localPosition;
+        public readonly Vector3 LocalScale    = localScale;
     }
 }

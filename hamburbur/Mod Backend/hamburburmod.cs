@@ -92,6 +92,8 @@ public class hamburburmod
             bool playNotification = true,
             bool careAboutDependenciesAndIncompatibleMods = true)
     {
+        int buttonUpdateRevision = ButtonHandler.UpdateRevision;
+
         switch (AssociatedAttribute.ButtonType)
         {
             case ButtonType.Togglable:
@@ -112,7 +114,9 @@ public class hamburburmod
                 throw new ArgumentOutOfRangeException();
         }
 
-        ButtonHandler.Instance?.UpdateButtons();
+        // Avoid immediately rebuilding a page that was already updated inside the button action.
+        if (ButtonHandler.UpdateRevision == buttonUpdateRevision)
+            ButtonHandler.Instance?.UpdateButtons();
     }
 
     private void SetEnabled(

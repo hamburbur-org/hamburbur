@@ -198,8 +198,12 @@ public class MenuHandler : Singleton<MenuHandler>
             return;
         }
 
+        StopMenuTitleAnimation(false);
+
         Menu     = menu;
         MenuName = title.GetComponent<TMP_Text>();
+        ResetMenuTitleVisuals(MenuName);
+        MenuName.text = GetMenuTitle();
 
         currentMainColour      = mainColour;
         currentSecondaryColour = secondaryColour;
@@ -221,7 +225,7 @@ public class MenuHandler : Singleton<MenuHandler>
         previousMenu?.Obliterate();
 
         if (active)
-            StartCoroutine(SetActiveAfterAFrame());
+            StartCoroutine(SetActiveAfterAFrame(menu));
     }
 
     private void ReturnToLastCategory()
@@ -246,16 +250,26 @@ public class MenuHandler : Singleton<MenuHandler>
 
         LastCategories.RemoveAt(LastCategories.Count - 1);
 
-        ButtonHandler.Instance.SetCategory(lastCategory, false);
+        ButtonHandler.Instance.SetCategory(lastCategory, false, false);
         CategoryPageMemory[lastCategory] = lastPageIndex;
         Instance.PageIndex               = lastPageIndex;
-        ButtonHandler.Instance.UpdateButtons();
+        ButtonHandler.Instance.UpdateButtons(true);
     }
 
-    private IEnumerator SetActiveAfterAFrame()
+    private IEnumerator SetActiveAfterAFrame(GameObject menu)
     {
         yield return new WaitForEndOfFrame();
-        Menu.SetActive(true);
+
+        if (menu == null || menu != Menu)
+            yield break;
+
+        Menu.SetActive(MenuOpen);
+
+        if (MenuOpen)
+        {
+            ButtonHandler.Instance?.PlayTransitionAnimation();
+            RefreshMenuTitle();
+        }
 
         IsInitialised = true;
     }
@@ -275,7 +289,7 @@ public class MenuHandler : Singleton<MenuHandler>
         yield return new WaitForSeconds(0.1f);
 
         if (Menu != null)
-            StartCoroutine(CloseMenu());
+            StartCoroutine(CloseMenu(false, false));
 
         FileManager.Instance.LoadSaveData();
     }
@@ -323,7 +337,7 @@ public class MenuHandler : Singleton<MenuHandler>
             }
         }
 
-        ButtonHandler.Instance.UpdateButtons();
+        ButtonHandler.Instance.UpdateButtons(true);
     }
 
     private void NextPage()
@@ -369,7 +383,7 @@ public class MenuHandler : Singleton<MenuHandler>
             }
         }
 
-        ButtonHandler.Instance.UpdateButtons();
+        ButtonHandler.Instance.UpdateButtons(true);
     }
 
     public IEnumerator OpenMenu()
@@ -381,39 +395,63 @@ public class MenuHandler : Singleton<MenuHandler>
 
         IsWaiting = true;
 
-        Plugin.Instance.PlaySound(DynamicMenuSounds.IsEnabled
-                                          ? MenuSoundsHandler.Instance.MenuDynamicOpenSound
-                                          : MenuSoundsHandler.Instance.MenuOpenSound);
+        MenuSoundsHandler.Instance?.PlayMenuOpenSound();
 
         Menu.SetActive(true);
         ButtonPresser.SetActive(true);
+        ButtonHandler.Instance?.PlayTransitionAnimation();
 
-        float startTime = Time.time;
+        GameObject animatedMenu     = Menu;
+        int        animationIndex   = MenuOpenCloseAnimation.CurrentIndex;
+        Vector3    targetLocalScale = animatedMenu.transform.localScale;
+        Vector3    targetMenuScale  = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f);
+        Vector3    targetPointerScale =
+                Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f);
+        float duration = GetMenuAnimationDuration(animationIndex);
+        float elapsed  = 0f;
 
-        while (Time.time - startTime < 0.1f)
+        while (elapsed < duration)
         {
-            float t = (Time.time - startTime) / 0.1f;
-            Menu.transform.parent.localScale = Vector3.Lerp(Vector3.zero,
-                    Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f), t);
+            if (animatedMenu == null || animatedMenu != Menu)
+                break;
 
-            ButtonPresser.transform.localScale = Vector3.Lerp(Vector3.zero,
-                    Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f), t);
+            elapsed += Time.unscaledDeltaTime;
+            ApplyMenuAnimation(
+                    animatedMenu,
+                    animationIndex,
+                    true,
+                    Mathf.Clamp01(elapsed / duration),
+                    targetLocalScale,
+                    targetMenuScale,
+                    targetPointerScale);
 
             yield return null;
         }
 
-        Menu.transform.parent.localScale   = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue    * 0.1f);
-        ButtonPresser.transform.localScale = Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f);
+        if (animatedMenu == Menu)
+        {
+            ApplyMenuAnimation(
+                    animatedMenu,
+                    animationIndex,
+                    true,
+                    1f,
+                    targetLocalScale,
+                    targetMenuScale,
+                    targetPointerScale);
+        }
+        else
+        {
+            Menu.transform.parent.localScale   = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f);
+            ButtonPresser.transform.localScale =
+                    Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f);
+        }
 
-        if (typingCoroutine != null)
-            StopCoroutine(typingCoroutine);
-
-        typingCoroutine = StartCoroutine(TypeMenuTitle());
+        RefreshMenuTitle();
 
         IsWaiting = false;
     }
 
-    public IEnumerator CloseMenu()
+    public IEnumerator CloseMenu(bool animate = true, bool playSound = true)
     {
         while (IsWaiting)
             yield return null;
@@ -422,16 +460,32 @@ public class MenuHandler : Singleton<MenuHandler>
 
         IsWaiting = true;
 
-        if (DynamicMenuSounds.IsEnabled)
-            Plugin.Instance.PlaySound(MenuSoundsHandler.Instance.MenuDynamicCloseSound);
+        if (playSound)
+            MenuSoundsHandler.Instance?.PlayMenuCloseSound();
 
-        float startTime = Time.time;
+        GameObject animatedMenu       = Menu;
+        int        animationIndex     = animate ? MenuOpenCloseAnimation.CurrentIndex : 5;
+        Vector3    targetLocalScale   = animatedMenu.transform.localScale;
+        Vector3    targetMenuScale    = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f);
+        Vector3    targetPointerScale =
+                Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f);
+        float duration = GetMenuAnimationDuration(animationIndex);
+        float elapsed  = 0f;
 
-        while (Time.time - startTime < 0.1f)
+        while (elapsed < duration)
         {
-            float t = (Time.time - startTime) / 0.1f;
-            Menu.transform.parent.localScale   = Vector3.Lerp(Menu.transform.parent.localScale,   Vector3.zero, t);
-            ButtonPresser.transform.localScale = Vector3.Lerp(ButtonPresser.transform.localScale, Vector3.zero, t);
+            if (animatedMenu == null || animatedMenu != Menu)
+                break;
+
+            elapsed += Time.unscaledDeltaTime;
+            ApplyMenuAnimation(
+                    animatedMenu,
+                    animationIndex,
+                    false,
+                    Mathf.Clamp01(elapsed / duration),
+                    targetLocalScale,
+                    targetMenuScale,
+                    targetPointerScale);
 
             yield return null;
         }
@@ -439,51 +493,249 @@ public class MenuHandler : Singleton<MenuHandler>
         Menu.transform.parent.localScale   = Vector3.zero;
         ButtonPresser.transform.localScale = Vector3.zero;
 
+        if (animatedMenu != null)
+            animatedMenu.transform.localScale = targetLocalScale;
+
         Menu.SetActive(false);
         ButtonPresser.SetActive(false);
         IsWaiting = false;
 
-        if (typingCoroutine != null)
-        {
-            StopCoroutine(typingCoroutine);
-            typingCoroutine = null;
-        }
-
-        MenuName.text = "";
+        StopMenuTitleAnimation(true);
     }
 
-    private IEnumerator TypeMenuTitle(float typingSpeed = 0.2f, float pauseTime = 2f)
+    private void ApplyMenuAnimation(
+            GameObject animatedMenu,
+            int        animationIndex,
+            bool       opening,
+            float      progress,
+            Vector3    targetLocalScale,
+            Vector3    targetMenuScale,
+            Vector3    targetPointerScale)
     {
-        while (Menu.activeSelf)
+        if (animatedMenu == null)
+            return;
+
+        float      eased          = Mathf.SmoothStep(0f, 1f, progress);
+        float      visibility     = opening ? eased : 1f - eased;
+        Vector3    menuScale      = targetMenuScale;
+        Vector3    menuLocalScale = targetLocalScale;
+
+        switch (animationIndex)
+        {
+            case 0:
+                menuScale = targetMenuScale * visibility;
+                break;
+
+            case 1:
+                menuScale = targetMenuScale * GetPopScale(progress, opening);
+                break;
+
+            case 5:
+                menuScale  = opening ? targetMenuScale : Vector3.zero;
+                visibility = opening ? 1f : 0f;
+                break;
+
+            case 6:
+                menuLocalScale = Vector3.Scale(
+                        targetLocalScale,
+                        new Vector3(Mathf.Lerp(0.025f, 1f, visibility), 1f, 1f));
+                break;
+
+            case 7:
+                menuLocalScale = Vector3.Scale(
+                        targetLocalScale,
+                        new Vector3(1f, Mathf.Lerp(0.025f, 1f, visibility), 1f));
+                break;
+
+            case 8:
+                menuLocalScale = Vector3.Scale(
+                        targetLocalScale,
+                        new Vector3(
+                                Mathf.Lerp(1.3f, 1f, visibility),
+                                Mathf.Lerp(0.04f, 1f, visibility),
+                                1f));
+                break;
+
+            case 9:
+                menuLocalScale = Vector3.Scale(
+                        targetLocalScale,
+                        new Vector3(
+                                Mathf.Lerp(0.04f, 1f, visibility),
+                                Mathf.Lerp(1.3f, 1f, visibility),
+                                1f));
+                break;
+
+        }
+
+        animatedMenu.transform.parent.localScale = menuScale;
+        animatedMenu.transform.localScale        = menuLocalScale;
+        ButtonPresser.transform.localScale       = targetPointerScale * visibility;
+    }
+
+    private static float GetPopScale(float progress, bool opening)
+    {
+        if (opening)
+        {
+            if (progress < 0.7f)
+                return Mathf.Lerp(0f, 1.12f, Mathf.SmoothStep(0f, 1f, progress / 0.7f));
+
+            return Mathf.Lerp(1.12f, 1f, Mathf.SmoothStep(0f, 1f, (progress - 0.7f) / 0.3f));
+        }
+
+        if (progress < 0.25f)
+            return Mathf.Lerp(1f, 1.08f, Mathf.SmoothStep(0f, 1f, progress / 0.25f));
+
+        return Mathf.Lerp(1.08f, 0f, Mathf.SmoothStep(0f, 1f, (progress - 0.25f) / 0.75f));
+    }
+
+    private static float GetMenuAnimationDuration(int animationIndex) => animationIndex switch
+                                                                         {
+                                                                                 1     => 0.16f,
+                                                                                 6 or 7 or 8 or 9 => 0.18f,
+                                                                                 5     => 0f,
+                                                                                 var _ => 0.1f,
+                                                                         };
+
+    private IEnumerator AnimateMenuTitle()
+    {
+        TMP_Text   title = MenuName;
+        GameObject menu  = Menu;
+
+        if (!IsTitleAnimationActive(title, menu))
+            yield break;
+
+        ResetMenuTitleVisuals(title);
+
+        switch (MenuTitleAnimation.CurrentAnimation)
+        {
+            case "None":
+                title.text = GetMenuTitle();
+                break;
+
+            case "Fade":
+                yield return FadeMenuTitle(title, menu);
+                break;
+
+            case "Reveal":
+                yield return RevealMenuTitle(title, menu);
+                break;
+
+            case "Pulse":
+                yield return PulseMenuTitle(title, menu);
+                break;
+
+            default:
+                yield return TypewriterMenuTitle(title, menu);
+                break;
+        }
+    }
+
+    private IEnumerator TypewriterMenuTitle(TMP_Text title, GameObject menu)
+    {
+        while (IsTitleAnimationActive(title, menu))
         {
             string text = GetMenuTitle();
 
-            for (int i = 0; i <= text.Length && Menu.activeSelf; i++)
+            for (int i = 0; i <= text.Length && IsTitleAnimationActive(title, menu); i++)
             {
-                MenuName.text = text[..i];
-
-                yield return new WaitForSeconds(typingSpeed);
+                title.text = text[..i];
+                yield return WaitForTitleDelay(title, menu, 0.2f);
             }
 
-            float timer = 0f;
-            while (timer < pauseTime && Menu.activeSelf)
-            {
-                timer += Time.deltaTime;
+            yield return WaitForTitleDelay(title, menu, 2f);
 
-                yield return null;
+            for (int i = text.Length; i >= 0 && IsTitleAnimationActive(title, menu); i--)
+            {
+                title.text = text[..i];
+                yield return WaitForTitleDelay(title, menu, 0.1f);
             }
 
-            for (int i = text.Length; i >= 0 && Menu.activeSelf; i--)
-            {
-                MenuName.text = text[..i];
+            yield return WaitForTitleDelay(title, menu, 0.5f);
+        }
+    }
 
-                yield return new WaitForSeconds(typingSpeed / 2f);
+    private IEnumerator FadeMenuTitle(TMP_Text title, GameObject menu)
+    {
+        while (IsTitleAnimationActive(title, menu))
+        {
+            title.text = GetMenuTitle();
+            yield return FadeTitle(title, menu, 0f, 1f, 0.45f);
+            yield return WaitForTitleDelay(title, menu, 2f);
+            yield return FadeTitle(title, menu, 1f, 0f, 0.35f);
+            yield return WaitForTitleDelay(title, menu, 0.35f);
+        }
+    }
+
+    private IEnumerator RevealMenuTitle(TMP_Text title, GameObject menu)
+    {
+        while (IsTitleAnimationActive(title, menu))
+        {
+            string text = GetMenuTitle();
+            title.text  = text;
+            title.alpha = 1f;
+
+            for (int visible = 0; visible <= text.Length && IsTitleAnimationActive(title, menu); visible++)
+            {
+                title.maxVisibleCharacters = visible;
+                yield return WaitForTitleDelay(title, menu, 0.075f);
             }
 
-            yield return new WaitForSeconds(0.5f);
+            yield return WaitForTitleDelay(title, menu, 2f);
+
+            for (int visible = text.Length; visible >= 0 && IsTitleAnimationActive(title, menu); visible--)
+            {
+                title.maxVisibleCharacters = visible;
+                yield return WaitForTitleDelay(title, menu, 0.05f);
+            }
+
+            yield return WaitForTitleDelay(title, menu, 0.4f);
+        }
+    }
+
+    private IEnumerator PulseMenuTitle(TMP_Text title, GameObject menu)
+    {
+        title.text = GetMenuTitle();
+        float elapsed = 0f;
+
+        while (IsTitleAnimationActive(title, menu))
+        {
+            elapsed += Time.unscaledDeltaTime;
+            title.alpha = Mathf.Lerp(0.45f, 1f, (Mathf.Sin(elapsed * 3f) + 1f) * 0.5f);
+
+            yield return null;
+        }
+    }
+
+    private IEnumerator FadeTitle(
+            TMP_Text title,
+            GameObject menu,
+            float from,
+            float to,
+            float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration && IsTitleAnimationActive(title, menu))
+        {
+            elapsed += Time.unscaledDeltaTime;
+            title.alpha = Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, elapsed / duration));
+
+            yield return null;
         }
 
-        MenuName.text = "";
+        if (IsTitleAnimationActive(title, menu))
+            title.alpha = to;
+    }
+
+    private IEnumerator WaitForTitleDelay(TMP_Text title, GameObject menu, float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration && IsTitleAnimationActive(title, menu))
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
     }
 
     public void RefreshMenuTitle()
@@ -491,28 +743,55 @@ public class MenuHandler : Singleton<MenuHandler>
         if (MenuName == null)
             return;
 
+        StopMenuTitleAnimation(false);
+        MenuName.text = GetMenuTitle();
+
+        if (Menu == null || !Menu.activeSelf)
+            return;
+
+        typingCoroutine = StartCoroutine(AnimateMenuTitle());
+    }
+
+    private void StopMenuTitleAnimation(bool clearText)
+    {
         if (typingCoroutine != null)
         {
             StopCoroutine(typingCoroutine);
             typingCoroutine = null;
         }
 
-        if (Menu == null || !Menu.activeSelf)
-        {
-            MenuName.text = "";
-
+        if (MenuName == null)
             return;
-        }
 
-        typingCoroutine = StartCoroutine(TypeMenuTitle());
+        ResetMenuTitleVisuals(MenuName);
+
+        if (clearText)
+            MenuName.text = "";
     }
+
+    private static void ResetMenuTitleVisuals(TMP_Text title)
+    {
+        if (title == null)
+            return;
+
+        title.alpha                = 1f;
+        title.maxVisibleCharacters = int.MaxValue;
+    }
+
+    private static bool IsTitleAnimationActive(TMP_Text title, GameObject menu) =>
+            title != null &&
+            menu != null &&
+            Instance != null &&
+            Instance.Menu == menu &&
+            Instance.MenuName == title &&
+            menu.activeSelf;
 
     private static string GetMenuTitle()
     {
         if (!string.IsNullOrEmpty(CustomMenuName.CurrentName))
             return CustomMenuName.CurrentName;
 
-        return MenuTitleThemeName.IsEnabled
+        return MenuTitleThemeName.IsEnabled && Themes.Instance != null
                        ? Themes.AllThemes[Themes.Instance.IncrementalValue].Item2
                        : Constants.PluginName;
     }
