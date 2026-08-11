@@ -343,7 +343,7 @@ public static class Buttons
             [nameof(SoundBoard)] =
             [
                     (typeof(ReloadSounds), null),
-                    (typeof(LoadAllSoundsNow), null),
+                    (typeof(OpenSoundsFolder), null),
                     (typeof(GliderVisualizer), null),
                     (typeof(AudioOrbsVisualizer), null),
             ],

@@ -3,16 +3,16 @@ using hamburbur.Mod_Backend;
 namespace hamburbur.Mods.Settings;
 
 [hamburburmod("Button Transition: ", "Changes how buttons appear when opening the menu or changing pages.",
-        ButtonType.Incremental, AccessSetting.Public, EnabledType.Disabled, 0)]
+        ButtonType.Incremental, AccessSetting.Public, EnabledType.Disabled, 4)]
 public class ButtonTransitionAnimation : hamburburmod
 {
     public static readonly string[] Animations =
     [
-            "None",
             "Top To Bottom",
             "Slide",
             "Shrink",
             "Slide + Shrink",
+            "None",
     ];
 
     public static ButtonTransitionAnimation Instance { get; private set; }

@@ -1,6 +1,11 @@
-using hamburbur.GUI;
+using System;
+using System.IO;
+using System.Runtime.InteropServices;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using UnityEngine;
+using Process = System.Diagnostics.Process;
+using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
 namespace hamburbur.Mods.SoundBoard;
 
@@ -21,58 +26,48 @@ public class ReloadSounds : hamburburmod
     }
 }
 
-[hamburburmod("Load All Sounds Now", "Loads every sound into memory immediately", ButtonType.Fixed,
+[hamburburmod("Open Sounds Folder", "Opens the folder containing your soundboard files", ButtonType.Fixed,
         AccessSetting.Public, EnabledType.Disabled, 0)]
-public class LoadAllSoundsNow : hamburburmod
+public class OpenSoundsFolder : hamburburmod
 {
     protected override void Pressed()
     {
-        if (SoundBoardLoader.HasLoadedAllSounds)
+        try
         {
+            if (FileManager.Instance == null)
+                throw new InvalidOperationException("The file manager is not available yet");
+
+            string soundsFolder = string.IsNullOrWhiteSpace(FileManager.Instance.SoundsFolder)
+                                          ? Path.Combine(FileManager.Instance.RootHamburburFolder, "Sounds")
+                                          : FileManager.Instance.SoundsFolder;
+
+            Directory.CreateDirectory(soundsFolder);
+            OpenFolder(soundsFolder);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError($"[Soundboard] Failed to open the sounds folder: {exception}");
             NotificationManager.SendNotification(
                     "<color=#33ccff>Soundboard</color>",
-                    "All sounds are already loaded",
+                    "Failed to open the sounds folder",
                     5f,
-                    false,
+                    true,
                     false);
-            return;
         }
+    }
 
-        if (SoundBoardLoader.IsLoadingAllSounds)
-        {
-            NotificationManager.SendNotification(
-                    "<color=#33ccff>Soundboard</color>",
-                    "The soundboard is already loading all sounds",
-                    5f,
-                    false,
-                    false);
-            return;
-        }
+    private static void OpenFolder(string folderPath)
+    {
+        string escapedPath = $"\"{folderPath.Replace("\"", "\\\"")}\"";
 
-        ButtonHandler.Instance.Prompt(new PromptData(
-                PromptType.AcceptAndDeny,
-                "Loading every sound now may cause temporary lag and use a lot of memory. Continue?",
-                () =>
-                {
-                    NotificationManager.SendNotification(
-                            "<color=#33ccff>Soundboard</color>",
-                            "Loading all sounds...",
-                            5f,
-                            false,
-                            false);
+        ProcessStartInfo startInfo = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                                             ? new ProcessStartInfo("explorer.exe", escapedPath)
+                                             : RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                                                     ? new ProcessStartInfo("open", escapedPath)
+                                                     : new ProcessStartInfo("xdg-open", escapedPath);
 
-                    SoundBoardLoader.LoadAllSounds((loaded, total) =>
-                                                           NotificationManager.SendNotification(
-                                                                   "<color=#33ccff>Soundboard</color>",
-                                                                   loaded == total
-                                                                           ? $"Loaded all {loaded} sounds"
-                                                                           : $"Loaded {loaded} of {total} sounds",
-                                                                   6f,
-                                                                   false,
-                                                                   false));
-                },
-                null,
-                "Load All <size=80%>[may cause lag]</size>",
-                "Cancel"));
+        startInfo.UseShellExecute = false;
+        startInfo.CreateNoWindow  = true;
+        Process.Start(startInfo);
     }
 }

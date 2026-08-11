@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Photon.Voice;
@@ -9,6 +10,8 @@ namespace hamburbur.Managers;
 // https://github.com/Seralyth/Seralyth-Menu/blob/master/Managers/VoiceManager.cs
 public class VoiceManager : IAudioReader<float>
 {
+    private const double NetworkMixFreshnessSeconds = 0.1d;
+
     private readonly List<Clip> audioClips = [];
 
     private readonly int loopLength;
@@ -139,7 +142,7 @@ public class VoiceManager : IAudioReader<float>
         for (int i = 0; i < buffer.Length; i++)
         {
             float microphoneSample = 0;
-            if (!MuteMicrophone && !audioClips.Any(c => c.MuteMicrophone))
+            if (!MuteMicrophone && !audioClips.Any(c => c.TransmitOverVoice && c.MuteMicrophone))
             {
                 int index     = (int)resample;
                 int nextIndex = index + 1;
@@ -179,6 +182,7 @@ public class VoiceManager : IAudioReader<float>
             lastMixedBuffer = new float[buffer.Length];
 
         Array.Copy(buffer, lastMixedBuffer, buffer.Length);
+        lastMixedBufferDspTime = AudioSettings.dspTime;
 
         lastSamplePosition = (lastSamplePosition + samples) % microphoneClip.samples;
 
@@ -189,7 +193,7 @@ public class VoiceManager : IAudioReader<float>
     {
         if (subscribedNetworkSystem != null)
         {
-            subscribedNetworkSystem.OnReturnedToSinglePlayer -= (Action)StopAudioClips;
+            subscribedNetworkSystem.OnReturnedToSinglePlayer -= (Action)StopNetworkAudioClips;
             subscribedNetworkSystem = null;
         }
 
@@ -306,7 +310,7 @@ public class VoiceManager : IAudioReader<float>
             }
 
         Guid id = Guid.NewGuid();
-        audioClips.Add(new Clip
+        Clip playingClip = new()
         {
                 Id               = id,
                 Source           = clip,
@@ -314,10 +318,16 @@ public class VoiceManager : IAudioReader<float>
                 Position         = 0f,
                 Step             = clip.frequency / (float)OutputRate,
                 MuteMicrophone   = disableMicrophone,
+                TransmitOverVoice = NetworkSystem.Instance != null && NetworkSystem.Instance.InRoom,
                 LocalAudioSource = new GameObject(id.ToString()).AddComponent<AudioSource>(),
-        });
+        };
 
-        audioClips.FirstOrDefault(clip => clip.Id == id).LocalAudioSource.GTPlayOneShot(clip);
+        audioClips.Add(playingClip);
+
+        playingClip.LocalAudioSource.GTPlayOneShot(clip);
+
+        if (CoroutineManager.Instance != null)
+            CoroutineManager.Instance.StartCoroutine(WaitForLocalPlaybackToFinish(id, playingClip.LocalAudioSource));
 
         return id;
     }
@@ -372,19 +382,55 @@ public class VoiceManager : IAudioReader<float>
     }
 
     private float[] lastMixedBuffer;
+    private double  lastMixedBufferDspTime = double.NegativeInfinity;
+    private float[] localOutputBuffer;
 
     /// <summary>
-    ///     Fills the provided buffer with the current mixed audio output from all active clips.
-    ///     This represents the same combined audio data that is pushed into the Photon voice stream,
-    ///     allowing external systems to analyse waveform data in real time.
+    ///     Fills the provided buffer with the current mixed audio output for waveform analysis.
+    ///     A fresh Photon Voice mix is used while in a room. Local-only playback is mixed directly from
+    ///     its AudioSources so visualizers continue working in single player and across room transitions.
     /// </summary>
     public void GetMixedOutput(float[] buffer)
     {
-        if (lastMixedBuffer == null)
+        if (buffer == null || buffer.Length == 0)
             return;
 
-        int len = Mathf.Min(buffer.Length, lastMixedBuffer.Length);
-        Array.Copy(lastMixedBuffer, buffer, len);
+        Array.Clear(buffer, 0, buffer.Length);
+
+        double currentDspTime = AudioSettings.dspTime;
+        bool hasFreshNetworkMix = NetworkSystem.Instance != null &&
+                                  NetworkSystem.Instance.InRoom &&
+                                  lastMixedBuffer != null &&
+                                  currentDspTime - lastMixedBufferDspTime <= NetworkMixFreshnessSeconds;
+
+        if (hasFreshNetworkMix)
+        {
+            int len = Mathf.Min(buffer.Length, lastMixedBuffer.Length);
+            Array.Copy(lastMixedBuffer, buffer, len);
+        }
+
+        MixLocalPlaybackOutput(buffer, !hasFreshNetworkMix);
+    }
+
+    private void MixLocalPlaybackOutput(float[] buffer, bool includeTransmittedClips)
+    {
+        int requiredBufferSize = Mathf.NextPowerOfTwo(buffer.Length);
+        if (localOutputBuffer == null || localOutputBuffer.Length < requiredBufferSize)
+            localOutputBuffer = new float[requiredBufferSize];
+
+        foreach (Clip clip in audioClips)
+        {
+            if (clip.LocalAudioSource == null ||
+                !clip.LocalAudioSource.isPlaying ||
+                !includeTransmittedClips && clip.TransmitOverVoice)
+                continue;
+
+            Array.Clear(localOutputBuffer, 0, localOutputBuffer.Length);
+            clip.LocalAudioSource.GetOutputData(localOutputBuffer, 0);
+
+            for (int i = 0; i < buffer.Length; i++)
+                buffer[i] = Mathf.Clamp(buffer[i] + localOutputBuffer[i], -1f, 1f);
+        }
     }
 
     /// <summary>
@@ -428,12 +474,14 @@ public class VoiceManager : IAudioReader<float>
         {
             Clip clip = audioClips[i];
 
+            if (!clip.TransmitOverVoice)
+                continue;
+
             int index = (int)clip.Position;
 
             if (index >= clip.Samples.Length)
             {
-                StopLocalPlayback(clip);
-                audioClips.RemoveAt(i);
+                clip.TransmitOverVoice = false;
 
                 continue;
             }
@@ -442,8 +490,7 @@ public class VoiceManager : IAudioReader<float>
             if (nextIndex >= clip.Samples.Length)
             {
                 mixed += clip.Samples[index];
-                StopLocalPlayback(clip);
-                audioClips.RemoveAt(i);
+                clip.TransmitOverVoice = false;
 
                 continue;
             }
@@ -465,10 +512,43 @@ public class VoiceManager : IAudioReader<float>
             return;
 
         if (subscribedNetworkSystem != null)
-            subscribedNetworkSystem.OnReturnedToSinglePlayer -= (Action)StopAudioClips;
+            subscribedNetworkSystem.OnReturnedToSinglePlayer -= (Action)StopNetworkAudioClips;
 
         subscribedNetworkSystem = networkSystem;
-        subscribedNetworkSystem.OnReturnedToSinglePlayer += (Action)StopAudioClips;
+        subscribedNetworkSystem.OnReturnedToSinglePlayer += (Action)StopNetworkAudioClips;
+    }
+
+    /// <summary>
+    ///     Stops clips from being sent through Photon Voice without interrupting their local playback.
+    ///     This is used when returning to single player so soundboard state and Jarvis speech can finish normally.
+    /// </summary>
+    private void StopNetworkAudioClips()
+    {
+        foreach (Clip clip in audioClips)
+            clip.TransmitOverVoice = false;
+
+        if (lastMixedBuffer != null)
+            Array.Clear(lastMixedBuffer, 0, lastMixedBuffer.Length);
+
+        lastMixedBufferDspTime = double.NegativeInfinity;
+    }
+
+    private IEnumerator WaitForLocalPlaybackToFinish(Guid id, AudioSource localAudioSource)
+    {
+        yield return null;
+
+        while (localAudioSource != null && localAudioSource.isPlaying)
+            yield return null;
+
+        int index = audioClips.FindIndex(c => c.Id == id && c.LocalAudioSource == localAudioSource);
+        if (index != -1)
+        {
+            audioClips[index].LocalAudioSource = null;
+            audioClips.RemoveAt(index);
+        }
+
+        if (localAudioSource != null)
+            UnityEngine.Object.Destroy(localAudioSource.gameObject);
     }
 
     private static void StopLocalPlayback(Clip clip)
@@ -488,6 +568,7 @@ public class VoiceManager : IAudioReader<float>
         public float       Position;
         public float[]     Samples;
         public float       Step;
+        public bool        TransmitOverVoice;
         public Guid        Id     { get; set; }
         public AudioClip   Source { get; set; }
     }
