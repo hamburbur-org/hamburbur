@@ -20,6 +20,7 @@ public class hamburburmod
 
     public            string PreferencesKey   => AssociatedAttribute?.Name ?? GetType().Name;
     public virtual    string ModName          => AssociatedAttribute.Name;
+    protected bool    IsUserInitiatedToggle { get; private set; }
     protected virtual Type[] Dependencies     => [];
     protected virtual Type[] IncompatibleMods => [];
 
@@ -97,7 +98,17 @@ public class hamburburmod
         switch (AssociatedAttribute.ButtonType)
         {
             case ButtonType.Togglable:
-                SetEnabled(!Enabled, playNotification, careAboutDependenciesAndIncompatibleMods);
+                IsUserInitiatedToggle = playNotification;
+
+                try
+                {
+                    SetEnabled(!Enabled, playNotification, careAboutDependenciesAndIncompatibleMods);
+                }
+                finally
+                {
+                    IsUserInitiatedToggle = false;
+                }
+
                 break;
 
             case ButtonType.Category:

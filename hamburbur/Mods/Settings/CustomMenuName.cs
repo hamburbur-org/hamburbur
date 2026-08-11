@@ -1,4 +1,3 @@
-using System;
 using hamburbur.GUI;
 using hamburbur.Mod_Backend;
 using hamburbur.Tools;
@@ -6,32 +5,49 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Custom Menu Name", "Set a custom title. Type RESET to use the normal title", ButtonType.Fixed,
+[hamburburmod("Custom Menu Name", "Uses a saved custom title while enabled", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class CustomMenuName : hamburburmod
 {
     private const string PlayerPrefsKey = "hamburbur.customMenuName";
     private const int    MaxLength      = 32;
 
-    public static string CurrentName
-    {
-        get
-        {
-            string value = PlayerPrefs.GetString(PlayerPrefsKey, "").Trim();
+    public static bool IsEnabled;
 
-            return string.IsNullOrEmpty(value) ? null : value;
-        }
+    public static string CurrentName => IsEnabled ? GetSavedName() : null;
+
+    public override string ModName => string.IsNullOrEmpty(GetSavedName())
+                                              ? AssociatedAttribute.Name
+                                              : $"{AssociatedAttribute.Name}: {GetSavedName()}";
+
+    protected override void OnEnable()
+    {
+        IsEnabled = true;
+        MenuHandler.Instance?.RefreshMenuTitle();
+
+        if (!IsUserInitiatedToggle || !string.IsNullOrEmpty(GetSavedName()) || ButtonHandler.Instance == null)
+            return;
+
+        ButtonHandler.Instance.Prompt(new PromptData(
+                PromptType.AcceptAndDeny,
+                "Would you like to set a custom menu name?",
+                PromptForName,
+                null,
+                "Set Name",
+                "Not Now"));
     }
 
-    public override string ModName => string.IsNullOrEmpty(CurrentName)
-                                              ? AssociatedAttribute.Name
-                                              : $"{AssociatedAttribute.Name}: {CurrentName}";
-
-    protected override void Pressed()
+    protected override void OnDisable()
     {
-        ButtonHandler.Instance.Prompt(new PromptData(
+        IsEnabled = false;
+        MenuHandler.Instance?.RefreshMenuTitle();
+    }
+
+    private static void PromptForName()
+    {
+        ButtonHandler.Instance?.Prompt(new PromptData(
                 PromptType.Keyboard,
-                "Enter a custom menu name, or type RESET",
+                "Enter a custom menu name",
                 SaveName,
                 null));
     }
@@ -40,20 +56,23 @@ public class CustomMenuName : hamburburmod
     {
         string name = input.WithoutRichText().Trim();
 
-        if (name.Equals("RESET", StringComparison.OrdinalIgnoreCase))
-        {
-            PlayerPrefs.DeleteKey(PlayerPrefsKey);
-        }
-        else
-        {
-            if (name.Length > MaxLength)
-                name = name[..MaxLength];
+        if (string.IsNullOrEmpty(name))
+            return;
 
-            PlayerPrefs.SetString(PlayerPrefsKey, name);
-        }
+        if (name.Length > MaxLength)
+            name = name[..MaxLength];
+
+        PlayerPrefs.SetString(PlayerPrefsKey, name);
 
         PlayerPrefs.Save();
         ButtonHandler.Instance?.UpdateButtons();
         MenuHandler.Instance?.RefreshMenuTitle();
+    }
+
+    private static string GetSavedName()
+    {
+        string value = PlayerPrefs.GetString(PlayerPrefsKey, "").WithoutRichText().Trim();
+
+        return string.IsNullOrEmpty(value) ? null : value;
     }
 }
