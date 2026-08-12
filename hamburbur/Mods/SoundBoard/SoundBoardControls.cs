@@ -56,18 +56,5 @@ public class OpenSoundsFolder : hamburburmod
         }
     }
 
-    private static void OpenFolder(string folderPath)
-    {
-        string escapedPath = $"\"{folderPath.Replace("\"", "\\\"")}\"";
-
-        ProcessStartInfo startInfo = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                                             ? new ProcessStartInfo("explorer.exe", escapedPath)
-                                             : RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-                                                     ? new ProcessStartInfo("open", escapedPath)
-                                                     : new ProcessStartInfo("xdg-open", escapedPath);
-
-        startInfo.UseShellExecute = false;
-        startInfo.CreateNoWindow  = true;
-        Process.Start(startInfo);
-    }
+    private static void OpenFolder(string folderPath) => Process.Start(folderPath);
 }

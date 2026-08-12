@@ -35,10 +35,16 @@ public class ButtonCollider : MonoBehaviour
         if (Time.unscaledTime < nextHoldTime)
             return;
 
-        OnHold.Invoke();
-        buttonPressAnimator.PlayHold();
-
+        ButtonPresser presser = heldPresser;
         nextHoldTime = Time.unscaledTime + HoldRepeatDelay;
+
+        OnHold.Invoke();
+
+        if (this == null || !isActiveAndEnabled)
+            return;
+
+        heldPresser ??= presser;
+        buttonPressAnimator.PlayHold();
     }
 
     private void OnDisable()

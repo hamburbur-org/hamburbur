@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using BepInEx;
 using GorillaNetworking;
 using hamburbur.Components;
@@ -216,7 +215,7 @@ public class GUIHandler : Singleton<GUIHandler>
         if (KeyboardManager.Instance.KeyboardOpen)
             return;
 
-        if (lastFpsUpdate + 0.05f < Time.time)
+        if (Menu.activeInHierarchy && lastFpsUpdate + 0.05f < Time.time)
         {
             lastFpsUpdate = Time.time;
             int    fps    = Mathf.FloorToInt(1f / Time.unscaledDeltaTime);
@@ -408,10 +407,9 @@ public class GUIHandler : Singleton<GUIHandler>
                 }
                 else
                 {
-                    Dictionary<Type, hamburburmod> enabledMods =
-                            Buttons.GetEnabledMods().ToDictionary(mod => mod.Item1, mod => mod.Item2);
-
-                    modComp.AssociatedGUIButton.SetActive(enabledMods.ContainsValue(modComp));
+                    bool showEnabledMod = modComp.Enabled &&
+                                          modComp.AssociatedAttribute.ButtonType == ButtonType.Togglable;
+                    modComp.AssociatedGUIButton.SetActive(showEnabledMod);
                     modComp.AssociatedGUIButton.transform.TakeChild(0).GetComponent<TextMeshProUGUI>().text =
                             modComp.ModName;
 

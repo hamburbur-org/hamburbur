@@ -43,6 +43,15 @@ public static class Extensions
     public static void Obliterate(this GameObject obj,  float delay) => Object.Destroy(obj,  delay);
     public static void Obliterate(this Component  comp, float delay) => Object.Destroy(comp, delay);
 
+    public static Transform CopyTransform(this Transform transform, Transform source)
+    {
+        transform.position = source.position;
+        transform.rotation = source.rotation;
+        transform.localScale = source.localScale;
+        
+        return transform;
+    }
+
     public static Transform TakeChild(this Transform transform, params int[] childPath)
     {
         Transform child = transform.GetChild(childPath[0]);

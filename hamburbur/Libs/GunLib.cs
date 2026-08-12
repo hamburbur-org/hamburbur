@@ -40,6 +40,12 @@ public enum GunDirection
     Forward,
     Palm,
     Knuckles,
+    ForwardSlightUp,
+    ForwardUp,
+    ForwardSteepUp,
+    ForwardSlightDown,
+    ForwardDown,
+    ForwardSteepDown,
 }
 
 public enum GunColourPreset
@@ -161,24 +167,52 @@ public class GunLib
 
         Vector3 direction = ChangeGunDirection.CurrentValue switch
                             {
-                                    GunDirection.Palm     => isLeftHand ? controller.right : -controller.right,
-                                    GunDirection.Knuckles => isLeftHand ? -controller.right : controller.right,
-                                    var _                 => controller.forward,
+                                    GunDirection.Palm              => isLeftHand ? controller.right : -controller.right,
+                                    GunDirection.Knuckles          => isLeftHand ? -controller.right : controller.right,
+                                    GunDirection.ForwardSlightUp   => GetAngledForward(controller, 10f),
+                                    GunDirection.ForwardUp         => GetAngledForward(controller, 20f),
+                                    GunDirection.ForwardSteepUp    => GetAngledForward(controller, 35f),
+                                    GunDirection.ForwardSlightDown => GetAngledForward(controller, -10f),
+                                    GunDirection.ForwardDown       => GetAngledForward(controller, -20f),
+                                    GunDirection.ForwardSteepDown  => GetAngledForward(controller, -35f),
+                                    var _                          => controller.forward,
                             };
 
         return direction.sqrMagnitude > 0f ? direction.normalized : controller.forward;
+    }
+
+    private static Vector3 GetAngledForward(Transform controller, float verticalAngle)
+    {
+        Vector3 verticalTarget = verticalAngle >= 0f ? controller.up : -controller.up;
+
+        return Vector3.RotateTowards(
+                controller.forward,
+                verticalTarget,
+                Mathf.Abs(verticalAngle) * Mathf.Deg2Rad,
+                0f);
     }
 
     private static Vector3 GetGunOrigin(Transform controller, Vector3 direction)
     {
         Vector3 origin = ChangeGunOrigin.CurrentValue switch
                          {
-                                 GunOrigin.Head       => GTPlayer.Instance.headCollider.transform.position,
+                                 GunOrigin.Head       => GetAboveHeadOrigin(),
                                  GunOrigin.BodyBottom => GetBodyBottom(),
                                  var _                => controller.position,
                          };
 
         return origin + direction * (ChangeGunOriginOffset.CurrentValue * GTPlayer.Instance.scale);
+    }
+
+    private static Vector3 GetAboveHeadOrigin()
+    {
+        Collider headCollider = GTPlayer.Instance.headCollider;
+        Bounds   headBounds   = headCollider.bounds;
+        Vector3  headOrigin   = headBounds.center;
+
+        headOrigin.y = headBounds.max.y + 0.03f * GTPlayer.Instance.scale;
+
+        return headOrigin;
     }
 
     private static Vector3 GetBodyBottom()

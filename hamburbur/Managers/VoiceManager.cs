@@ -383,6 +383,7 @@ public class VoiceManager : IAudioReader<float>
 
     private float[] lastMixedBuffer;
     private double  lastMixedBufferDspTime = double.NegativeInfinity;
+    private float[] localChannelOutputBuffer;
     private float[] localOutputBuffer;
 
     /// <summary>
@@ -417,6 +418,8 @@ public class VoiceManager : IAudioReader<float>
         int requiredBufferSize = Mathf.NextPowerOfTwo(buffer.Length);
         if (localOutputBuffer == null || localOutputBuffer.Length < requiredBufferSize)
             localOutputBuffer = new float[requiredBufferSize];
+        if (localChannelOutputBuffer == null || localChannelOutputBuffer.Length < requiredBufferSize)
+            localChannelOutputBuffer = new float[requiredBufferSize];
 
         foreach (Clip clip in audioClips)
         {
@@ -427,6 +430,20 @@ public class VoiceManager : IAudioReader<float>
 
             Array.Clear(localOutputBuffer, 0, localOutputBuffer.Length);
             clip.LocalAudioSource.GetOutputData(localOutputBuffer, 0);
+
+            int channelCount = Mathf.Max(clip.Source?.channels ?? 1, 1);
+            float channelGain = 1f / Mathf.Sqrt(channelCount);
+            for (int i = 0; i < buffer.Length; i++)
+                localOutputBuffer[i] *= channelGain;
+
+            for (int channel = 1; channel < channelCount; channel++)
+            {
+                Array.Clear(localChannelOutputBuffer, 0, localChannelOutputBuffer.Length);
+                clip.LocalAudioSource.GetOutputData(localChannelOutputBuffer, channel);
+
+                for (int i = 0; i < buffer.Length; i++)
+                    localOutputBuffer[i] += localChannelOutputBuffer[i] * channelGain;
+            }
 
             for (int i = 0; i < buffer.Length; i++)
                 buffer[i] = Mathf.Clamp(buffer[i] + localOutputBuffer[i], -1f, 1f);

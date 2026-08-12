@@ -11,6 +11,8 @@ namespace hamburbur.Mod_Backend;
 // ReSharper disable once InconsistentNaming
 public class hamburburmod
 {
+    public static int EnabledStateRevision { get; private set; }
+
     public hamburburmodAttribute AssociatedAttribute;
     public GameObject AssociatedGUIButton;
 
@@ -130,6 +132,8 @@ public class hamburburmod
             ButtonHandler.Instance?.UpdateButtons();
     }
 
+    internal void SetEnabledFromSystem(bool enabled) => SetEnabled(enabled, false, false);
+
     private void SetEnabled(
             bool enabled,
             bool playNotification = true,
@@ -155,6 +159,7 @@ public class hamburburmod
         }
 
         Enabled = enabled;
+        EnabledStateRevision++;
 
         if (Enabled)
         {

@@ -79,6 +79,7 @@ public static class Buttons
                     (typeof(MenuTitleAnimation), null),
                     (typeof(CustomMenuName), null),
                     (typeof(ToggleMenu), null),
+                    (typeof(PrimaryMenuButton), null),
                     (typeof(ChangeMenuSize), null),
                     (typeof(MenuOpenCloseAnimation), null),
                     (typeof(ChangePointerSize), null),
@@ -97,6 +98,8 @@ public static class Buttons
                     (typeof(ArrayList), null),
                     (typeof(DiscordRpc), null),
             ],
+
+            [nameof(Themes)] = Themes.CreateThemeButtons(),
 
             ["Notification Settings"] =
             [
@@ -217,6 +220,9 @@ public static class Buttons
                     (typeof(IronMan), null),
                     (typeof(ProjectileMonke), null),
                     (typeof(Mods.Movement.SizeChanger), null),
+                    (typeof(AntiTagFreeze), null),
+                    (typeof(DisableQuitBox), null),
+                    (typeof(PhysicalQuitBox), null),
             ],
 
             [nameof(Room)] =
@@ -302,6 +308,7 @@ public static class Buttons
                     (typeof(CompleteQuests), null),
                     (typeof(FasterRemoveFriendDelay), null),
                     (typeof(RestartGame), null),
+                    (typeof(QuitGame), null),
             ],
 
             [nameof(Rig)] =

@@ -117,6 +117,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
     private readonly List<PromptData> currentPrompts = [];
     private readonly Dictionary<Transform, ButtonTransformState> animatedButtonStates = new();
+    private readonly List<GameObject> visibleTransitionButtons = [];
 
     private Coroutine transitionCoroutine;
 
@@ -624,21 +625,21 @@ public class ButtonHandler : Singleton<ButtonHandler>
             !gameObject.activeInHierarchy)
             return;
 
-        List<GameObject> visibleButtons = [];
+        visibleTransitionButtons.Clear();
 
         foreach (ModButton modButton in ModButtons)
         {
             if (modButton.NormalButtonObject != null && modButton.NormalButtonObject.activeSelf)
-                visibleButtons.Add(modButton.NormalButtonObject);
+                visibleTransitionButtons.Add(modButton.NormalButtonObject);
             else if (modButton.IncrementalButtonObject != null && modButton.IncrementalButtonObject.activeSelf)
-                visibleButtons.Add(modButton.IncrementalButtonObject);
+                visibleTransitionButtons.Add(modButton.IncrementalButtonObject);
         }
 
-        if (visibleButtons.Count == 0)
+        if (visibleTransitionButtons.Count == 0)
             return;
 
         transitionCoroutine = StartCoroutine(AnimateTransition(
-                visibleButtons,
+                visibleTransitionButtons,
                 ButtonTransitionAnimation.CurrentIndex));
     }
 
@@ -720,6 +721,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         }
 
         RestoreAnimatedButtons();
+        visibleTransitionButtons.Clear();
         transitionCoroutine = null;
     }
 
@@ -732,6 +734,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         }
 
         RestoreAnimatedButtons();
+        visibleTransitionButtons.Clear();
     }
 
     private void RestoreAnimatedButtons()

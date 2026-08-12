@@ -54,7 +54,18 @@ public class ChangeGunOriginOffset : hamburburmod
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class ChangeGunDirection : hamburburmod
 {
-    private static readonly string[] Labels = ["Forward", "Palm", "Knuckles",];
+    private static readonly string[] Labels =
+    [
+            "Forward",
+            "Palm",
+            "Knuckles",
+            "Forward Slight Up",
+            "Forward Up",
+            "Forward Steep Up",
+            "Forward Slight Down",
+            "Forward Down",
+            "Forward Steep Down",
+    ];
     private static ChangeGunDirection instance;
 
     private int CurrentIndex => Mathf.Clamp(IncrementalValue, 0, Labels.Length - 1);

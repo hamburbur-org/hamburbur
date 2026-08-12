@@ -1,3 +1,4 @@
+using hamburbur.GUI;
 using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
@@ -8,6 +9,11 @@ public class ArrayList : hamburburmod
 {
     public static bool IsEnabled;
 
-    protected override void OnEnable()  => IsEnabled = true;
+    protected override void OnEnable()
+    {
+        IsEnabled = true;
+        ArrayListOverlay.Show();
+    }
+
     protected override void OnDisable() => IsEnabled = false;
 }

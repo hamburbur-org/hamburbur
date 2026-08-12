@@ -64,9 +64,15 @@ public class MenuHandler : Singleton<MenuHandler>
             for (int button = 0; button < category.Value.Length; button++)
             {
                 Type modType = category.Value[button].Item1;
+                hamburburmod hamburburMod = category.Value[button].Item2;
 
-                if (Activator.CreateInstance(modType) is not hamburburmod hamburburMod)
-                    continue;
+                if (hamburburMod == null)
+                {
+                    if (Activator.CreateInstance(modType) is not hamburburmod createdMod)
+                        continue;
+
+                    hamburburMod = createdMod;
+                }
 
                 hamburburmodAttribute attribute = modType.GetCustomAttribute<hamburburmodAttribute>();
 
@@ -125,18 +131,25 @@ public class MenuHandler : Singleton<MenuHandler>
             return;
 
         InputManager inputs = InputManager.Instance;
+        InputManager.ControllerButton menuButton = RightHanded.IsEnabled
+                                                           ? PrimaryMenuButton.IsEnabled
+                                                                     ? inputs.RightPrimary
+                                                                     : inputs.RightSecondary
+                                                           : PrimaryMenuButton.IsEnabled
+                                                                   ? inputs.LeftPrimary
+                                                                   : inputs.LeftSecondary;
 
         if (!ToggleMenu.IsEnabled)
         {
-            if (RightHanded.IsEnabled ? inputs.RightSecondary.WasPressed : inputs.LeftSecondary.WasPressed)
+            if (menuButton.WasPressed)
                 StartCoroutine(OpenMenu());
 
-            if (RightHanded.IsEnabled ? inputs.RightSecondary.WasReleased : inputs.LeftSecondary.WasReleased)
+            if (menuButton.WasReleased)
                 StartCoroutine(Menu.transform.parent == Tools.Utils.RealLeftController
                                        ? CloseMenu()
                                        : GUIHandler.Instance.CloseMenu());
         }
-        else if (RightHanded.IsEnabled ? inputs.RightSecondary.WasPressed : inputs.LeftSecondary.WasPressed)
+        else if (menuButton.WasPressed)
         {
             if (MenuOpen)
                 StartCoroutine(Menu.transform.parent == Tools.Utils.RealLeftController

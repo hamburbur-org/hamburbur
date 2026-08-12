@@ -1,11 +1,14 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using hamburbur.GUI;
+using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using UnityEngine;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Theme: ", "Change the current theme", ButtonType.Incremental, AccessSetting.Public, EnabledType.Disabled,
+[hamburburmod(nameof(Themes), "Open the themes category", ButtonType.Category, AccessSetting.Public, EnabledType.Disabled,
         0)]
 public class Themes : hamburburmod
 {
@@ -386,28 +389,74 @@ public class Themes : hamburburmod
                 -0.29f,
                 true
             ),
+            
+            (
+                "spectral",
+                "Spectral Menu",
+                new Vector3(0f, 0f, 0f),
+                Quaternion.Euler(90f, 0f, 0f),
+                new Color(0.098039194f, 0.01960784f, 0.2f,        1f),
+                new Color(0.545098f,    0.2352941f,  0.8156863f, 1f),
+                -0.29f,
+                false
+            ),
     ];
 
     public static Themes Instance { get; private set; }
+    internal static bool IsSynchronizingButtons { get; private set; }
 
-    public override string ModName => AssociatedAttribute.Name + AllThemes[IncrementalValue].DisplayName;
+    public static int CurrentIndex => NormalizeIndex(Instance?.IncrementalValue ?? 0);
 
-    protected override void Start() => Instance = this;
-
-    protected override void Increment()
+    public static (Type, hamburburmod)[] CreateThemeButtons()
     {
-        IncrementalValue = (IncrementalValue + 1) % AllThemes.Count;
-        LoadCurrentTheme();
+        (Type, hamburburmod)[] buttons = new (Type, hamburburmod)[AllThemes.Count];
+
+        for (int i = 0; i < buttons.Length; i++)
+            buttons[i] = (typeof(ThemeButton), new ThemeButton(i));
+
+        return buttons;
     }
 
-    protected override void Decrement()
+    protected override void Start()
     {
-        IncrementalValue = (IncrementalValue - 1 + AllThemes.Count) % AllThemes.Count;
-        LoadCurrentTheme();
+        Instance         = this;
+        IncrementalValue = NormalizeIndex(IncrementalValue);
+        CoroutineManager.Instance?.StartCoroutine(SynchronizeButtonsAfterStartup());
     }
 
-    private void LoadCurrentTheme()
+    protected override void Pressed() => ButtonHandler.Instance?.SetCategory(nameof(Themes));
+
+    internal static void SelectThemeFromButton(int themeIndex)
     {
+        if (Instance == null)
+            return;
+
+        themeIndex = NormalizeIndex(themeIndex);
+
+        if (Instance.IncrementalValue == themeIndex)
+        {
+            SynchronizeThemeButtons();
+            return;
+        }
+
+        Instance.IncrementalValue = themeIndex;
+        Instance.LoadCurrentTheme(true, themeIndex);
+    }
+
+    private IEnumerator SynchronizeButtonsAfterStartup()
+    {
+        yield return null;
+        SynchronizeThemeButtons();
+    }
+
+    private void LoadCurrentTheme(bool preserveSelectedThemePage = false, int selectedThemeIndex = -1)
+    {
+        IncrementalValue = NormalizeIndex(IncrementalValue);
+
+        bool keepSelectedThemeVisible = preserveSelectedThemePage &&
+                                        MenuHandler.Instance != null &&
+                                        MenuHandler.Instance.Category == nameof(Themes);
+
         (
                 string Name,
                 string DisplayName,
@@ -438,7 +487,73 @@ public class Themes : hamburburmod
                 theme.isCanvasMenu,
                 true
         );
+
+        SynchronizeThemeButtons(false);
+
+        if (keepSelectedThemeVisible && ButtonHandler.ButtonsPerPage > 0)
+            MenuHandler.Instance.PageIndex = NormalizeIndex(selectedThemeIndex) / ButtonHandler.ButtonsPerPage;
+
+        ButtonHandler.Instance?.UpdateButtons();
     }
 
-    protected override void OnIncrementalStateLoaded() => LoadCurrentTheme();
+    protected override void OnIncrementalStateLoaded()
+    {
+        IncrementalValue = NormalizeIndex(IncrementalValue);
+        LoadCurrentTheme();
+    }
+
+    private static void SynchronizeThemeButtons(bool updateButtons = true)
+    {
+        if (!Buttons.Categories.TryGetValue(nameof(Themes), out (Type, hamburburmod)[] themeButtons))
+            return;
+
+        IsSynchronizingButtons = true;
+
+        try
+        {
+            foreach ((Type _, hamburburmod mod) in themeButtons)
+                if (mod is ThemeButton themeButton)
+                    themeButton.SetEnabledFromSystem(themeButton.ThemeIndex == CurrentIndex);
+        }
+        finally
+        {
+            IsSynchronizingButtons = false;
+        }
+
+        if (updateButtons)
+            ButtonHandler.Instance?.UpdateButtons();
+    }
+
+    private static int NormalizeIndex(int index)
+    {
+        if (AllThemes.Count == 0)
+            return 0;
+
+        return (index % AllThemes.Count + AllThemes.Count) % AllThemes.Count;
+    }
+}
+
+[hamburburmod("Theme", "Switch to this menu theme", ButtonType.Togglable, AccessSetting.Public,
+        EnabledType.AlwaysDisabled, 0)]
+public sealed class ThemeButton : hamburburmod
+{
+    public ThemeButton(int themeIndex) => ThemeIndex = themeIndex;
+
+    public int ThemeIndex { get; }
+
+    public override string ModName => ThemeIndex >= 0 && ThemeIndex < Themes.AllThemes.Count
+                                              ? Themes.AllThemes[ThemeIndex].DisplayName
+                                              : AssociatedAttribute.Name;
+
+    protected override void OnEnable()
+    {
+        if (!Themes.IsSynchronizingButtons)
+            Themes.SelectThemeFromButton(ThemeIndex);
+    }
+
+    protected override void OnDisable()
+    {
+        if (!Themes.IsSynchronizingButtons && ThemeIndex == Themes.CurrentIndex)
+            SetEnabledFromSystem(true);
+    }
 }

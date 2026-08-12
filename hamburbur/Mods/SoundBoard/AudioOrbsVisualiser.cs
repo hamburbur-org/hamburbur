@@ -1,11 +1,9 @@
-using System;
 using GorillaTag.Rendering;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using UnityEngine;
 using UnityEngine.Rendering;
 using Object = UnityEngine.Object;
-using Random = System.Random;
 
 namespace hamburbur.Mods.SoundBoard;
 
@@ -15,711 +13,703 @@ namespace hamburbur.Mods.SoundBoard;
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class AudioOrbsVisualizer : hamburburmod
 {
-    private const int   SampleSize     = 512;
-    private const int   OrbCount       = 48;
-    private const int   BassBinCount   = 10;
-    private const int   MidBinStart    = 10;
-    private const int   MidBinEnd      = 60;
-    private const int   HiBinStart     = 60;
-    private const int   HiBinEnd       = 180;
-    private const float BaseRadius     = 2.3f;
-    private const float GlobalSpinBase = 0.1f;
-    private const float TiltLerpSpeed  = 1.5f;
-    private const float ShapeLerpSpeed = 1.1f;
-    private const float BeatCooldown   = 0.18f;
-    private const float BeatThreshold  = 1.55f;
-    private const float BuildupDecay   = 0.7f;
-    private const int   TornadoCount   = 280;
-    private const int   TotalShapes    = 10;
+    private const int   SampleSize         = 1024;
+    private const int   OrbCount           = 32;
+    private const float HistoryRate        = 90f;
+    private const float HistoryStep        = 1f / HistoryRate;
+    private const float BaseRadius         = 2.45f;
+    private const float DisplacementHeight = 3.25f;
+    private const float BaseOrbScale       = 0.075f;
+    private const float MinimumTrailTime   = 0.1f;
+    private const float MaximumTrailTime   = 0.42f;
+
+    private static readonly Quaternion BaseRingRotation = Quaternion.Euler(18f, 0f, -8f);
+    private static readonly Vector3 TumbleAxis = new Vector3(0.68f, 0.22f, 0.7f).normalized;
 
     private static readonly Color[] Palette =
     [
-            new(0.55f, 0.0f, 1.0f),
-            new(0.2f, 0.1f, 0.9f),
-            new(0.0f, 0.5f, 1.0f),
-            new(0.0f, 0.85f, 1.0f),
-            new(0.8f, 0.0f, 1.0f),
-            new(1.0f, 0.0f, 0.6f),
-            new(0.6f, 0.0f, 0.8f),
-            new(0.15f, 0.0f, 0.7f),
+            new(0.55f, 0f,   1f),
+            new(0.2f,  0.1f, 0.9f),
+            new(0f,    0.5f, 1f),
+            new(0f,    0.85f, 1f),
+            new(0.8f,  0f,   1f),
+            new(1f,    0f,   0.6f),
+            new(0.6f,  0f,   0.8f),
+            new(0.15f, 0f,   0.7f),
     ];
 
     private Vector3 anchorPosition;
-    private float   bassNorm;
 
-    private float bassSmoothedFast;
-    private float bassSmoothedSlow;
+    private float autoGainLevel;
+    private float bassSlowEnvelope;
+    private float bassTransient;
     private float beatCooldownTimer;
     private float buildupLevel;
-    private float buildupRaw;
+    private float currentPeakEnvelope;
+    private float historyAccumulator;
+    private float impactPulse;
+    private float previousBassTarget;
+    private float previousBassTransient;
+    private float previousPeakEnvelope;
+    private float shapeContrast;
+    private float tumbleAngle;
+    private float volumeEnvelope;
+    private float volumeFast;
+    private float volumeSlow;
 
     private Color currentFogColor;
 
-    private int              currentShape;
-    private float            fogSnapTimer;
-    private float            globalAngle;
-    private float            globalBassImpact;
-    private float            globalSpinSpeed;
-    private float            hiSmoothed;
-    private float            midSmoothed;
-    private int              nextShape;
-    private Material[]       orbMats;
-    private ParticleSystem[] orbParticles;
-    private float[]          orbPhaseOffsets;
-    private Renderer[]       orbRends;
+    private Vector4 currentBandEnvelope;
+    private Vector4 previousBandEnvelope;
 
-    private GameObject[] orbs;
-    private float[]      orbVerticalPhase;
-    private bool         rippleActive;
-    private float        ripplePhase;
-    private float        rippleSpeed;
+    private Quaternion ringRotation;
 
-    private float[] rippleWave;
+    private float[]           displacementTargets;
+    private float[]           bassTransientHistory;
+    private float[]           filteredDisplacementTargets;
+    private float[]           fftImaginary;
+    private float[]           fftReal;
+    private float[]           hannWindow;
+    private float[]           peakHistory;
+    private float[]           samples;
+    private float[]           smoothedDisplacements;
+    private GameObject[]      orbs;
+    private Material[]        orbMaterials;
+    private ParticleSystem[]  orbParticles;
+    private TrailRenderer[]   trails;
+    private Vector4[]         bandHistory;
 
-    private Random  rng;
-    private float   shapeBlend;
-    private float[] smoothedAmplitudes;
-
-    private float[] spectrum;
-    private Color   targetFogColor;
-    private float   targetTiltX;
-    private float   targetTiltZ;
-
-    private float      tiltX;
-    private float      tiltZ;
-    private float      tornadoAlpha;
-    private GameObject tornadoRoot;
-
-    private ParticleSystem  tornadoSystem;
-    private TrailRenderer[] trails;
+    private Material particleMaterial;
+    private Material trailMaterial;
 
     protected override void OnEnable()
     {
-        rng            = new Random();
         anchorPosition = GorillaTagger.Instance.headCollider.transform.position + new Vector3(0f, 1.5f, 0f);
 
-        spectrum           = new float[SampleSize];
-        smoothedAmplitudes = new float[OrbCount];
-        orbPhaseOffsets    = new float[OrbCount];
-        orbVerticalPhase   = new float[OrbCount];
-        rippleWave         = new float[OrbCount];
+        samples             = new float[SampleSize];
+        fftReal             = new float[SampleSize];
+        fftImaginary        = new float[SampleSize];
+        hannWindow          = new float[SampleSize];
+        bandHistory         = new Vector4[OrbCount];
+        peakHistory         = new float[OrbCount];
+        bassTransientHistory = new float[OrbCount];
+        displacementTargets = new float[OrbCount];
+        filteredDisplacementTargets = new float[OrbCount];
+        smoothedDisplacements = new float[OrbCount];
 
-        for (int i = 0; i < OrbCount; i++)
-        {
-            orbPhaseOffsets[i]  = (float)(rng.NextDouble() * Math.PI * 2.0);
-            orbVerticalPhase[i] = (float)(rng.NextDouble() * Math.PI * 2.0);
-        }
+        for (int i = 0; i < SampleSize; i++)
+            hannWindow[i] = 0.5f - 0.5f * Mathf.Cos(2f * Mathf.PI * i / (SampleSize - 1));
 
-        currentShape    = 0;
-        nextShape       = 0;
-        shapeBlend      = 1f;
-        globalSpinSpeed = GlobalSpinBase;
+        currentFogColor         = new Color(0f, 0f, 0f, 0f);
+        autoGainLevel           = 0.08f;
+        bassSlowEnvelope        = 0f;
+        bassTransient           = 0f;
+        beatCooldownTimer       = 0f;
+        buildupLevel            = 0f;
+        currentBandEnvelope     = Vector4.zero;
+        currentPeakEnvelope     = 0f;
+        historyAccumulator      = 0f;
+        impactPulse             = 0f;
+        previousBassTarget      = 0f;
+        previousBassTransient   = 0f;
+        previousBandEnvelope    = Vector4.zero;
+        previousPeakEnvelope    = 0f;
+        shapeContrast           = 1f;
+        tumbleAngle             = 0f;
+        volumeEnvelope          = 0f;
+        volumeFast              = 0f;
+        volumeSlow              = 0f;
+        ringRotation            = BaseRingRotation;
 
         orbs         = new GameObject[OrbCount];
         trails       = new TrailRenderer[OrbCount];
-        orbRends     = new Renderer[OrbCount];
-        orbMats      = new Material[OrbCount];
+        orbMaterials = new Material[OrbCount];
         orbParticles = new ParticleSystem[OrbCount];
+
+        trailMaterial = CreateMaterial(
+                "Universal Render Pipeline/Particles/Unlit",
+                "Legacy Shaders/Particles/Additive");
+        trailMaterial.color = Color.white;
+
+        particleMaterial = CreateMaterial(
+                "Universal Render Pipeline/Particles/Unlit",
+                "Legacy Shaders/Particles/Additive");
+        particleMaterial.color = Color.white;
 
         for (int i = 0; i < OrbCount; i++)
             CreateOrb(i);
 
-        CreateTornado();
-
-        currentFogColor = new Color(0f, 0f, 0f, 0f);
-        targetFogColor  = currentFogColor;
+        PlaceOrbs(false, 0f);
         ApplyFog(currentFogColor);
     }
 
     private void CreateOrb(int i)
     {
         GameObject orb = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        orb.name                 = $"AudioOrb_{i}";
-        orb.transform.localScale = Vector3.one * 0.055f;
+        orb.name = $"AudioOrb_{i}";
 
-        if (orb.TryGetComponent(out Collider c)) c.enabled = false;
+        if (orb.TryGetComponent(out Collider collider))
+            collider.enabled = false;
 
-        Renderer rend = orb.GetComponent<Renderer>();
-        Material mat  = new(Shader.Find("Universal Render Pipeline/Unlit"));
-        if (mat.shader.name == "Hidden/InternalErrorShader")
-            mat = new Material(Shader.Find("Unlit/Color"));
-
-        Color orbCol = GetOrbColor(i);
-        mat.color = orbCol;
-        if (mat.HasProperty("_EmissionColor"))
+        Renderer renderer = orb.GetComponent<Renderer>();
+        Material orbMaterial = CreateMaterial("Universal Render Pipeline/Unlit", "Unlit/Color");
+        Color orbColor = GetOrbColor(i);
+        SetMaterialColor(orbMaterial, orbColor);
+        if (orbMaterial.HasProperty("_EmissionColor"))
         {
-            mat.EnableKeyword("_EMISSION");
-            mat.SetColor("_EmissionColor", orbCol * 2.8f);
+            orbMaterial.EnableKeyword("_EMISSION");
+            orbMaterial.SetColor("_EmissionColor", orbColor * 2.5f);
         }
 
-        rend.material = mat;
-        orbRends[i]   = rend;
-        orbMats[i]    = mat;
+        renderer.sharedMaterial = orbMaterial;
+        orbMaterials[i]          = orbMaterial;
 
         TrailRenderer trail = orb.AddComponent<TrailRenderer>();
-        trail.time                 = 0.45f;
-        trail.startWidth           = 0.035f;
+        trail.time                 = MinimumTrailTime;
+        trail.startWidth           = 0.045f;
         trail.endWidth             = 0f;
-        trail.numCapVertices       = 3;
-        trail.numCornerVertices    = 3;
+        trail.minVertexDistance    = 0.015f;
+        trail.numCapVertices       = 4;
+        trail.numCornerVertices    = 4;
         trail.shadowCastingMode    = ShadowCastingMode.Off;
         trail.receiveShadows       = false;
         trail.generateLightingData = false;
+        trail.emitting             = false;
 
-        Material tMat = new(Shader.Find("Universal Render Pipeline/Particles/Unlit"));
-        if (tMat.shader.name == "Hidden/InternalErrorShader")
-            tMat = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
+        trail.sharedMaterial = trailMaterial;
+        trails[i]            = trail;
 
-        tMat.color     = orbCol;
-        trail.material = tMat;
+        GameObject particleObject = new($"OrbParticles_{i}");
+        particleObject.transform.SetParent(orb.transform, false);
+        ParticleSystem particles = particleObject.AddComponent<ParticleSystem>();
 
-        Gradient g = new();
-        g.SetKeys(
-                new GradientColorKey[]
-                        { new(orbCol, 0f), new(Color.Lerp(orbCol, Color.white, 0.35f), 0.12f), new(orbCol, 1f), },
-                new GradientAlphaKey[] { new(1f, 0f), new(0.5f, 0.35f), new(0f, 1f), }
-        );
-
-        trail.colorGradient = g;
-        trails[i]           = trail;
-
-        GameObject psGo = new($"OrbParticles_{i}");
-        psGo.transform.SetParent(orb.transform, false);
-        ParticleSystem ps = psGo.AddComponent<ParticleSystem>();
-
-        ParticleSystem.MainModule main = ps.main;
+        ParticleSystem.MainModule main = particles.main;
         main.loop            = true;
         main.playOnAwake     = false;
-        main.startLifetime   = new ParticleSystem.MinMaxCurve(0.4f,  1f);
-        main.startSpeed      = new ParticleSystem.MinMaxCurve(0.15f, 0.55f);
-        main.startSize       = new ParticleSystem.MinMaxCurve(0.03f, 0.1f);
-        main.startColor      = new ParticleSystem.MinMaxGradient(orbCol, Color.Lerp(orbCol, Color.white, 0.4f));
-        main.maxParticles    = 80;
+        main.startLifetime   = new ParticleSystem.MinMaxCurve(0.55f, 1.35f);
+        main.startSpeed      = new ParticleSystem.MinMaxCurve(0.18f, 0.8f);
+        main.startSize       = new ParticleSystem.MinMaxCurve(0.015f, 0.07f);
+        main.startColor      = new ParticleSystem.MinMaxGradient(orbColor, Color.Lerp(orbColor, Color.white, 0.18f));
+        main.maxParticles    = 120;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.gravityModifier = new ParticleSystem.MinMaxCurve(-0.04f, 0.04f);
+        main.gravityModifier = new ParticleSystem.MinMaxCurve(-0.035f, 0.035f);
 
-        ParticleSystem.EmissionModule emission = ps.emission;
+        ParticleSystem.EmissionModule emission = particles.emission;
         emission.rateOverTime = 0f;
 
-        ParticleSystem.ShapeModule shape = ps.shape;
+        ParticleSystem.ShapeModule shape = particles.shape;
         shape.enabled   = true;
         shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius    = 0.1f;
+        shape.radius    = 0.09f;
 
-        ParticleSystem.ColorOverLifetimeModule colorOverLife = ps.colorOverLifetime;
-        colorOverLife.enabled = true;
-        Gradient pg = new();
-        pg.SetKeys(
+        ParticleSystem.ColorOverLifetimeModule colorOverLifetime = particles.colorOverLifetime;
+        colorOverLifetime.enabled = true;
+        Gradient particleGradient = new();
+        particleGradient.SetKeys(
                 new GradientColorKey[]
-                        { new(Color.Lerp(orbCol, Color.white, 0.3f), 0f), new(orbCol, 0.4f), new(orbCol, 1f), },
-                new GradientAlphaKey[] { new(1f, 0f), new(0.75f, 0.3f), new(0f, 1f), }
-        );
+                {
+                        new(Color.white, 0f), new(Color.white, 0.35f), new(Color.white, 1f),
+                },
+                new GradientAlphaKey[] { new(0.9f, 0f), new(0.55f, 0.4f), new(0f, 1f), });
+        colorOverLifetime.color = new ParticleSystem.MinMaxGradient(particleGradient);
 
-        colorOverLife.color = new ParticleSystem.MinMaxGradient(pg);
+        ParticleSystem.SizeOverLifetimeModule sizeOverLifetime = particles.sizeOverLifetime;
+        sizeOverLifetime.enabled = true;
+        AnimationCurve sizeCurve = new();
+        sizeCurve.AddKey(0f, 1f);
+        sizeCurve.AddKey(0.45f, 0.62f);
+        sizeCurve.AddKey(1f, 0f);
+        sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1f, sizeCurve);
 
-        ParticleSystem.SizeOverLifetimeModule sizeOverLife = ps.sizeOverLifetime;
-        sizeOverLife.enabled = true;
-        AnimationCurve sc = new();
-        sc.AddKey(0f,    1f);
-        sc.AddKey(0.35f, 0.6f);
-        sc.AddKey(1f,    0f);
-        sizeOverLife.size = new ParticleSystem.MinMaxCurve(1f, sc);
+        ParticleSystemRenderer particleRenderer = particles.GetComponent<ParticleSystemRenderer>();
+        particleRenderer.sharedMaterial    = particleMaterial;
+        particleRenderer.renderMode        = ParticleSystemRenderMode.Billboard;
+        particleRenderer.shadowCastingMode = ShadowCastingMode.Off;
 
-        ParticleSystemRenderer psRend = ps.GetComponent<ParticleSystemRenderer>();
-        psRend.material = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit"));
-        if (psRend.material.shader.name == "Hidden/InternalErrorShader")
-            psRend.material = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
-
-        psRend.renderMode        = ParticleSystemRenderMode.Billboard;
-        psRend.shadowCastingMode = ShadowCastingMode.Off;
-
-        orbParticles[i] = ps;
+        orbParticles[i] = particles;
         orbs[i]         = orb;
     }
 
-    private void CreateTornado()
+    private static Material CreateMaterial(string preferredShaderName, string fallbackShaderName)
     {
-        tornadoRoot   = new GameObject("AudioOrbs_Tornado");
-        tornadoSystem = tornadoRoot.AddComponent<ParticleSystem>();
+        Shader shader = Shader.Find(preferredShaderName);
+        if (shader == null || shader.name == "Hidden/InternalErrorShader")
+            shader = Shader.Find(fallbackShaderName);
+        if (shader == null || shader.name == "Hidden/InternalErrorShader")
+            shader = Shader.Find("Sprites/Default");
 
-        ParticleSystem.MainModule main = tornadoSystem.main;
-        main.loop            = true;
-        main.playOnAwake     = false;
-        main.startLifetime   = new ParticleSystem.MinMaxCurve(1.2f,   2.8f);
-        main.startSpeed      = new ParticleSystem.MinMaxCurve(0.4f,   2.2f);
-        main.startSize       = new ParticleSystem.MinMaxCurve(0.007f, 0.025f);
-        main.startColor      = new ParticleSystem.MinMaxGradient(Palette[0], Palette[4]);
-        main.maxParticles    = TornadoCount;
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.gravityModifier = new ParticleSystem.MinMaxCurve(-0.18f, -0.04f);
+        return new Material(shader);
+    }
 
-        ParticleSystem.EmissionModule emission = tornadoSystem.emission;
-        emission.rateOverTime = 0f;
+    private static void SetMaterialColor(Material material, Color color)
+    {
+        material.color = color;
 
-        ParticleSystem.ShapeModule shape = tornadoSystem.shape;
-        shape.enabled         = true;
-        shape.shapeType       = ParticleSystemShapeType.Circle;
-        shape.radius          = BaseRadius * 0.9f;
-        shape.radiusThickness = 0.4f;
-
-        ParticleSystem.VelocityOverLifetimeModule vel = tornadoSystem.velocityOverLifetime;
-        vel.enabled  = true;
-        vel.space    = ParticleSystemSimulationSpace.Local;
-        vel.orbitalY = new ParticleSystem.MinMaxCurve(2.5f,  4.5f);
-        vel.radial   = new ParticleSystem.MinMaxCurve(-0.3f, 0.1f);
-
-        ParticleSystem.ColorOverLifetimeModule colorOverLife = tornadoSystem.colorOverLifetime;
-        colorOverLife.enabled = true;
-        Gradient cg = new();
-        cg.SetKeys(
-                new GradientColorKey[] { new(Palette[0], 0f), new(Palette[3], 0.5f), new(Palette[4], 1f), },
-                new GradientAlphaKey[] { new(0f, 0f), new(0.7f, 0.3f), new(0.7f, 0.7f), new(0f, 1f), }
-        );
-
-        colorOverLife.color = new ParticleSystem.MinMaxGradient(cg);
-
-        ParticleSystem.SizeOverLifetimeModule sizeOverLife = tornadoSystem.sizeOverLifetime;
-        sizeOverLife.enabled = true;
-        AnimationCurve sc = new();
-        sc.AddKey(0f,   0.2f);
-        sc.AddKey(0.3f, 1f);
-        sc.AddKey(0.8f, 0.7f);
-        sc.AddKey(1f,   0f);
-        sizeOverLife.size = new ParticleSystem.MinMaxCurve(1f, sc);
-
-        ParticleSystemRenderer rend = tornadoSystem.GetComponent<ParticleSystemRenderer>();
-        rend.material = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit"));
-        if (rend.material.shader.name == "Hidden/InternalErrorShader")
-            rend.material = new Material(Shader.Find("Legacy Shaders/Particles/Additive"));
-
-        rend.renderMode        = ParticleSystemRenderMode.Billboard;
-        rend.shadowCastingMode = ShadowCastingMode.Off;
-        tornadoAlpha           = 0f;
+        if (material.HasProperty("_BaseColor"))
+            material.SetColor("_BaseColor", color);
+        if (material.HasProperty("_Color"))
+            material.SetColor("_Color", color);
     }
 
     protected override void Update()
     {
-        VoiceManager.Get().GetMixedOutput(spectrum);
+        float dt = Mathf.Min(Time.deltaTime, 0.1f);
+        if (dt <= 0f)
+            return;
 
-        float bassRaw                                  = 0f;
-        for (int b = 0; b < BassBinCount; b++) bassRaw += spectrum[b];
-        bassRaw /= BassBinCount;
+        AnalyzeAudio(dt);
+        AdvanceAudioHistory(dt);
+        UpdateRingRotation(dt);
 
-        float midRaw                                         = 0f;
-        for (int b = MidBinStart; b < MidBinEnd; b++) midRaw += spectrum[b];
-        midRaw /= MidBinEnd - MidBinStart;
+        buildupLevel = Mathf.Lerp(
+                buildupLevel,
+                volumeEnvelope,
+                1f - Mathf.Exp(-(volumeEnvelope > buildupLevel ? 1.8f : 0.55f) * dt));
 
-        float hiRaw                                       = 0f;
-        for (int b = HiBinStart; b < HiBinEnd; b++) hiRaw += spectrum[b];
-        hiRaw /= HiBinEnd - HiBinStart;
-
-        float dtFast = 1f - Mathf.Exp(-22f  * Time.deltaTime);
-        float dtMed  = 1f - Mathf.Exp(-8f   * Time.deltaTime);
-        float dtSlow = 1f - Mathf.Exp(-2.5f * Time.deltaTime);
-
-        bassSmoothedFast = Mathf.Lerp(bassSmoothedFast, bassRaw, dtFast);
-        bassSmoothedSlow = Mathf.Lerp(bassSmoothedSlow, bassRaw, dtSlow);
-        midSmoothed      = Mathf.Lerp(midSmoothed,      midRaw,  dtMed);
-        hiSmoothed       = Mathf.Lerp(hiSmoothed,       hiRaw,   dtMed);
-
-        bassNorm         = Mathf.Clamp01(bassSmoothedFast * 18f);
-        globalBassImpact = Mathf.Lerp(globalBassImpact, bassNorm, dtFast);
-
-        float totalEnergy = bassSmoothedFast + midSmoothed * 0.5f;
-        buildupRaw   += totalEnergy  * Time.deltaTime * 3f;
-        buildupRaw   -= BuildupDecay * Time.deltaTime;
-        buildupRaw   =  Mathf.Max(0f, buildupRaw);
-        buildupLevel =  Mathf.Clamp01(buildupRaw / 4f);
-
-        beatCooldownTimer -= Time.deltaTime;
-        bool isBeat = bassSmoothedFast  > bassSmoothedSlow * BeatThreshold
-                   && bassSmoothedFast  > 0.0015f
-                   && beatCooldownTimer <= 0f;
-
-        if (isBeat)
-        {
-            beatCooldownTimer = BeatCooldown;
-            OnBeat(bassNorm);
-        }
-
-        tiltX      = Mathf.Lerp(tiltX, targetTiltX, Time.deltaTime * TiltLerpSpeed);
-        tiltZ      = Mathf.Lerp(tiltZ, targetTiltZ, Time.deltaTime * TiltLerpSpeed);
-        shapeBlend = Mathf.Clamp01(shapeBlend + Time.deltaTime * ShapeLerpSpeed);
-
-        globalAngle += Time.deltaTime * (0.25f + globalSpinSpeed + midSmoothed * 0.6f + globalBassImpact * 0.35f);
-
-        targetTiltX += Mathf.Sin(Time.time * 0.25f) * 0.002f;
-        targetTiltZ += Mathf.Cos(Time.time * 0.2f)  * 0.002f;
-        targetTiltX =  Mathf.Clamp(targetTiltX, -1.2f, 1.2f);
-        targetTiltZ =  Mathf.Clamp(targetTiltZ, -1.2f, 1.2f);
-
-        if (rippleActive)
-        {
-            ripplePhase += Time.deltaTime * rippleSpeed;
-            for (int i = 0; i < OrbCount; i++)
-            {
-                float orbAngle  = i / (float)OrbCount * Mathf.PI * 2f;
-                float waveInput = orbAngle - ripplePhase;
-                rippleWave[i] = Mathf.Max(0f,
-                        Mathf.Sin(waveInput) * Mathf.Exp(-Mathf.Abs(Mathf.Sin(waveInput * 0.5f)) * 1.5f));
-            }
-
-            if (ripplePhase > Mathf.PI * 6f) rippleActive = false;
-        }
-        else
-        {
-            for (int i = 0; i < OrbCount; i++)
-                rippleWave[i] = Mathf.Lerp(rippleWave[i], 0f, Time.deltaTime * 5f);
-        }
-
-        fogSnapTimer -= Time.deltaTime;
-        float fogLerpSpeed = fogSnapTimer > 0f ? 18f : 4f;
-        currentFogColor = Color.Lerp(currentFogColor, targetFogColor, Time.deltaTime * fogLerpSpeed);
-        ApplyFog(currentFogColor);
-
-        UpdateTornado();
-        UpdateOrbs();
-    }
-
-    private void UpdateOrbs()
-    {
-        int bandsPerOrb = Mathf.Max(1, SampleSize / OrbCount);
-
-        for (int i = 0; i < OrbCount; i++)
-        {
-            float sum = 0f;
-            for (int j = 0; j < bandsPerOrb; j++)
-            {
-                int idx                        = i * bandsPerOrb + j;
-                if (idx < spectrum.Length) sum += spectrum[idx];
-            }
-
-            smoothedAmplitudes[i] = Mathf.Lerp(
-                    smoothedAmplitudes[i], sum / bandsPerOrb,
-                    1f - Mathf.Exp(-10f * Time.deltaTime)
-            );
-
-            float amp  = smoothedAmplitudes[i];
-            float ampN = Mathf.Clamp01(amp * 20f);
-
-            GetShapePos(i, currentShape, amp, out float rFrom, out float yFrom, out float aoFrom);
-            GetShapePos(i, nextShape,    amp, out float rTo,   out float yTo,   out float aoTo);
-
-            float r           = Mathf.Lerp(rFrom,  rTo,  shapeBlend);
-            float y           = Mathf.Lerp(yFrom,  yTo,  shapeBlend);
-            float angleOffset = Mathf.Lerp(aoFrom, aoTo, shapeBlend);
-
-            r += rippleWave[i] * (0.3f + bassNorm * 0.5f);
-
-            float baseAngle = i / (float)OrbCount * Mathf.PI * 2f + globalAngle + angleOffset;
-
-            float x       = Mathf.Cos(baseAngle) * r;
-            float yCircle = Mathf.Sin(baseAngle) * r;
-            float tiltedY = yCircle + x * Mathf.Sin(tiltX) + y * Mathf.Sin(tiltZ);
-
-            float vertWobble = Mathf.Sin(Time.time * 0.85f + orbVerticalPhase[i]) *
-                               (0.04f + amp * 0.25f + bassNorm * 0.08f);
-
-            Vector3 pos = anchorPosition + new Vector3(x, tiltedY + vertWobble, y);
-            orbs[i].transform.position = pos;
-
-            float scale = 0.06f + ampN * 0.06f + globalBassImpact * 0.07f + rippleWave[i] * 0.05f;
-            orbs[i].transform.localScale = Vector3.one * Mathf.Clamp(scale, 0.04f, 0.2f);
-
-            Color orbCol     = GetOrbColor(i);
-            float brighten   = Mathf.Clamp01(globalBassImpact * 0.55f + ampN * 0.25f);
-            Color displayCol = Color.Lerp(orbCol, Color.Lerp(orbCol, Color.white, 0.45f), brighten);
-            orbMats[i].color = displayCol;
-            if (orbMats[i].HasProperty("_EmissionColor"))
-                orbMats[i].SetColor("_EmissionColor", displayCol * (2.5f + brighten * 3f));
-
-            Color    trailCol = Color.Lerp(orbCol, Color.Lerp(orbCol, Color.white, 0.3f), brighten * 0.5f);
-            Gradient tg       = new();
-            tg.SetKeys(
-                    new GradientColorKey[]
-                    {
-                            new(trailCol, 0f), new(Color.Lerp(trailCol, Color.white, 0.25f), 0.1f), new(trailCol, 1f),
-                    },
-                    new GradientAlphaKey[] { new(1f, 0f), new(0.5f, 0.4f), new(0f, 1f), }
-            );
-
-            trails[i].colorGradient = tg;
-            trails[i].time          = Mathf.Lerp(0.18f,  0.65f,  ampN + globalBassImpact * 0.35f);
-            trails[i].startWidth    = Mathf.Lerp(0.015f, 0.065f, ampN + globalBassImpact * 0.3f);
-
-            float particleDrive = Mathf.Max(
-                    Mathf.Pow(Mathf.Max(buildupLevel - 0.3f, 0f) / 0.7f, 1.5f),
-                    Mathf.Clamp01((globalBassImpact - 0.5f) * 2f) * ampN
-            );
-
-            ParticleSystem.EmissionModule emission = orbParticles[i].emission;
-            if (particleDrive > 0.02f)
-            {
-                emission.rateOverTime = Mathf.Lerp(0f, 35f, particleDrive);
-                if (!orbParticles[i].isPlaying) orbParticles[i].Play();
-            }
-            else
-            {
-                emission.rateOverTime = 0f;
-            }
-
-            ParticleSystem.MainModule psMain = orbParticles[i].main;
-            psMain.startSize = new ParticleSystem.MinMaxCurve(0.005f, 0.015f + particleDrive * 0.018f);
-        }
-    }
-
-    private void UpdateTornado()
-    {
-        float targetAlpha = Mathf.Pow(buildupLevel, 1.8f);
-        tornadoAlpha = Mathf.Lerp(tornadoAlpha, targetAlpha, Time.deltaTime * 2.5f);
-
-        tornadoRoot.transform.position = anchorPosition;
-        tornadoRoot.transform.Rotate(Vector3.up, Time.deltaTime * (60f + buildupLevel * 120f + bassNorm * 80f));
-
-        ParticleSystem.EmissionModule emission = tornadoSystem.emission;
-        emission.rateOverTime = Mathf.Lerp(0f, TornadoCount * 0.8f, tornadoAlpha);
-
-        switch (tornadoAlpha)
-        {
-            case > 0.02f when !tornadoSystem.isPlaying:
-                tornadoSystem.Play();
-
-                break;
-
-            case <= 0.02f when tornadoSystem.isPlaying:
-                tornadoSystem.Stop();
-
-                break;
-        }
-
-        Color dominantColor = buildupLevel > 0.5f ? Palette[4] : Palette[0];
-        Color tornadoStart  = Color.Lerp(dominantColor, Color.white, tornadoAlpha * 0.3f);
-        tornadoStart.a = tornadoAlpha;
-
-        ParticleSystem.MainModule main = tornadoSystem.main;
-        main.startColor = new ParticleSystem.MinMaxGradient(tornadoStart, Palette[3]);
-
-        ParticleSystem.ShapeModule shape = tornadoSystem.shape;
-        shape.radius = BaseRadius * (0.7f + buildupLevel * 0.4f + bassNorm * 0.2f);
-
-        ParticleSystem.ColorOverLifetimeModule colorOverLife = tornadoSystem.colorOverLifetime;
-        Gradient                               cg            = new();
-        cg.SetKeys(
-                new GradientColorKey[]
-                {
-                        new(Color.Lerp(dominantColor, Color.white, 0.3f), 0f), new(dominantColor, 0.5f),
-                        new(dominantColor, 1f),
-                },
-                new GradientAlphaKey[]
-                        { new(0f, 0f), new(tornadoAlpha * 0.8f, 0.25f), new(tornadoAlpha * 0.6f, 0.75f), new(0f, 1f), }
-        );
-
-        colorOverLife.color = new ParticleSystem.MinMaxGradient(cg);
-    }
-
-    private void OnBeat(float bass)
-    {
-        bool changeShape = rng.NextDouble() < 0.42f || buildupLevel > 0.75f;
-        if (changeShape)
-        {
-            currentShape = nextShape;
-            shapeBlend   = 0f;
-
-            double sr = rng.NextDouble();
-            int candidate = sr   < 0.30 ? 0
-                            : sr < 0.44 ? 1
-                            : sr < 0.54 ? 2
-                            : sr < 0.62 ? 3
-                            : sr < 0.70 ? 4
-                            : sr < 0.77 ? 5
-                            : sr < 0.83 ? 6
-                            : sr < 0.88 ? 7
-                            : sr < 0.93 ? 8
-                                          : 9;
-
-            nextShape = candidate == currentShape ? (candidate + 1) % TotalShapes : candidate;
-        }
-
-        bool changeTilt = rng.NextDouble() < 0.60f;
-        if (changeTilt)
-        {
-            double tr = rng.NextDouble();
-            switch (tr)
-            {
-                case < 0.32:
-                    targetTiltX = 0f;
-                    targetTiltZ = 0f;
-
-                    break;
-
-                case < 0.50:
-                    targetTiltX = (float)(rng.NextDouble() * 0.75 - 0.375);
-                    targetTiltZ = 0f;
-
-                    break;
-
-                case < 0.68:
-                    targetTiltX = 0f;
-                    targetTiltZ = (float)(rng.NextDouble() * 0.75 - 0.375);
-
-                    break;
-
-                case < 0.82:
-                    targetTiltX = (float)(rng.NextDouble() * 0.5 - 0.25);
-                    targetTiltZ = (float)(rng.NextDouble() * 0.5 - 0.25);
-
-                    break;
-
-                default:
-                    targetTiltX = (float)(rng.NextDouble() > 0.5
-                                                  ? 1.45  + rng.NextDouble() * 0.2
-                                                  : -1.45 - rng.NextDouble() * 0.2);
-
-                    targetTiltZ = 0f;
-
-                    break;
-            }
-        }
-
-        if (bass > 0.45f && !rippleActive && (currentShape == 0 || currentShape == 1))
-        {
-            rippleActive = true;
-            ripplePhase  = 0f;
-            rippleSpeed  = 3f + bass * 5f;
-        }
-
-        int   fogIdx        = (int)(rng.NextDouble() * Palette.Length);
-        Color fogBase       = Palette[fogIdx];
-        float fogBrightness = 0.12f + bass * 0.12f;
-        targetFogColor = new Color(
+        float fogColorMix = Mathf.Clamp01(
+                currentBandEnvelope.z * 0.65f +
+                currentBandEnvelope.w * 0.35f);
+        Color fogBase = Color.Lerp(Palette[0], Palette[3], fogColorMix);
+        float fogBrightness = 0.035f + volumeEnvelope * 0.105f + impactPulse * 0.05f;
+        Color targetFogColor = new(
                 fogBase.r * fogBrightness,
                 fogBase.g * fogBrightness,
                 fogBase.b * fogBrightness,
-                0.6f + bass * 0.35f
-        );
+                0.55f + volumeEnvelope * 0.3f);
 
-        fogSnapTimer = 0.08f;
+        currentFogColor = Color.Lerp(currentFogColor, targetFogColor, 1f - Mathf.Exp(-7f * dt));
+        ApplyFog(currentFogColor);
+
+        PlaceOrbs(true, dt);
+        impactPulse *= Mathf.Exp(-dt / 0.18f);
     }
 
-    private void GetShapePos(int i, int shape, float amp, out float r, out float y, out float angleOffset)
+    private void UpdateRingRotation(float dt)
     {
-        float       t   = i / (float)OrbCount;
-        const float PI2 = Mathf.PI * 2f;
-        angleOffset = 0f;
+        const float tumbleSpeed = 18f;
+        tumbleAngle = Mathf.Repeat(tumbleAngle + tumbleSpeed * dt, 360f);
+        ringRotation = Quaternion.AngleAxis(tumbleAngle, TumbleAxis) * BaseRingRotation;
+    }
 
-        switch (shape % TotalShapes)
+    private void AnalyzeAudio(float dt)
+    {
+        VoiceManager.Get().GetMixedOutput(samples);
+
+        float squareSum = 0f;
+        float peak      = 0f;
+        for (int i = 0; i < SampleSize; i++)
         {
-            case 0:
-                r = BaseRadius + amp * 0.4f;
-                y = Mathf.Sin(t * PI2 + Time.time * 0.4f) * (0.07f + amp * 0.3f + bassNorm * 0.12f);
+            float sample = samples[i];
+            squareSum += sample * sample;
+            peak = Mathf.Max(peak, Mathf.Abs(sample));
+            fftReal[i]      = sample * hannWindow[i];
+            fftImaginary[i] = 0f;
+        }
 
-                break;
+        float rms = Mathf.Sqrt(squareSum / SampleSize);
+        PerformFft();
 
-            case 1:
-                float wt = t * PI2;
-                r = BaseRadius * (0.88f + 0.14f * Mathf.Sin(wt * 4f + Time.time * 1.3f)) + amp * 0.4f;
-                y = Mathf.Sin(t * PI2 * 3f + Time.time * 0.75f) * (0.55f + bassNorm * 0.25f) + amp * 0.2f;
+        int sampleRate = Mathf.Max(AudioSettings.outputSampleRate, 8000);
+        Vector4 rawBands = new(
+                GetBandEnergy(45f,   250f,   sampleRate),
+                GetBandEnergy(250f,  700f,   sampleRate),
+                GetBandEnergy(700f,  2500f,  sampleRate),
+                GetBandEnergy(2500f, 12000f, sampleRate));
 
-                break;
+        float autoGainTarget = Mathf.Max(rms, 0.004f);
+        float autoGainRate   = autoGainTarget > autoGainLevel ? 0.45f : 0.1f;
+        autoGainLevel = Mathf.Lerp(autoGainLevel, autoGainTarget, 1f - Mathf.Exp(-autoGainRate * dt));
 
-            case 2:
-                float spiralR = BaseRadius * (0.4f + t * 0.7f);
-                r = spiralR         + amp                     * 0.35f;
-                y = t * 2.2f - 1.1f + Mathf.Sin(t * PI2 * 2f) * 0.14f + amp * 0.4f;
+        float gainCorrection = Mathf.Clamp(0.075f / Mathf.Max(autoGainLevel, 0.004f), 0.5f, 4f);
+        float loudnessGate   = Mathf.InverseLerp(0.0025f, 0.025f, rms);
 
-                break;
+        Vector4 bandTargets = new(
+                Mathf.Clamp01(rawBands.x * gainCorrection / 0.05f) * loudnessGate,
+                Mathf.Clamp01(rawBands.y * gainCorrection / 0.014f) * loudnessGate,
+                Mathf.Clamp01(rawBands.z * gainCorrection / 0.0075f) * loudnessGate,
+                Mathf.Clamp01(rawBands.w * gainCorrection / 0.0025f) * loudnessGate);
 
-            case 3:
-                float ft = t * PI2;
-                r = BaseRadius * (1f + 0.3f * Mathf.Cos(ft * 3f)) + amp * 0.4f;
-                y = Mathf.Sin(ft * 3f + Time.time * 0.5f) * (0.65f + amp * 0.35f);
+        float bassTarget      = bandTargets.x;
+        float bassFlux        = Mathf.Max(0f, bassTarget - previousBassTarget);
+        float bassAboveFloor  = Mathf.Max(0f, bassTarget - bassSlowEnvelope);
+        float bassPunchTarget = Mathf.Clamp01(bassFlux * 2.5f + bassAboveFloor * 1.4f);
+        bassTransient = SmoothEnvelope(bassTransient, bassPunchTarget, dt, 70f, 9f);
+        bassSlowEnvelope = SmoothEnvelope(bassSlowEnvelope, bassTarget, dt, 3f, 3f);
+        previousBassTarget = bassTarget;
 
-                break;
+        currentBandEnvelope.x = SmoothEnvelope(currentBandEnvelope.x, bandTargets.x, dt, 52f, 11f);
+        currentBandEnvelope.y = SmoothEnvelope(currentBandEnvelope.y, bandTargets.y, dt, 48f, 10f);
+        currentBandEnvelope.z = SmoothEnvelope(currentBandEnvelope.z, bandTargets.z, dt, 42f, 11f);
+        currentBandEnvelope.w = SmoothEnvelope(currentBandEnvelope.w, bandTargets.w, dt, 38f, 12f);
 
-            case 4:
-                float lt2 = t * PI2;
-                r           = BaseRadius * (0.6f + 0.4f * Mathf.Abs(Mathf.Cos(lt2 * 1.5f))) + amp * 0.35f;
-                y           = Mathf.Sin(lt2 * 2f + Time.time * 0.4f) * (0.9f + amp * 0.35f);
-                angleOffset = Mathf.Sin(t * PI2 * 2f)                * 0.12f;
+        float peakTarget = Mathf.Clamp01(peak * gainCorrection / 0.42f) * loudnessGate;
+        currentPeakEnvelope = SmoothEnvelope(currentPeakEnvelope, peakTarget, dt, 60f, 14f);
 
-                break;
+        float normalizedVolume = Mathf.Clamp01(rms * gainCorrection / 0.16f);
+        float rawVolume        = Mathf.InverseLerp(0.008f, 0.3f, rms);
+        float volumeTarget = Mathf.Clamp01(normalizedVolume * 0.65f + rawVolume * 0.35f) * loudnessGate;
+        volumeEnvelope = SmoothEnvelope(volumeEnvelope, volumeTarget, dt, 32f, 7f);
+        volumeFast     = SmoothEnvelope(volumeFast, volumeTarget, dt, 46f, 16f);
+        volumeSlow     = SmoothEnvelope(volumeSlow, volumeTarget, dt, 2.8f, 2.8f);
 
-            case 5:
-                float ct = t          * PI2;
-                float cR = BaseRadius * (0.8f + 0.22f * Mathf.Sin(Time.time * 0.65f));
-                r = cR + amp * 0.5f;
-                y = Mathf.Cos(ct) * (1.4f + amp * 0.5f + bassNorm * 0.3f);
+        beatCooldownTimer -= dt;
+        float volumeOnset = Mathf.Max(0f, volumeFast - volumeSlow * 1.04f);
+        float bassOnset   = bassTransient * 0.28f;
+        float onset       = Mathf.Max(volumeOnset, bassOnset);
+        if (beatCooldownTimer <= 0f && volumeFast > 0.16f && onset > 0.045f)
+        {
+            beatCooldownTimer = 0.16f;
+            float strength = Mathf.Clamp01(
+                    onset * 4.2f +
+                    currentPeakEnvelope * 0.18f +
+                    currentBandEnvelope.x * 0.18f);
+            impactPulse = Mathf.Max(impactPulse, strength);
+        }
+    }
 
-                break;
+    private void PerformFft()
+    {
+        int j = 0;
+        for (int i = 1; i < SampleSize; i++)
+        {
+            int bit = SampleSize >> 1;
+            while ((j & bit) != 0)
+            {
+                j ^= bit;
+                bit >>= 1;
+            }
 
-            case 6:
-                float ht = t          * PI2;
-                float hR = BaseRadius * (1f + 0.35f * Mathf.Cos(ht * 2f + Time.time * 0.55f));
-                r = hR + amp                              * 0.4f;
-                y = Mathf.Sin(ht * 4f + Time.time * 0.7f) * (0.8f + amp * 0.4f) + Mathf.Cos(ht * 2f) * 0.4f;
+            j ^= bit;
+            if (i >= j)
+                continue;
 
-                break;
+            (fftReal[i], fftReal[j])           = (fftReal[j], fftReal[i]);
+            (fftImaginary[i], fftImaginary[j]) = (fftImaginary[j], fftImaginary[i]);
+        }
 
-            case 7:
-                float st = t * PI2 * 2.5f;
-                r           = BaseRadius * (0.55f + 0.5f * Mathf.Abs(Mathf.Sin(st * 0.5f))) + amp * 0.4f;
-                y           = t * 2.5f - 1.25f + Mathf.Sin(st) * 0.5f + amp * 0.35f;
-                angleOffset = Mathf.Cos(t * PI2 * 3f) * 0.18f;
+        for (int length = 2; length <= SampleSize; length <<= 1)
+        {
+            float angleStep = -2f * Mathf.PI / length;
+            int halfLength  = length >> 1;
 
-                break;
+            for (int start = 0; start < SampleSize; start += length)
+            {
+                for (int offset = 0; offset < halfLength; offset++)
+                {
+                    float angle = angleStep * offset;
+                    float wr    = Mathf.Cos(angle);
+                    float wi    = Mathf.Sin(angle);
+                    int even    = start + offset;
+                    int odd     = even + halfLength;
 
-            case 8:
-                float et = t * PI2;
-                r = BaseRadius * (0.75f + 0.3f * Mathf.Cos(et * 5f)) + amp * 0.4f;
-                y = Mathf.Sin(et * 5f + Time.time * 0.9f) * (0.7f + amp * 0.4f) +
-                    Mathf.Cos(et * 2f + Time.time * 0.3f) * 0.45f;
+                    float oddReal = fftReal[odd] * wr - fftImaginary[odd] * wi;
+                    float oddImag = fftReal[odd] * wi + fftImaginary[odd] * wr;
+                    float evenReal = fftReal[even];
+                    float evenImag = fftImaginary[even];
 
-                break;
+                    fftReal[even]      = evenReal + oddReal;
+                    fftImaginary[even] = evenImag + oddImag;
+                    fftReal[odd]       = evenReal - oddReal;
+                    fftImaginary[odd]  = evenImag - oddImag;
+                }
+            }
+        }
+    }
 
-            default:
-                float vt = t          * PI2;
-                float vr = BaseRadius * (0.9f + 0.2f * Mathf.Sin(vt * 3f + Time.time * 0.8f));
-                r = vr + amp           * 0.45f;
-                y = Mathf.Sin(vt * 2f) * Mathf.Cos(vt) * 2f * (0.6f + bassNorm * 0.25f) + amp * 0.3f;
+    private float GetBandEnergy(float lowFrequency, float highFrequency, int sampleRate)
+    {
+        int firstBin = Mathf.Clamp(
+                Mathf.CeilToInt(lowFrequency * SampleSize / sampleRate),
+                1,
+                SampleSize / 2);
+        int lastBin = Mathf.Clamp(
+                Mathf.FloorToInt(highFrequency * SampleSize / sampleRate),
+                firstBin,
+                SampleSize / 2);
 
-                break;
+        float power = 0f;
+        int count   = 0;
+        const float magnitudeScale = 2f / SampleSize;
+        for (int i = firstBin; i <= lastBin; i++)
+        {
+            float real      = fftReal[i];
+            float imaginary = fftImaginary[i];
+            float magnitude = Mathf.Sqrt(real * real + imaginary * imaginary) * magnitudeScale;
+            power += magnitude * magnitude;
+            count++;
+        }
+
+        return count == 0 ? 0f : Mathf.Sqrt(power / count);
+    }
+
+    private static float SmoothEnvelope(
+            float current,
+            float target,
+            float dt,
+            float attackSpeed,
+            float releaseSpeed)
+    {
+        float speed = target > current ? attackSpeed : releaseSpeed;
+        return Mathf.Lerp(current, target, 1f - Mathf.Exp(-speed * dt));
+    }
+
+    private void AdvanceAudioHistory(float dt)
+    {
+        historyAccumulator += dt;
+        int safety = 0;
+        while (historyAccumulator >= HistoryStep && safety++ < 16)
+        {
+            historyAccumulator -= HistoryStep;
+            float alpha = Mathf.Clamp01(1f - historyAccumulator / Mathf.Max(dt, 0.0001f));
+
+            Vector4 bands = Vector4.Lerp(previousBandEnvelope, currentBandEnvelope, alpha);
+            float peak    = Mathf.Lerp(previousPeakEnvelope, currentPeakEnvelope, alpha);
+            float bassPunch = Mathf.Lerp(previousBassTransient, bassTransient, alpha);
+
+            for (int i = OrbCount - 1; i > 0; i--)
+            {
+                bandHistory[i]          = bandHistory[i - 1];
+                peakHistory[i]          = peakHistory[i - 1];
+                bassTransientHistory[i] = bassTransientHistory[i - 1];
+            }
+
+            bandHistory[0]          = bands;
+            peakHistory[0]          = peak;
+            bassTransientHistory[0] = bassPunch;
+        }
+
+        previousBandEnvelope = currentBandEnvelope;
+        previousPeakEnvelope = currentPeakEnvelope;
+        previousBassTransient = bassTransient;
+    }
+
+    private void PlaceOrbs(bool emitTrails, float dt)
+    {
+        float meanTransient = 0f;
+
+        for (int i = 0; i < OrbCount; i++)
+        {
+            Vector4 bands = bandHistory[i];
+            float weightedDrive =
+                    bands.x * 0.52f +
+                    bands.y * 0.27f +
+                    bands.z * 0.15f +
+                    bands.w * 0.06f;
+            float drive = Mathf.Max(weightedDrive, bands.x * 0.9f);
+            drive = Mathf.Clamp01(drive * 0.84f + peakHistory[i] * 0.16f);
+            displacementTargets[i] = Mathf.Pow(drive, 0.78f);
+            meanTransient += bassTransientHistory[i];
+        }
+
+        float meanDrive    = 0f;
+        float minimumDrive = float.MaxValue;
+        float maximumDrive = float.MinValue;
+        for (int i = 0; i < OrbCount; i++)
+        {
+            int previous = Mathf.Max(i - 1, 0);
+            int next     = Mathf.Min(i + 1, OrbCount - 1);
+            float filteredDrive =
+                    displacementTargets[previous] * 0.2f +
+                    displacementTargets[i]        * 0.6f +
+                    displacementTargets[next]     * 0.2f;
+            filteredDisplacementTargets[i] = filteredDrive;
+            meanDrive += filteredDrive;
+            minimumDrive = Mathf.Min(minimumDrive, filteredDrive);
+            maximumDrive = Mathf.Max(maximumDrive, filteredDrive);
+        }
+
+        meanDrive /= OrbCount;
+        meanTransient /= OrbCount;
+
+        float historyRange = maximumDrive - minimumDrive;
+        float activity = Mathf.Clamp01(Mathf.Max(
+                volumeEnvelope,
+                currentBandEnvelope.x * 0.85f));
+        float desiredRange = Mathf.Lerp(0.06f, 0.32f, Mathf.Pow(activity, 0.8f));
+        float rawContrast = Mathf.Clamp(
+                desiredRange / Mathf.Max(historyRange, 0.05f),
+                1f,
+                2.8f);
+        float contrastGate =
+                Mathf.InverseLerp(0.035f, 0.1f, historyRange) *
+                Mathf.InverseLerp(0.05f, 0.3f, activity);
+        float targetContrast = Mathf.Lerp(1f, rawContrast, contrastGate);
+        if (emitTrails)
+            shapeContrast = SmoothEnvelope(shapeContrast, targetContrast, dt, 4f, 2.5f);
+        else
+            shapeContrast = targetContrast;
+
+        float bassShape    = Mathf.Pow(Mathf.Clamp01(currentBandEnvelope.x), 0.75f);
+        float lowMidShape  = currentBandEnvelope.y;
+        float highMidShape = currentBandEnvelope.z;
+
+        for (int i = 0; i < OrbCount; i++)
+        {
+            float angle = i / (float)OrbCount * Mathf.PI * 2f;
+            float centeredHistory = (filteredDisplacementTargets[i] - meanDrive) * shapeContrast;
+            float transientShape = (bassTransientHistory[i] - meanTransient) * 0.2f;
+            float harmonicShape =
+                    Mathf.Sin(angle * 2f)        * 0.09f  * bassShape +
+                    Mathf.Sin(angle * 3f + 0.8f) * 0.045f * lowMidShape +
+                    Mathf.Cos(angle * 4f)        * 0.02f  * highMidShape;
+            float targetDisplacement = Mathf.Clamp(
+                    (centeredHistory + transientShape + harmonicShape) *
+                    (1f + impactPulse * 0.1f),
+                    -0.58f,
+                    0.68f);
+
+            if (emitTrails)
+            {
+                float currentDisplacement = smoothedDisplacements[i];
+                float responseSpeed = targetDisplacement * currentDisplacement < 0f
+                                              ? 12f
+                                              : Mathf.Abs(targetDisplacement) > Mathf.Abs(currentDisplacement)
+                                                      ? 14f
+                                                      : 7f;
+                smoothedDisplacements[i] = Mathf.Lerp(
+                        currentDisplacement,
+                        targetDisplacement,
+                        1f - Mathf.Exp(-responseSpeed * dt));
+            }
+            else
+            {
+                smoothedDisplacements[i] = targetDisplacement;
+            }
+
+            float displacement = smoothedDisplacements[i];
+            float radiusScale = 1f + bassShape * 0.035f + impactPulse * 0.025f;
+
+            Vector3 localPosition = new(
+                    Mathf.Cos(angle) * BaseRadius * radiusScale,
+                    displacement * DisplacementHeight,
+                    Mathf.Sin(angle) * BaseRadius * radiusScale);
+
+            orbs[i].transform.position = anchorPosition + ringRotation * localPosition;
+
+            float peak       = peakHistory[i];
+            float localMotion = Mathf.Abs(displacement);
+            float scaleDrive = Mathf.Clamp01(
+                    meanDrive * 0.38f +
+                    localMotion * 0.8f +
+                    peak * 0.35f +
+                    bassTransientHistory[i] * 0.4f);
+            float scale = BaseOrbScale *
+                          (1f + scaleDrive * 1.75f + impactPulse * 0.28f);
+            orbs[i].transform.localScale = Vector3.one * Mathf.Clamp(scale, BaseOrbScale * 0.72f, 0.23f);
+
+            Color baseColor = GetOrbColor(i);
+            float globalWhite = Mathf.Pow(
+                    Mathf.InverseLerp(0.62f, 0.95f, impactPulse),
+                    0.7f);
+            float localWhite = Mathf.Pow(
+                    Mathf.InverseLerp(0.56f, 0.94f, bassTransientHistory[i]),
+                    0.75f);
+            float peakWhite = Mathf.InverseLerp(0.9f, 1f, peak) * 0.24f;
+            float whiteMix = Mathf.Min(
+                    0.96f,
+                    Mathf.Clamp01(Mathf.Max(globalWhite * 0.9f, localWhite * 0.92f) + peakWhite));
+            Color displayColor = Color.Lerp(baseColor, Color.white, whiteMix);
+            displayColor.a = 1f;
+
+            Color surfaceColor = displayColor * (1f + whiteMix * 0.65f);
+            surfaceColor.a = 1f;
+            SetMaterialColor(orbMaterials[i], surfaceColor);
+            if (orbMaterials[i].HasProperty("_EmissionColor"))
+                orbMaterials[i].SetColor(
+                        "_EmissionColor",
+                        displayColor * (2.5f + scaleDrive * 2.3f + whiteMix * 1.8f));
+
+            Color trailEndColor = baseColor;
+            trailEndColor.a = 0f;
+            float trailDrive = Mathf.Clamp01(Mathf.Max(
+                    scaleDrive,
+                    localMotion * 1.15f + bassTransientHistory[i] * 0.35f));
+            trails[i].startColor = surfaceColor;
+            trails[i].endColor   = trailEndColor;
+            trails[i].time       = Mathf.Lerp(
+                    MinimumTrailTime,
+                    MaximumTrailTime,
+                    Mathf.Pow(trailDrive, 0.75f));
+            trails[i].startWidth = Mathf.Lerp(0.018f, 0.075f, trailDrive);
+
+            if (!emitTrails)
+            {
+                trails[i].Clear();
+                trails[i].emitting = false;
+            }
+            else
+            {
+                trails[i].emitting = true;
+            }
+
+            float particleDrive = Mathf.Pow(Mathf.Clamp01((trailDrive - 0.14f) / 0.86f), 1.35f) *
+                                  Mathf.Lerp(0.45f, 1f, buildupLevel);
+            ParticleSystem.EmissionModule emission = orbParticles[i].emission;
+            emission.rateOverTime = Mathf.Lerp(0f, 58f, particleDrive);
+
+            ParticleSystem.MainModule particleMain = orbParticles[i].main;
+            particleMain.startColor = new ParticleSystem.MinMaxGradient(
+                    Color.Lerp(baseColor, Color.white, whiteMix * 0.7f),
+                    Color.Lerp(baseColor, Color.white, 0.18f + whiteMix * 0.72f));
+            particleMain.startSize = new ParticleSystem.MinMaxCurve(
+                    0.01f,
+                    0.025f + particleDrive * 0.055f);
+
+            if (particleDrive > 0.015f && !orbParticles[i].isPlaying)
+                orbParticles[i].Play();
         }
     }
 
     private static Color GetOrbColor(int i)
     {
-        float t      = i                        / (float)OrbCount;
-        float scaled = t                        * Palette.Length;
-        int   pa     = Mathf.FloorToInt(scaled) % Palette.Length;
-        int   pb     = (pa + 1)                 % Palette.Length;
+        float scaled = i / (float)OrbCount * Palette.Length;
+        int first    = Mathf.FloorToInt(scaled) % Palette.Length;
+        int second   = (first + 1)              % Palette.Length;
 
-        return Color.Lerp(Palette[pa], Palette[pb], scaled % 1f);
+        return Color.Lerp(Palette[first], Palette[second], scaled % 1f);
     }
 
-    private void ApplyFog(Color c) =>
-            ZoneShaderSettings.activeInstance?.SetGroundFogValue(c, 0f, float.MaxValue, 0f);
+    private static void ApplyFog(Color color) =>
+            ZoneShaderSettings.activeInstance?.SetGroundFogValue(color, 0f, float.MaxValue, 0f);
 
     protected override void OnDisable()
     {
         ApplyFog(new Color(0f, 0f, 0f, 0f));
 
-        if (tornadoRoot != null)
-            Object.Destroy(tornadoRoot);
+        if (orbs != null)
+        {
+            foreach (GameObject orb in orbs)
+                if (orb != null)
+                    Object.Destroy(orb);
+        }
 
-        tornadoRoot   = null;
-        tornadoSystem = null;
+        if (orbMaterials != null)
+        {
+            foreach (Material material in orbMaterials)
+                if (material != null)
+                    Object.Destroy(material);
+        }
 
-        if (orbs == null)
-            return;
+        if (trailMaterial != null)
+            Object.Destroy(trailMaterial);
+        if (particleMaterial != null)
+            Object.Destroy(particleMaterial);
 
-        foreach (GameObject t in orbs)
-            if (t != null)
-                Object.Destroy(t);
-
-        orbs         = null;
-        trails       = null;
-        orbRends     = null;
-        orbMats      = null;
-        orbParticles = null;
+        orbs               = null;
+        trails             = null;
+        orbMaterials       = null;
+        orbParticles       = null;
+        trailMaterial      = null;
+        particleMaterial   = null;
+        samples            = null;
+        fftReal            = null;
+        fftImaginary       = null;
+        hannWindow         = null;
+        bandHistory        = null;
+        peakHistory        = null;
+        bassTransientHistory = null;
+        displacementTargets = null;
+        filteredDisplacementTargets = null;
+        smoothedDisplacements = null;
     }
 }

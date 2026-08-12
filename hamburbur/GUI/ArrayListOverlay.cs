@@ -22,23 +22,53 @@ public class ArrayListOverlay : MonoBehaviour
 
     private const    int             MaxColumns   = 3;
     private readonly HashSet<string> enabledNames = new();
+    private readonly float[]         columnRightEdges = new float[MaxColumns];
+    private readonly float[]         columnWidths     = new float[MaxColumns];
 
     private readonly Dictionary<string, ArrayListEntry> entries      = new();
     private readonly List<string>                       removalCache = new();
 
     private readonly List<string> sortedNames = new();
+    private          GUIContent   countContent;
     private          GUIStyle     countStyle;
     private          GUIStyle     modStyle;
 
+    private GUIContent titleContent;
     private GUIStyle titleStyle;
+
+    private int cachedButtonRevision = -1;
+    private int cachedEnabledRevision = -1;
+    private bool cachedEnabledState;
+    private bool entriesDirty = true;
+    private bool headerMeasurementsDirty = true;
+    private int lastScreenHeight;
+    private int lastScreenWidth;
+
+    private float         badgeWidth;
+    private LayoutMetrics cachedLayout;
+    private float         headerWidth;
 
     private float visibility;
     private float visibilityVelocity;
 
     private Texture2D whiteTexture;
 
+    public static ArrayListOverlay Instance { get; private set; }
+
+    public static void Show()
+    {
+        if (Instance == null)
+            return;
+
+        Instance.enabled      = true;
+        Instance.entriesDirty = true;
+        Instance.visibilityVelocity = 0f;
+    }
+
     private void Awake()
     {
+        Instance = this;
+
         whiteTexture = new Texture2D(1, 1)
         {
                 name       = "HamburburArrayListPixel",
@@ -48,6 +78,9 @@ public class ArrayListOverlay : MonoBehaviour
 
         whiteTexture.SetPixel(0, 0, Color.white);
         whiteTexture.Apply();
+
+        titleContent = new GUIContent("hamburbur");
+        countContent = new GUIContent("0 ACTIVE");
 
         titleStyle = new GUIStyle
         {
@@ -72,31 +105,50 @@ public class ArrayListOverlay : MonoBehaviour
                 alignment = TextAnchor.MiddleLeft,
                 clipping  = TextClipping.Clip,
         };
+
+        enabled = ArrayListSetting.IsEnabled;
     }
 
     private void Update()
     {
-        bool enabled = ArrayListSetting.IsEnabled;
+        bool arrayListEnabled = ArrayListSetting.IsEnabled;
 
         visibility = Mathf.SmoothDamp(
                 visibility,
-                enabled ? 1f : 0f,
+                arrayListEnabled ? 1f : 0f,
                 ref visibilityVelocity,
                 VisibilityAnimationSpeed,
                 Mathf.Infinity,
                 Time.unscaledDeltaTime);
 
-        UpdateEntries(enabled);
+        bool needsEntryRefresh = arrayListEnabled != cachedEnabledState ||
+                                 hamburburmod.EnabledStateRevision != cachedEnabledRevision ||
+                                 ButtonHandler.UpdateRevision != cachedButtonRevision;
 
-        if (!enabled && visibility < 0.005f)
+        if (needsEntryRefresh)
+        {
+            UpdateEntries(arrayListEnabled);
+            cachedEnabledState   = arrayListEnabled;
+            cachedEnabledRevision = hamburburmod.EnabledStateRevision;
+            cachedButtonRevision = ButtonHandler.UpdateRevision;
+        }
+
+        if (!arrayListEnabled && visibility < 0.005f)
         {
             entries.Clear();
             sortedNames.Clear();
+            enabledNames.Clear();
+            entriesDirty = true;
+            visibilityVelocity = 0f;
+            this.enabled = false;
         }
     }
 
     private void OnDestroy()
     {
+        if (Instance == this)
+            Instance = null;
+
         if (whiteTexture != null)
             Destroy(whiteTexture);
     }
@@ -114,46 +166,85 @@ public class ArrayListOverlay : MonoBehaviour
 
     private void UpdateEntries(bool arrayListEnabled)
     {
+        bool membershipChanged = false;
         enabledNames.Clear();
 
         if (arrayListEnabled)
         {
-            ValueTuple<Type, hamburburmod>[] enabledMods = Buttons.GetEnabledMods();
-
-            foreach ((Type _, hamburburmod mod) in enabledMods)
+            foreach (KeyValuePair<string, ValueTuple<Type, hamburburmod>[]> category in Buttons.Categories)
             {
-                if (mod == null)
-                    continue;
-
-                enabledNames.Add(mod.ModName);
-
-                if (entries.TryGetValue(mod.ModName, out ArrayListEntry existingEntry))
+                foreach ((Type _, hamburburmod mod) in category.Value)
                 {
-                    existingEntry.Active = true;
+                    if (mod == null ||
+                        !mod.Enabled ||
+                        mod.AssociatedAttribute.ButtonType != ButtonType.Togglable)
+                        continue;
 
-                    continue;
+                    string name = mod.ModName;
+                    enabledNames.Add(name);
+
+                    if (entries.TryGetValue(name, out ArrayListEntry existingEntry))
+                    {
+                        if (!existingEntry.Active)
+                            membershipChanged = true;
+
+                        existingEntry.Active = true;
+
+                        continue;
+                    }
+
+                    entries.Add(name, new ArrayListEntry
+                    {
+                            Active  = true,
+                            Content = new GUIContent(name),
+                    });
+                    membershipChanged = true;
                 }
-
-                entries.Add(mod.ModName, new ArrayListEntry
-                {
-                        Active = true,
-                });
             }
         }
 
         foreach (KeyValuePair<string, ArrayListEntry> pair in entries)
-            if (!enabledNames.Contains(pair.Key))
+            if (pair.Value.Active && !enabledNames.Contains(pair.Key))
+            {
                 pair.Value.Active = false;
+                membershipChanged = true;
+            }
+
+        if (membershipChanged)
+            entriesDirty = true;
+
+        countContent.text = $"{enabledNames.Count} ACTIVE";
+        headerMeasurementsDirty = true;
     }
 
     private void DrawArrayList()
     {
-        SortEntries();
+        if (headerMeasurementsDirty)
+        {
+            UpdateHeaderMeasurements();
+            headerMeasurementsDirty = false;
+        }
 
-        LayoutMetrics layout = CalculateLayout();
+        bool resolutionChanged = lastScreenWidth  != Screen.width ||
+                                 lastScreenHeight != Screen.height;
+        if (entriesDirty || resolutionChanged)
+        {
+            SortEntries();
+            cachedLayout = CalculateLayout();
+            UpdateEntryTargets(cachedLayout);
+            lastScreenWidth  = Screen.width;
+            lastScreenHeight = Screen.height;
+            entriesDirty     = false;
+        }
+
+        LayoutMetrics layout = cachedLayout;
 
         Color mainColor      = Plugin.Instance.MainColour;
         Color secondaryColor = Plugin.Instance.SecondaryColour;
+
+        modStyle.normal.textColor = WithAlpha(
+                Color.Lerp(mainColor, Color.white, 0.92f),
+                visibility);
 
         float globalOffset = (1f - visibility) * 35f;
 
@@ -161,8 +252,6 @@ public class ArrayListOverlay : MonoBehaviour
                 mainColor,
                 secondaryColor,
                 globalOffset);
-
-        UpdateEntryTargets(layout);
 
         removalCache.Clear();
 
@@ -195,7 +284,6 @@ public class ArrayListOverlay : MonoBehaviour
             }
 
             DrawEntry(
-                    name,
                     entry,
                     layout,
                     mainColor,
@@ -214,9 +302,6 @@ public class ArrayListOverlay : MonoBehaviour
     {
         const float HeaderHeight = 48f;
 
-        string title     = "hamburbur";
-        string countText = $"{enabledNames.Count} ACTIVE";
-
         titleStyle.normal.textColor = WithAlpha(
                 Color.Lerp(mainColor, Color.white, 0.8f),
                 visibility);
@@ -224,18 +309,6 @@ public class ArrayListOverlay : MonoBehaviour
         countStyle.normal.textColor = WithAlpha(
                 Color.Lerp(mainColor, Color.white, 0.9f),
                 visibility);
-
-        Vector2 titleSize = titleStyle.CalcSize(
-                new GUIContent(title));
-
-        Vector2 countSize = countStyle.CalcSize(
-                new GUIContent(countText));
-
-        float badgeWidth = countSize.x + 16f;
-
-        float headerWidth = Mathf.Max(
-                230f,
-                titleSize.x + badgeWidth + 48f);
 
         float right = Screen.width - RightMargin + globalOffset;
 
@@ -284,7 +357,7 @@ public class ArrayListOverlay : MonoBehaviour
 
         UnityEngine.GUI.Label(
                 countRect,
-                countText,
+                countContent,
                 countStyle);
 
         Rect titleRect = new(
@@ -295,7 +368,7 @@ public class ArrayListOverlay : MonoBehaviour
 
         UnityEngine.GUI.Label(
                 titleRect,
-                title,
+                titleContent,
                 titleStyle);
     }
 
@@ -380,30 +453,34 @@ public class ArrayListOverlay : MonoBehaviour
         if (sortedNames.Count == 0)
             return;
 
-        float[] columnWidths = new float[layout.Columns];
+        Array.Clear(columnWidths, 0, columnWidths.Length);
+        Array.Clear(columnRightEdges, 0, columnRightEdges.Length);
 
         for (int i = 0; i < sortedNames.Count; i++)
         {
             string name = sortedNames[i];
+
+            if (!entries.TryGetValue(name, out ArrayListEntry entry))
+                continue;
 
             int column = i / layout.RowsPerColumn;
 
             if (column >= layout.Columns)
                 column = layout.Columns - 1;
 
-            float textWidth = modStyle.CalcSize(
-                    new GUIContent(name)).x;
+            entry.SortIndex = i;
+            entry.TextWidth = modStyle.CalcSize(entry.Content).x;
 
             float width = Mathf.Max(
                     100f * layout.Scale,
-                    textWidth + 34f * layout.Scale);
+                    entry.TextWidth + 34f * layout.Scale);
+
+            entry.Width = width;
 
             columnWidths[column] = Mathf.Max(
                     columnWidths[column],
                     width);
         }
-
-        float[] columnRightEdges = new float[layout.Columns];
 
         columnRightEdges[0] =
                 Screen.width -
@@ -429,19 +506,11 @@ public class ArrayListOverlay : MonoBehaviour
             if (column >= layout.Columns)
                 column = layout.Columns - 1;
 
-            float textWidth = modStyle.CalcSize(
-                    new GUIContent(name)).x;
-
-            float width = Mathf.Max(
-                    100f * layout.Scale,
-                    textWidth + 34f * layout.Scale);
-
-            entry.Width  = width;
             entry.Height = layout.RowHeight;
 
             entry.TargetX =
                     columnRightEdges[column] -
-                    width;
+                    entry.Width;
 
             entry.TargetY =
                     layout.StartY +
@@ -450,7 +519,6 @@ public class ArrayListOverlay : MonoBehaviour
     }
 
     private void DrawEntry(
-            string         name,
             ArrayListEntry entry,
             LayoutMetrics  layout,
             Color          mainColor,
@@ -475,14 +543,9 @@ public class ArrayListOverlay : MonoBehaviour
                 backgroundColor,
                 6f * layout.Scale);
 
-        int alphabeticalIndex = sortedNames.IndexOf(name);
-
-        if (alphabeticalIndex < 0)
-            alphabeticalIndex = 0;
-
         float pulse = Mathf.PingPong(
                 Time.time         * 0.7f +
-                alphabeticalIndex * 0.12f,
+                entry.SortIndex   * 0.12f,
                 1f);
 
         Color accentColor = Color.Lerp(
@@ -511,10 +574,6 @@ public class ArrayListOverlay : MonoBehaviour
                 accentColor,
                 2f);
 
-        modStyle.normal.textColor = WithAlpha(
-                Color.Lerp(mainColor, Color.white, 0.92f),
-                visibility);
-
         Rect textRect = new(
                 rowRect.x + 11f * layout.Scale,
                 rowRect.y,
@@ -523,8 +582,16 @@ public class ArrayListOverlay : MonoBehaviour
 
         UnityEngine.GUI.Label(
                 textRect,
-                name,
+                entry.Content,
                 modStyle);
+    }
+
+    private void UpdateHeaderMeasurements()
+    {
+        badgeWidth = countStyle.CalcSize(countContent).x + 16f;
+        headerWidth = Mathf.Max(
+                230f,
+                titleStyle.CalcSize(titleContent).x + badgeWidth + 48f);
     }
 
     private void SortEntries()
@@ -570,8 +637,11 @@ public class ArrayListOverlay : MonoBehaviour
     private class ArrayListEntry
     {
         public bool  Active;
+        public GUIContent Content;
         public float Height;
         public bool  Initialized;
+        public int   SortIndex;
+        public float TextWidth;
 
         public float TargetX;
         public float TargetY;
