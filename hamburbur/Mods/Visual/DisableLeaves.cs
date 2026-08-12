@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Visual;
 
-[hamburburmod("Disable Leaves", "Disables the Leaves", ButtonType.Togglable, AccessSetting.BetaBuildOnly,
+[hamburburmod("Disable Leaves", "Disables the Leaves", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled,
         0)]
 public class DisableLeaves : hamburburmod
