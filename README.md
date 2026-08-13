@@ -42,6 +42,16 @@ The goal is to provide a clean and minimal mod menu experience without unnecessa
 
 ---
 
+## Hamburbur plugins
+
+Managed hamburbur plugin DLLs can be placed in `<Gorilla Tag>/hamburbur/Plugins`. They are discovered after the menu finishes loading, including when hamburbur is injected after the game has started.
+
+Open **Settings > Plugins** to view discovered plugins. New managed plugins can be enabled, disabled, or reloaded, and each of their mod buttons can be shown or hidden without changing the mod's enabled state. Legacy BepInEx hamburbur plugins are listed as read-only.
+
+The same managed plugin DLL may also keep a BepInEx entry point and be installed normally in `BepInEx/plugins`.
+
+---
+
 ## Disclaimer
 
 This project is not affiliated with Another Axiom or Gorilla Tag.

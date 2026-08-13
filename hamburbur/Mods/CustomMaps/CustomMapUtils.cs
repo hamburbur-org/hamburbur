@@ -9,7 +9,7 @@ public static class CustomMapUtils
     public static void ModifyCustomScript(Dictionary<int, string> replacements)
     {
         string   input = CustomGameMode.LuaScript;
-        string[] lines = input.Split(new[] { "\r\n", "\n", }, StringSplitOptions.None);
+        string[] lines = input.Split(["\r\n", "\n",], StringSplitOptions.None);
 
         foreach (KeyValuePair<int, string> kvp in replacements)
         {

@@ -30,6 +30,7 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
     private AudioClip Wii           { get; set; }
     private AudioClip Minecraft     { get; set; }
     private AudioClip Untitled      { get; set; }
+    private AudioClip Vivid      { get; set; }
     private AudioClip Destiny       { get; set; }
     private AudioClip Watch         { get; set; }
     private AudioClip Creamy        { get; set; }
@@ -83,6 +84,7 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
         Wii           = bundle.LoadAsset<AudioClip>("Wii");
         Minecraft     = bundle.LoadAsset<AudioClip>("Minecraft");
         Untitled      = bundle.LoadAsset<AudioClip>("untitled");
+        Vivid      = bundle.LoadAsset<AudioClip>("vividclick");
         Destiny       = bundle.LoadAsset<AudioClip>("destiny");
         Watch         = bundle.LoadAsset<AudioClip>("watch");
         Creamy        = bundle.LoadAsset<AudioClip>("creamy");
@@ -171,6 +173,7 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
                     nameof(UiEnter)     => UiEnter,
                     nameof(Wii)         => Wii,
                     nameof(Minecraft)   => Minecraft,
+                    nameof(Vivid)    => Vivid,
                     nameof(Untitled)    => Untitled,
                     nameof(Destiny)     => Destiny,
                     nameof(Watch)       => Watch,

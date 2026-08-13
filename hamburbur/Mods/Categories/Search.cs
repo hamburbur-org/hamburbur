@@ -8,7 +8,9 @@ namespace hamburbur.Mods.Categories;
         0)]
 public class Search : hamburburmod
 {
-    protected override void Pressed()
+    protected override void Pressed() => OpenSearch();
+
+    public static void OpenSearch()
     {
         ButtonHandler.Instance.SetCategory(nameof(Search));
         KeyboardManager.Instance.SpawnKeyboard(text => ButtonHandler.Instance.SetCategory(nameof(Main)));
@@ -16,7 +18,7 @@ public class Search : hamburburmod
         KeyboardManager.Instance.OnKeyboardClose += () => ButtonHandler.Instance.SetCategory(nameof(Main));
     }
 
-    private void UpdateButtons(string text)
+    private static void UpdateButtons(string text)
     {
         ButtonHandler.SearchState.Query = text;
         ButtonHandler.Instance.UpdateButtons();

@@ -6,7 +6,7 @@ public static class Constants
     public const string PluginName  = nameof(hamburbur);
     public const string PluginDescription = "Gorilla Tag mod menu made with <3 by ZlothY";
     public const string PluginVersion     = "7.0.0";
-    public const bool   BetaBuild   = false;
+    public const bool   BetaBuild   = true;
 
     public const string HamburburUrl = "https://hamburbur.org";
     public const string WebSocketUri = "wss://api.hamburbur.org/";

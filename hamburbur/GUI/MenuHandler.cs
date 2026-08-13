@@ -25,6 +25,7 @@ public class MenuHandler : Singleton<MenuHandler>
     public        bool       MenuOpen;
 
     public bool IsCanvasMenu;
+    public bool HasDedicatedSearchButton { get; private set; }
 
     public Color currentMainColour, currentSecondaryColour;
 
@@ -202,6 +203,7 @@ public class MenuHandler : Singleton<MenuHandler>
         Transform lastPage     = miscButtons.Find("LastPage");
         Transform nextPage     = miscButtons.Find("NextPage");
         Transform returnButton = miscButtons.Find("Return");
+        Transform searchButton = miscButtons.Find("Search");
 
         if (disconnect == null || lastPage == null || nextPage == null || returnButton == null)
         {
@@ -232,6 +234,10 @@ public class MenuHandler : Singleton<MenuHandler>
         lastPage.AddComponent<ButtonCollider>().OnPress     = LastPage;
         nextPage.AddComponent<ButtonCollider>().OnPress     = NextPage;
         returnButton.AddComponent<ButtonCollider>().OnPress = ReturnToLastCategory;
+
+        HasDedicatedSearchButton = searchButton != null;
+        if (HasDedicatedSearchButton)
+            searchButton.AddComponent<ButtonCollider>().OnPress = Mods.Categories.Search.OpenSearch;
 
         modButtons.gameObject.AddComponent<ButtonHandler>().Initialize();
 
@@ -344,7 +350,8 @@ public class MenuHandler : Singleton<MenuHandler>
             {
                 if (PageIndex < 0)
                     PageIndex = Mathf.CeilToInt(
-                                        (float)Buttons.Categories[Category].Length / ButtonHandler.ButtonsPerPage) - 1;
+                                        (float)Buttons.GetVisibleCategory(Category).Length /
+                                        ButtonHandler.ButtonsPerPage) - 1;
 
                 break;
             }
@@ -389,7 +396,7 @@ public class MenuHandler : Singleton<MenuHandler>
             default:
             {
                 if (PageIndex >= Mathf.CeilToInt(
-                            (float)Buttons.Categories[Category].Length / ButtonHandler.ButtonsPerPage))
+                            (float)Buttons.GetVisibleCategory(Category).Length / ButtonHandler.ButtonsPerPage))
                     PageIndex = 0;
 
                 break;

@@ -6,6 +6,7 @@ using System.Reflection;
 using hamburbur.Components;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Plugins;
 using hamburbur.Mods.Settings;
 using hamburbur.Tools;
 using TMPro;
@@ -187,19 +188,41 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
     public static hamburburmod AddButton(string category, Type mod)
     {
-        List<ValueTuple<Type, hamburburmod>> mods    = Buttons.Categories[category].ToList();
-        object                               modComp = Activator.CreateInstance(mod);
+        object modComp = Activator.CreateInstance(mod);
 
         if (modComp is not hamburburmod hamburburmodComp)
             return null;
 
-        hamburburmodComp.LoadSavedDataWhenStartCalled = true;
-        hamburburmodComp.AssociatedAttribute          = mod.GetCustomAttribute<hamburburmodAttribute>();
+        return AddButton(category, hamburburmodComp, true, mod);
+    }
 
-        mods.Add((mod, hamburburmodComp));
+    public static hamburburmod AddButton(string category, hamburburmod hamburburmodComp, bool register = true,
+                                         Type modType = null, bool loadSavedData = true)
+    {
+        if (hamburburmodComp == null)
+            return null;
+
+        modType ??= hamburburmodComp.GetType();
+
+        if (!Buttons.Categories.ContainsKey(category))
+            Buttons.Categories[category] = [];
+
+        List<ValueTuple<Type, hamburburmod>> mods = Buttons.Categories[category].ToList();
+
+        hamburburmodComp.LoadSavedDataWhenStartCalled = loadSavedData;
+        hamburburmodComp.AssociatedAttribute ??= modType.GetCustomAttribute<hamburburmodAttribute>();
+
+        if (hamburburmodComp.AssociatedAttribute == null)
+        {
+            Debug.LogError($"[hamburbur] {modType.FullName} is missing hamburburmodAttribute");
+            return null;
+        }
+
+        mods.Add((modType, hamburburmodComp));
         Buttons.Categories[category] = mods.ToArray();
 
-        ModRegistry.Register(mod, hamburburmodComp);
+        if (register)
+            ModRegistry.Register(modType, hamburburmodComp);
         hamburburmodComp.InvokeStart();
 
         GUIHandler guiHandler = GUIHandler.Instance;
@@ -529,7 +552,9 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
                 default:
                 {
-                    for (int i = 0; i < Buttons.Categories[category].Length; i++)
+                    (Type, hamburburmod)[] visibleMods = Buttons.GetVisibleCategory(category);
+
+                    for (int i = 0; i < visibleMods.Length; i++)
                     {
                         int page = i / ButtonsPerPage;
 
@@ -541,7 +566,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
                         if (slot >= ModButtons.Length)
                             continue;
 
-                        hamburburmod mod = Buttons.Categories[category][i].Item2;
+                        hamburburmod mod = visibleMods[i].Item2;
 
                         if (mod == null)
                             continue;
@@ -762,10 +787,12 @@ public class ButtonHandler : Singleton<ButtonHandler>
         {
             int index = firstIndex + slot;
 
-            if (index >= Buttons.Categories[nameof(Main)].Length)
+            (Type, hamburburmod)[] visibleMain = Buttons.GetVisibleCategory(nameof(Main));
+
+            if (index >= visibleMain.Length)
                 return;
 
-            if (Buttons.Categories[nameof(Main)][index].Item2 != mod)
+            if (visibleMain[index].Item2 != mod)
                 continue;
 
             ModButtons[slot].NormalTMP.text      = mod.ModName;
@@ -799,7 +826,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
     {
         return Buttons.Categories
                       .SelectMany(x => x.Value)
-                      .Where(x => x.Item2 != null)
+                      .Where(x => x.Item2 != null && PluginManager.IsModVisible(x.Item2))
                       .ToArray();
     }
 

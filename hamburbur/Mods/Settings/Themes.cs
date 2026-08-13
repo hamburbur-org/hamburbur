@@ -400,6 +400,17 @@ public class Themes : hamburburmod
                 -0.29f,
                 false
             ),
+            
+            (
+                "VividV2",
+                "Vivid V2",
+                new Vector3(0f, 0f, 0f),
+                Quaternion.Euler(90f, 0f, 0f),
+                Color.black,
+                new Color(0.2f,    0.2f,  0.2f, 1f),
+                -0.29f,
+                false
+            ),
     ];
 
     public static Themes Instance { get; private set; }
@@ -535,11 +546,9 @@ public class Themes : hamburburmod
 
 [hamburburmod("Theme", "Switch to this menu theme", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.AlwaysDisabled, 0)]
-public sealed class ThemeButton : hamburburmod
+public sealed class ThemeButton(int themeIndex) : hamburburmod
 {
-    public ThemeButton(int themeIndex) => ThemeIndex = themeIndex;
-
-    public int ThemeIndex { get; }
+    public int ThemeIndex { get; } = themeIndex;
 
     public override string ModName => ThemeIndex >= 0 && ThemeIndex < Themes.AllThemes.Count
                                               ? Themes.AllThemes[ThemeIndex].DisplayName

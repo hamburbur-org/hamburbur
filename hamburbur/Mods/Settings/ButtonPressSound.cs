@@ -19,6 +19,7 @@ public class ButtonPressSound : hamburburmod
             "Wii",
             "Minecraft",
             "Untitled",
+            "Vivid",
             "Destiny",
             "Watch",
             "Creamy",

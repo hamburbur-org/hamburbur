@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using hamburbur.Misc;
 using hamburbur.Mod_Backend;
+using hamburbur.Plugins;
 using hamburbur.Mods.Categories;
 using hamburbur.Mods.Console;
 using hamburbur.Mods.Console.Assets;
@@ -11,6 +12,8 @@ using hamburbur.Mods.Credits;
 using hamburbur.Mods.CustomMaps;
 using hamburbur.Mods.CustomMaps.ChimpCombat;
 using hamburbur.Mods.CustomMaps.CrownTag;
+using hamburbur.Mods.CustomMaps.GorillaMystery;
+using hamburbur.Mods.CustomMaps.MecchaGorilla;
 using hamburbur.Mods.Fun;
 using hamburbur.Mods.Macros;
 using hamburbur.Mods.MapLoader;
@@ -70,7 +73,10 @@ public static class Buttons
                     (typeof(GunSettings), null),
                     (typeof(JarvisSettings), null),
                     (typeof(SafetySettings), null),
+                    (typeof(PluginSettings), null),
             ],
+
+            [PluginManager.PluginListCategory] = [],
 
             ["Menu Settings"] =
             [
@@ -400,6 +406,8 @@ public static class Buttons
             [
                     (typeof(CC), null),
                     (typeof(CT), null),
+                    (typeof(GM), null),
+                    (typeof(MGorilla), null),
             ],
 
             ["Chimp Combat"] =
@@ -413,6 +421,100 @@ public static class Buttons
             [
                     (typeof(BecomeTagged), null),
                     (typeof(ChangeMatGun), null),
+            ],
+
+            ["Gorilla Mystery"] =
+            [
+                    (typeof(SpawnKillSkeletons), null),
+                    (typeof(MurderKillGun), null),
+                    (typeof(SheriffKillGun), null),
+                    (typeof(MysteryKillAll), null),
+                    (typeof(KillSheriff), null),
+                    (typeof(KillMurderer), null),
+                    (typeof(KillAllInnocents), null),
+                    (typeof(MurdererEsp), null),
+                    (typeof(SheriffEsp), null),
+                    (typeof(InnocentEsp), null),
+                    (typeof(SpamVoteMap1), null),
+                    (typeof(SpamVoteMap2), null),
+                    (typeof(SpamVoteMap3), null),
+                    (typeof(ToggleMysteryKnife), null),
+                    (typeof(ToggleMysteryPistol), null),
+                    (typeof(MysteryRightHand), null),
+                    (typeof(MysteryLeftHand), null),
+                    (typeof(BecomeMysterySheriff), null),
+                    (typeof(SpawnSheriffPistol), null),
+                    (typeof(MakeMurdererGun), null),
+                    (typeof(MakeSheriffGun), null),
+                    (typeof(BecomeMysteryMurderer), null),
+                    (typeof(StartMysteryMap1), null),
+                    (typeof(StartMysteryMap2), null),
+                    (typeof(StartMysteryMap3), null),
+                    (typeof(ForceMurdererWin), null),
+                    (typeof(ForceInnocentsWin), null),
+                    (typeof(SpamMysteryRounds), null),
+            ],
+
+            ["Meccha Gorilla"] =
+            [
+                    (typeof(MecchaKillGun), null),
+                    (typeof(MecchaKillShotGun), null),
+                    (typeof(MecchaRespawnGun), null),
+                    (typeof(MecchaWhistleGun), null),
+                    (typeof(MecchaSplatterGun), null),
+                    (typeof(MecchaExplosionGun), null),
+                    (typeof(MecchaKillAll), null),
+                    (typeof(MecchaKillHiders), null),
+                    (typeof(MecchaKillSeekers), null),
+                    (typeof(MecchaRespawnAll), null),
+                    (typeof(MecchaAlwaysAlive), null),
+                    (typeof(MecchaWhistleAll), null),
+                    (typeof(MecchaWhistleSpam), null),
+                    (typeof(MecchaSeekerGun), null),
+                    (typeof(MecchaHiderGun), null),
+                    (typeof(MecchaBecomeSeeker), null),
+                    (typeof(MecchaBecomeHider), null),
+                    (typeof(MecchaEveryoneSeeker), null),
+                    (typeof(MecchaEveryoneHider), null),
+                    (typeof(MecchaSpectator), null),
+                    (typeof(MecchaLeaveRound), null),
+                    (typeof(MecchaSeekerEsp), null),
+                    (typeof(MecchaHiderEsp), null),
+                    (typeof(MecchaRainbowPaintGun), null),
+                    (typeof(MecchaDotGun), null),
+                    (typeof(MecchaClearPaintGun), null),
+                    (typeof(MecchaClearAllPaint), null),
+                    (typeof(MecchaRainbowMini), null),
+                    (typeof(MecchaRainbowParts), null),
+                    (typeof(MecchaRainbowShotgun), null),
+                    (typeof(MecchaBrushPose), null),
+                    (typeof(MecchaEraserPose), null),
+                    (typeof(MecchaBucketPose), null),
+                    (typeof(MecchaMiniPuppet), null),
+                    (typeof(MecchaShotgunPuppet), null),
+                    (typeof(MecchaClaimBoard), null),
+                    (typeof(MecchaUnclaimBoard), null),
+                    (typeof(MecchaSelectForest), null),
+                    (typeof(MecchaSelectCity), null),
+                    (typeof(MecchaSelectCubes), null),
+                    (typeof(MecchaSelectRandom), null),
+                    (typeof(MecchaStartForest), null),
+                    (typeof(MecchaStartCity), null),
+                    (typeof(MecchaStartCubes), null),
+                    (typeof(MecchaStartRandom), null),
+                    (typeof(MecchaForceLobby), null),
+                    (typeof(MecchaForceHide), null),
+                    (typeof(MecchaForceActive), null),
+                    (typeof(MecchaForceEndgame), null),
+                    (typeof(MecchaLoopRoundStates), null),
+                    (typeof(MecchaFastSettings), null),
+                    (typeof(MecchaManySeekerSettings), null),
+                    (typeof(MecchaLongSettings), null),
+                    (typeof(MecchaTestingSettings), null),
+                    (typeof(MecchaTeleportLobby), null),
+                    (typeof(MecchaTeleportForest), null),
+                    (typeof(MecchaTeleportCity), null),
+                    (typeof(MecchaTeleportCubes), null),
             ],
 
             ["Player Commands"] =
@@ -512,9 +614,21 @@ public static class Buttons
             ],
     };
 
+    public static ValueTuple<Type, hamburburmod>[] GetVisibleCategory(string category) =>
+            Categories.TryGetValue(category, out (Type, hamburburmod)[] mods)
+                    ? mods.Where(mod =>
+                                         (mod.Item2 == null || PluginManager.IsModVisible(mod.Item2)) &&
+                                         !(category == nameof(Main) &&
+                                           MenuHandler.Instance?.HasDedicatedSearchButton == true &&
+                                           mod.Item1 == typeof(Search)))
+                          .ToArray()
+                    : [];
+
     public static ValueTuple<Type, hamburburmod>[] GetEnabledMods() => Categories
                                                                       .SelectMany(kvp => kvp.Value)
-                                                                      .Where(mod => mod.Item2.Enabled &&
+                                                                      .Where(mod => mod.Item2 != null &&
+                                                                                 PluginManager.IsModVisible(mod.Item2) &&
+                                                                                 mod.Item2.Enabled &&
                                                                                  mod.Item2.AssociatedAttribute
                                                                                         .ButtonType ==
                                                                                  ButtonType.Togglable)

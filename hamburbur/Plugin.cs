@@ -11,6 +11,7 @@ using hamburbur.Libs;
 using hamburbur.Managers;
 using hamburbur.Misc;
 using hamburbur.Mod_Backend;
+using hamburbur.Plugins;
 using hamburbur.Mods.Settings;
 using hamburbur.Server_Api_Communicator;
 using hamburbur.Tools;
@@ -385,6 +386,7 @@ public class Plugin : MonoBehaviour
                                                ComponentHolder.AddComponent<TrackerManager>();
                                                ComponentHolder.AddComponent<Tools.Utils>();
                                                ComponentHolder.AddComponent<FileManager>();
+                                               ComponentHolder.AddComponent<PluginManager>();
                                                ComponentHolder.AddComponent<MenuHandler>()
                                                               .SetUpMenu(menuPrefab, menuParent.transform, Vector3.zero,
                                                                        Quaternion.identity, MainColour, SecondaryColour, -0.29f,

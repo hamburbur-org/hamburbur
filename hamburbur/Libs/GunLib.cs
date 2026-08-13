@@ -128,14 +128,16 @@ public class GunLib
                     : isTriggerInput
                             ? InputManager.Instance.RightTrigger.IsPressed
                             : InputManager.Instance.RightGrip.IsPressed;
+    
+    public static Transform GetGunHand() => LeftHandedGun.IsEnabled
+                                                    ? Tools.Utils.RealLeftController
+                                                    : Tools.Utils.RealRightController;
 
     public void LateUpdate()
     {
         if (GetGunInput())
         {
-            Transform originController = LeftHandedGun.IsEnabled
-                                                 ? Tools.Utils.RealLeftController
-                                                 : Tools.Utils.RealRightController;
+            Transform originController = GetGunHand();
 
             Vector3 gunDirection = GetGunDirection(originController);
             Vector3 gunPosition  = GetGunOrigin(originController, gunDirection);

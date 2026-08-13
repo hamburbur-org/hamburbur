@@ -8,6 +8,7 @@ using hamburbur.Components;
 using hamburbur.Libs;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Plugins;
 using hamburbur.Mods.Movement;
 using hamburbur.Mods.Settings;
 using hamburbur.Mods.SoundBoard;
@@ -322,6 +323,7 @@ public class GUIHandler : Singleton<GUIHandler>
                     categoryUiButton.gameObject.GetOrAddComponent<ButtonPressAnimator>();
 
                     mod.Item2.AssociatedGUIButton = categoryButton;
+                    categoryButton.SetActive(PluginManager.IsModVisible(mod.Item2));
                 }
                 else
                 {
@@ -352,6 +354,7 @@ public class GUIHandler : Singleton<GUIHandler>
                             () => mod.Item2.Toggle(ButtonState.Increment, false));
 
                     mod.Item2.AssociatedGUIButton = modButton;
+                    modButton.SetActive(PluginManager.IsModVisible(mod.Item2));
                 }
         }
 
@@ -370,6 +373,7 @@ public class GUIHandler : Singleton<GUIHandler>
                         continue;
 
                     modComp.AssociatedGUIButton.GetComponentInChildren<TextMeshProUGUI>().text = modComp.ModName;
+                    modComp.AssociatedGUIButton.SetActive(PluginManager.IsModVisible(modComp));
                 }
 
                 continue;
@@ -382,7 +386,8 @@ public class GUIHandler : Singleton<GUIHandler>
 
                 if (MenuHandler.Instance.Category != "Enabled Mods")
                 {
-                    modComp.AssociatedGUIButton.SetActive(category == MenuHandler.Instance.Category);
+                    modComp.AssociatedGUIButton.SetActive(category == MenuHandler.Instance.Category &&
+                                                         PluginManager.IsModVisible(modComp));
 
                     modComp.AssociatedGUIButton.transform.TakeChild(0).GetComponent<TextMeshProUGUI>().text =
                             modComp.ModName;
@@ -407,7 +412,7 @@ public class GUIHandler : Singleton<GUIHandler>
                 }
                 else
                 {
-                    bool showEnabledMod = modComp.Enabled &&
+                    bool showEnabledMod = PluginManager.IsModVisible(modComp) && modComp.Enabled &&
                                           modComp.AssociatedAttribute.ButtonType == ButtonType.Togglable;
                     modComp.AssociatedGUIButton.SetActive(showEnabledMod);
                     modComp.AssociatedGUIButton.transform.TakeChild(0).GetComponent<TextMeshProUGUI>().text =
