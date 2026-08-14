@@ -20,7 +20,7 @@ public class GorillaFriendsGun : hamburburmod
         gunLib.LateUpdate();
 
         if (gunLib.IsShooting && gunLib.ChosenRig != null)
-            GorillaFriends.Main.AddFriend(gunLib.ChosenRig.OwningNetPlayer().UserId);
+            GorillaFriendsUtils.AddFriend(gunLib.ChosenRig.OwningNetPlayer().UserId);
     }
 
     protected override void OnDisable() => gunLib.OnDisable();

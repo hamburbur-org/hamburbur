@@ -1,6 +1,7 @@
 using System;
 using hamburbur.Managers;
 using hamburbur.Mods.Settings;
+using hamburbur.Tools;
 using Photon.Pun;
 using UnityEngine;
 
@@ -26,22 +27,22 @@ public class PlayerActivityNotifications : MonoBehaviour
 
         string userId = player.UserId;
 
-        if (GorillaFriends.Main.IsFriend(userId))
+        if (GorillaFriendsUtils.IsFriend(userId))
             NotificationManager.SendNotification("<color=#1b0d4f>GorillaFriends</color>",
-                    $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrFriend)}>Friend</color> {player.NickName} has joined your code",
+                    $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriendsUtils.m_clrFriend)}>Friend</color> {player.NickName} has joined your code",
                     8f, true, false);
-        else if (GorillaFriends.Main.IsVerified(userId))
+        else if (GorillaFriendsUtils.IsVerified(userId))
             NotificationManager.SendNotification(
                     "<color=#1b0d4f>GorillaFriends</color>",
-                    $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrVerified)}>Verified</color> player {player.NickName} has joined your code",
+                    $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriendsUtils.m_clrVerified)}>Verified</color> player {player.NickName} has joined your code",
                     8f,
                     true,
                     false);
-        else if (GorillaFriends.Main.HasPlayedWithUsRecently(userId).recentlyPlayed !=
-                 GorillaFriends.Main.eRecentlyPlayed.Never)
+        else if (GorillaFriendsUtils.HasPlayedWithUsRecently(userId).recentlyPlayed !=
+                 GorillaFriendsUtils.eRecentlyPlayed.Never)
             NotificationManager.SendNotification(
                     "<color=#1b0d4f>GorillaFriends</color>",
-                    $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrPlayedRecently)}>Recently played with</color> player {player.NickName} has joined your code",
+                    $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriendsUtils.m_clrPlayedRecently)}>Recently played with</color> player {player.NickName} has joined your code",
                     8f,
                     false,
                     false);
@@ -61,18 +62,18 @@ public class PlayerActivityNotifications : MonoBehaviour
 
         string userId = player.UserId;
 
-        if (GorillaFriends.Main.IsFriend(userId))
+        if (GorillaFriendsUtils.IsFriend(userId))
             NotificationManager.SendNotification(
                     "<color=#1b0d4f>GorillaFriends</color>",
-                    $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrFriend)}>Friend</color> {player.NickName} has left your code",
+                    $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriendsUtils.m_clrFriend)}>Friend</color> {player.NickName} has left your code",
                     8f,
                     true,
                     false);
 
-        else if (GorillaFriends.Main.IsVerified(userId))
+        else if (GorillaFriendsUtils.IsVerified(userId))
             NotificationManager.SendNotification(
                     "<color=#1b0d4f>GorillaFriends</color>",
-                    $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrVerified)}>Verified</color> player {player.NickName} has left your code",
+                    $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriendsUtils.m_clrVerified)}>Verified</color> player {player.NickName} has left your code",
                     8f,
                     true,
                     false);
@@ -106,14 +107,14 @@ public class PlayerActivityNotifications : MonoBehaviour
 
             string userId = player.UserId;
 
-            if (GorillaFriends.Main.IsFriend(userId))
+            if (GorillaFriendsUtils.IsFriend(userId))
                 NotificationManager.SendNotification("<color=#1b0d4f>GorillaFriends</color>",
-                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrFriend)}>Friend</color> {player.NickName} is in your code",
+                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriendsUtils.m_clrFriend)}>Friend</color> {player.NickName} is in your code",
                         8f, true, false);
-            else if (GorillaFriends.Main.IsVerified(userId))
+            else if (GorillaFriendsUtils.IsVerified(userId))
                 NotificationManager.SendNotification(
                         "<color=#1b0d4f>GorillaFriends</color>",
-                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriends.Main.m_clrVerified)}>Verified</color> player {player.NickName} is in your code",
+                        $"<color=#{ColorUtility.ToHtmlStringRGB(GorillaFriendsUtils.m_clrVerified)}>Verified</color> player {player.NickName} is in your code",
                         8f,
                         true,
                         false);

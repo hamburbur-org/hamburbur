@@ -36,9 +36,6 @@
         <Reference Include="com.rlabrecque.steamworks.net">
             <HintPath>$(GameAssemblyPath)\com.rlabrecque.steamworks.net.dll</HintPath>
         </Reference>
-        <Reference Include="GorillaFriends">
-            <HintPath>$(PluginsPath)\GorillaFriends\GorillaFriends.dll</HintPath>
-        </Reference>
         <Reference Include="GT_CustomMapSupportRuntime">
             <HintPath>$(GameAssemblyPath)\GT_CustomMapSupportRuntime.dll</HintPath>
         </Reference>
@@ -46,7 +43,7 @@
             <HintPath>$(GameAssemblyPath)\LIV.LCK.dll</HintPath>
         </Reference>
         <Reference Include="LIV.LCK_GorillaTag">
-          <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\LIV.LCK_GorillaTag.dll</HintPath>
+          <HintPath>$(GameAssemblyPath)\LIV.LCK_GorillaTag.dll</HintPath>
         </Reference>
         <Reference Include="Mono.Security">
             <HintPath>$(GameAssemblyPath)\Mono.Security.dll</HintPath>
