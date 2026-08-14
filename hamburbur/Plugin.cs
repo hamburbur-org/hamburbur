@@ -35,11 +35,10 @@ public class Plugin : MonoBehaviour
 
     public readonly Color MainColour = new(0.1694782f, 0.1504984f, 0.3584906f);
 
-    public readonly Vector3 MenuLocalPositionLeft = Vector3.one * 0.06f;
-
-    public readonly Vector3    MenuLocalPositionRight = new(-0.06f, 0.06f, 0.06f);
-    public readonly Quaternion MenuLocalRotationLeft  = Quaternion.Euler(315f, 0f, 180f);
-    public readonly Quaternion MenuLocalRotationRight = Quaternion.Euler(315f, 0f, 0f);
+    public readonly Vector3 MenuLocalPositionLeft = new(0.06f, 0.05f, 0.06f);
+    public readonly Vector3    MenuLocalPositionRight = new(-0.06f, 0.05f, 0.06f);
+    public readonly Quaternion MenuLocalRotationLeft  = Quaternion.Euler(315f, 345f, 180f);
+    public readonly Quaternion MenuLocalRotationRight = Quaternion.Euler(315f, 15f, 0f);
 
     public readonly Color SecondaryColour = new(0.03906193f, 0.0252314f, 0.1981132f);
 

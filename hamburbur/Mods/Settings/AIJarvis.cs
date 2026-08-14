@@ -2,7 +2,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("AI Jarvis", "Use Pollinations AI when talking with Jarvis", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod("AI Jarvis", "Use AI-powered menu controls when talking with Jarvis", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class AIJarvis : hamburburmod
 {

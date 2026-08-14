@@ -1,7 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using GorillaLocomotion;
+using System.Text.RegularExpressions;
 using GorillaNetworking;
 using hamburbur.Components;
 using hamburbur.GUI;
@@ -11,6 +12,7 @@ using hamburbur.Mod_Backend;
 using hamburbur.Mods.Misc;
 using hamburbur.Mods.Rig;
 using hamburbur.Mods.Settings;
+using hamburbur.Plugins;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Windows.Speech;
@@ -22,6 +24,22 @@ namespace hamburbur.Misc;
 
 public class VoiceControls : Singleton<VoiceControls>
 {
+    private static readonly Regex JarvisCommandRegex = new(
+            @"^\s*<\s*\[\s*(toggle|enable|disable|increment|decrement|press)\s*\]\s*([^\s>]+)\s*>",
+            RegexOptions.IgnoreCase);
+
+    private static readonly Regex LegacyJarvisCommandRegex = new(
+            @"^\s*<\s*(toggle|enable|disable|increment|decrement|press)\s*>\s*([^\s<]+)",
+            RegexOptions.IgnoreCase);
+
+    private static readonly Regex FlexibleJarvisCommandRegex = new(
+            @"<?\s*\[\s*(toggle|enable|disable|increment|decrement)\s*\]\s*([a-z0-9]+)\s*>?",
+            RegexOptions.IgnoreCase);
+
+    private static readonly Regex LooseJarvisCommandRegex = new(
+            @"<?\s*\[\s*(toggle|enable|disable|increment|decrement|press)\s*\]\s*[a-z0-9]+\s*>?",
+            RegexOptions.IgnoreCase);
+
     public string LastUsedWakeWord = "jarvis";
 
     private readonly string[] replyWords =
@@ -233,55 +251,7 @@ public class VoiceControls : Singleton<VoiceControls>
             yield break;
         }
 
-        if (lowerText.StartsWith("enable"))
-        {
-            string modName = lowerText.Replace("enable", "").Replace(" ", "").Trim();
-
-            (Type, hamburburmod) chosenMod = (null, null);
-
-            foreach ((Type, hamburburmod) mod in from tuples in Buttons.Categories
-                                                 from mod in tuples.Value
-                                                 where mod.Item2.ModName.ToLower().Replace(" ", "") == modName
-                                                 where mod.Item2.AssociatedAttribute.ButtonType == ButtonType.Togglable
-                                                 where !mod.Item2.Enabled
-                                                 select mod)
-            {
-                chosenMod = mod;
-                mod.Item2.Toggle(ButtonState.Normal);
-            }
-
-            if (chosenMod.Item2 != null)
-                yield return TTSSpeak("Enabled " + chosenMod.Item2.ModName);
-            else
-                yield return TTSSpeak("I could not find a mod with that name, or it is already enabled.");
-
-            hasYield = true;
-        }
-        else if (lowerText.StartsWith("disable"))
-        {
-            string modName = lowerText.Replace("disable", "").Replace(" ", "").Trim();
-
-            (Type, hamburburmod) chosenMod = (null, null);
-
-            foreach ((Type, hamburburmod) mod in from tuples in Buttons.Categories
-                                                 from mod in tuples.Value
-                                                 where mod.Item2.ModName.ToLower().Replace(" ", "") == modName
-                                                 where mod.Item2.AssociatedAttribute.ButtonType == ButtonType.Togglable
-                                                 where mod.Item2.Enabled
-                                                 select mod)
-            {
-                chosenMod = mod;
-                mod.Item2.Toggle(ButtonState.Normal);
-            }
-
-            if (chosenMod.Item2 != null)
-                yield return TTSSpeak("Disabled " + chosenMod.Item2.ModName);
-            else
-                yield return TTSSpeak("I could not find a mod with that name, or it is already disabled.");
-
-            hasYield = true;
-        }
-        else if (lowerText.StartsWith("join code") || lowerText.StartsWith("join room") ||
+        if (lowerText.StartsWith("join code") || lowerText.StartsWith("join room") ||
                  lowerText.StartsWith("join"))
         {
             string roomCode = lowerText
@@ -394,11 +364,60 @@ public class VoiceControls : Singleton<VoiceControls>
 
             hasYield = true;
         }
+        else if (lowerText.StartsWith("enable"))
+        {
+            string modName = lowerText.Replace("enable", "").Replace(" ", "").Trim();
+
+            (Type, hamburburmod) chosenMod = (null, null);
+
+            foreach ((Type, hamburburmod) mod in from tuples in Buttons.Categories
+                                                 from mod in tuples.Value
+                                                 where mod.Item2.ModName.ToLower().Replace(" ", "") == modName
+                                                 where mod.Item2.AssociatedAttribute.ButtonType == ButtonType.Togglable
+                                                 where !mod.Item2.Enabled
+                                                 select mod)
+            {
+                chosenMod = mod;
+                mod.Item2.Toggle(ButtonState.Normal);
+            }
+
+            if (chosenMod.Item2 != null)
+                yield return TTSSpeak("Enabled " + chosenMod.Item2.ModName);
+            else
+                yield return TTSSpeak("I could not find a mod with that name, or it is already enabled.");
+
+            hasYield = true;
+        }
+        else if (lowerText.StartsWith("disable"))
+        {
+            string modName = lowerText.Replace("disable", "").Replace(" ", "").Trim();
+
+            (Type, hamburburmod) chosenMod = (null, null);
+
+            foreach ((Type, hamburburmod) mod in from tuples in Buttons.Categories
+                                                 from mod in tuples.Value
+                                                 where mod.Item2.ModName.ToLower().Replace(" ", "") == modName
+                                                 where mod.Item2.AssociatedAttribute.ButtonType == ButtonType.Togglable
+                                                 where mod.Item2.Enabled
+                                                 select mod)
+            {
+                chosenMod = mod;
+                mod.Item2.Toggle(ButtonState.Normal);
+            }
+
+            if (chosenMod.Item2 != null)
+                yield return TTSSpeak("Disabled " + chosenMod.Item2.ModName);
+            else
+                yield return TTSSpeak("I could not find a mod with that name, or it is already disabled.");
+
+            hasYield = true;
+        }
 
         if (!hasYield)
             yield return TTSSpeak("Pardon?");
 
-        wakeRecognizer.Start();
+        if (wakeRecognizer != null && !wakeRecognizer.IsRunning())
+            wakeRecognizer.Start();
     }
 
 #region AI Stuff
@@ -414,11 +433,15 @@ public class VoiceControls : Singleton<VoiceControls>
         // using UnityWebRequest request = UnityWebRequest.Get(api);
 
         const string Api = "https://chat.hamburbur.org/api/chat";
+        MenuSnapshot menuSnapshot = CreateMenuSnapshot();
 
         string json = JsonUtility.ToJson(new ChatRequest
         {
                 message = input,
+                menu    = menuSnapshot.Buttons,
         });
+
+        Log($"Sending {menuSnapshot.Buttons.Count} menu buttons in {json.Length} JSON characters");
 
         using UnityWebRequest request = new(Api, UnityWebRequest.kHttpVerbPOST);
 
@@ -442,9 +465,182 @@ public class VoiceControls : Singleton<VoiceControls>
 
         ChatResponse response = JsonUtility.FromJson<ChatResponse>(request.downloadHandler.text);
 
-        VoiceManager.Get().AudioClip(MenuSoundsHandler.Instance.GotResponseSound);
+        //VoiceManager.Get().AudioClip(MenuSoundsHandler.Instance.GotResponseSound);
 
-        yield return TTSSpeak(response.response);
+        if (response == null || string.IsNullOrWhiteSpace(response.response))
+        {
+            yield return TTSSpeak("The AI returned an empty response.");
+
+            yield break;
+        }
+
+        Log("AI raw response: " + response.response);
+
+        string spokenResponse = ProcessJarvisResponse(response.response, menuSnapshot);
+
+        yield return TTSSpeak(spokenResponse);
+    }
+
+    private static MenuSnapshot CreateMenuSnapshot()
+    {
+        MenuSnapshot snapshot = new();
+        HashSet<string> usedIds = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach ((string category, (Type Type, hamburburmod Mod)[] mods) in Buttons.Categories)
+        {
+            foreach ((Type modType, hamburburmod mod) in mods)
+            {
+                if (mod?.AssociatedAttribute == null || !PluginManager.IsModVisible(mod))
+                    continue;
+
+                string baseId = NormalizeCommandIdentifier(modType?.Name);
+                if (string.IsNullOrEmpty(baseId))
+                    baseId = NormalizeCommandIdentifier(mod.ModName);
+
+                string id = baseId;
+                if (!usedIds.Add(id))
+                {
+                    string categoryId = NormalizeCommandIdentifier(category);
+                    id = baseId + categoryId;
+
+                    int suffix = 2;
+                    while (!usedIds.Add(id))
+                        id = baseId + categoryId + suffix++;
+                }
+
+                MenuButtonInfo button = new()
+                {
+                        id          = id,
+                        name        = mod.ModName,
+                        description = mod.AssociatedAttribute.Description,
+                        category    = category,
+                        type        = GetApiButtonType(mod.AssociatedAttribute.ButtonType),
+                        state       = mod.AssociatedAttribute.ButtonType == ButtonType.Togglable
+                                              ? mod.Enabled ? "enabled" : "disabled"
+                                              : null,
+                };
+
+                snapshot.Buttons.Add(button);
+                snapshot.ModsById[id] = mod;
+            }
+        }
+
+        return snapshot;
+    }
+
+    private string ProcessJarvisResponse(string response, MenuSnapshot menuSnapshot)
+    {
+        Match commandMatch = JarvisCommandRegex.Match(response);
+        if (!commandMatch.Success)
+            commandMatch = LegacyJarvisCommandRegex.Match(response);
+        if (!commandMatch.Success)
+            commandMatch = FlexibleJarvisCommandRegex.Match(response);
+
+        if (!commandMatch.Success)
+            return LooseJarvisCommandRegex.IsMatch(response)
+                    ? "I didn't catch that."
+                    : CleanJarvisResponse(response);
+
+        string action = commandMatch.Groups[1].Value.ToLowerInvariant();
+        string target = NormalizeCommandIdentifier(commandMatch.Groups[2].Value);
+
+        string spokenResponse = response.Remove(commandMatch.Index, commandMatch.Length).Trim();
+
+        if (!menuSnapshot.ModsById.TryGetValue(target, out hamburburmod mod))
+        {
+            Log($"AI returned an unknown menu button: {target}");
+            return "I couldn't find that menu button.";
+        }
+
+        ButtonType buttonType = mod.AssociatedAttribute.ButtonType;
+        ButtonState buttonState;
+
+        switch (action)
+        {
+            case "toggle" when buttonType == ButtonType.Togglable:
+            case "press" when buttonType is ButtonType.Fixed or ButtonType.Category:
+                buttonState = ButtonState.Normal;
+                break;
+
+            case "enable" when buttonType == ButtonType.Togglable:
+                if (mod.Enabled)
+                    return $"{mod.ModName} is already enabled.";
+                buttonState = ButtonState.Normal;
+                break;
+
+            case "disable" when buttonType == ButtonType.Togglable:
+                if (!mod.Enabled)
+                    return $"{mod.ModName} is already disabled.";
+                buttonState = ButtonState.Normal;
+                break;
+
+            case "increment" when buttonType == ButtonType.Incremental:
+                buttonState = ButtonState.Increment;
+                break;
+
+            case "decrement" when buttonType == ButtonType.Incremental:
+                buttonState = ButtonState.Decrement;
+                break;
+
+            default:
+                Log($"AI returned invalid action '{action}' for {mod.ModName} ({buttonType})");
+                return "I couldn't apply that command to this button.";
+        }
+
+        mod.Toggle(buttonState);
+        Log($"AI executed {action} on {target}");
+
+        return GetSafeJarvisReply(spokenResponse);
+    }
+
+    private static string GetSafeJarvisReply(string response)
+    {
+        if (string.IsNullOrWhiteSpace(response))
+            return "Done.";
+
+        string cleaned = CleanJarvisResponse(response);
+
+        // Some speech/LLM responses verbalise a leftover closing angle bracket.
+        // Remove that artefact without throwing away an otherwise useful reply.
+        cleaned = Regex.Replace(
+                cleaned,
+                @"\b(?:greater|less)\s+than\s+sign\b",
+                "",
+                RegexOptions.IgnoreCase);
+        cleaned = cleaned.Replace("<", "").Replace(">", "");
+        cleaned = Regex.Replace(cleaned, @"\s{2,}", " ").Trim().TrimEnd(' ', ',');
+
+        bool isGarbage = Regex.IsMatch(cleaned, @"\d{5,}") ||
+                         LooseJarvisCommandRegex.IsMatch(cleaned) ||
+                         cleaned.Length > 240;
+
+        return isGarbage || string.IsNullOrWhiteSpace(cleaned.Trim('.', ',', ' ')) ? "Done." : cleaned;
+    }
+
+    private static string CleanJarvisResponse(string response) =>
+            string.IsNullOrWhiteSpace(response)
+                    ? "I didn't catch that."
+                    : Regex.Replace(response, @"[*_`]", "").Trim();
+
+    private static string NormalizeCommandIdentifier(string value) =>
+            string.IsNullOrEmpty(value)
+                    ? ""
+                    : new string(value.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
+
+    private static string GetApiButtonType(ButtonType buttonType) =>
+            buttonType switch
+            {
+                    ButtonType.Togglable   => "toggleable",
+                    ButtonType.Fixed       => "fixed",
+                    ButtonType.Incremental => "incremental",
+                    ButtonType.Category    => "category",
+                    _                      => throw new ArgumentOutOfRangeException(nameof(buttonType), buttonType, null),
+            };
+
+    private sealed class MenuSnapshot
+    {
+        public readonly List<MenuButtonInfo> Buttons = [];
+        public readonly Dictionary<string, hamburburmod> ModsById = new(StringComparer.OrdinalIgnoreCase);
     }
 
     [Serializable]
@@ -452,6 +648,22 @@ public class VoiceControls : Singleton<VoiceControls>
     {
         // ReSharper disable once InconsistentNaming
         public string message;
+
+        // ReSharper disable once InconsistentNaming
+        public List<MenuButtonInfo> menu;
+    }
+
+    [Serializable]
+    private class MenuButtonInfo
+    {
+        // ReSharper disable InconsistentNaming
+        public string id;
+        public string name;
+        public string description;
+        public string category;
+        public string type;
+        public string state;
+        // ReSharper restore InconsistentNaming
     }
 
     [Serializable]
