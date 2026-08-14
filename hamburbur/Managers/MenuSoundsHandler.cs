@@ -12,12 +12,13 @@ namespace hamburbur.Managers;
 
 public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
 {
-    public AudioClip NotificationSound        { get; private set; }
-    public AudioClip DynamicNotificationSound { get; private set; }
-    public AudioClip CancelSound              { get; private set; }
-    public AudioClip ThinkingSound            { get; private set; }
-    public AudioClip GotResponseSound         { get; private set; }
-    public AudioClip CameraShutterSound       { get; private set; }
+    private readonly List<MenuSoundSet> menuSoundSets = [];
+    public           AudioClip          NotificationSound        { get; private set; }
+    public           AudioClip          DynamicNotificationSound { get; private set; }
+    public           AudioClip          CancelSound              { get; private set; }
+    public           AudioClip          ThinkingSound            { get; private set; }
+    public           AudioClip          GotResponseSound         { get; private set; }
+    public           AudioClip          CameraShutterSound       { get; private set; }
 
     //Button Press Sounds
     private AudioClip Default       { get; set; }
@@ -30,40 +31,38 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
     private AudioClip Wii           { get; set; }
     private AudioClip Minecraft     { get; set; }
     private AudioClip Untitled      { get; set; }
-    private AudioClip Vivid      { get; set; }
+    private AudioClip Vivid         { get; set; }
     private AudioClip Destiny       { get; set; }
     private AudioClip Watch         { get; set; }
     private AudioClip Creamy        { get; set; }
-
-    private readonly List<MenuSoundSet> menuSoundSets = [];
 
     public int MenuSoundSetCount => menuSoundSets.Count;
 
     private void Start()
     {
         AssetBundle bundle = Plugin.Instance.HamburburBundle;
-        
+
         RegisterMenuSoundSet("Default", bundle.LoadAsset<AudioClip>("openMenu"));
-        
+
         RegisterMenuSoundSet(
                 "ZlothY",
                 bundle.LoadAsset<AudioClip>("DynamicOpen"),
                 bundle.LoadAsset<AudioClip>("DynamicClose"));
-        
+
         RegisterMenuSoundSet(
                 "Untitled",
                 bundle.LoadAsset<AudioClip>("UntitledOpen"),
                 bundle.LoadAsset<AudioClip>("UntitledClose"));
-        
+
         RegisterMenuSoundSet(
                 "Seralyth",
                 bundle.LoadAsset<AudioClip>("SeralythOpen"),
                 bundle.LoadAsset<AudioClip>("SeralythClose"));
-        
+
         RegisterMenuSoundSet(
                 "UI",
                 bundle.LoadAsset<AudioClip>("UiEnter"));
-        
+
         RegisterMenuSoundSet("Silent");
 
         NotificationSound        = bundle.LoadAsset<AudioClip>("notification");
@@ -84,7 +83,7 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
         Wii           = bundle.LoadAsset<AudioClip>("Wii");
         Minecraft     = bundle.LoadAsset<AudioClip>("Minecraft");
         Untitled      = bundle.LoadAsset<AudioClip>("untitled");
-        Vivid      = bundle.LoadAsset<AudioClip>("vividclick");
+        Vivid         = bundle.LoadAsset<AudioClip>("vividclick");
         Destiny       = bundle.LoadAsset<AudioClip>("destiny");
         Watch         = bundle.LoadAsset<AudioClip>("watch");
         Creamy        = bundle.LoadAsset<AudioClip>("creamy");
@@ -126,10 +125,8 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
     {
         try
         {
-            if (leftHand)
-                VRRig.LocalRig.leftHandPlayer.GTPlayOneShot(GetCurrentButtonPressedSound());
-            else
-                VRRig.LocalRig.rightHandPlayer.GTPlayOneShot(GetCurrentButtonPressedSound());
+            (leftHand ? VRRig.LocalRig.leftHandPlayer : VRRig.LocalRig.rightHandPlayer).GTPlayOneShot(
+                    GetCurrentButtonPressedSound(), GetCurrentButtonPressClipVolume());
         }
         catch
         {
@@ -173,12 +170,19 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
                     nameof(UiEnter)     => UiEnter,
                     nameof(Wii)         => Wii,
                     nameof(Minecraft)   => Minecraft,
-                    nameof(Vivid)    => Vivid,
+                    nameof(Vivid)       => Vivid,
                     nameof(Untitled)    => Untitled,
                     nameof(Destiny)     => Destiny,
                     nameof(Watch)       => Watch,
                     nameof(Creamy)      => Creamy,
                     var _               => throw new ArgumentOutOfRangeException(),
+            };
+
+    private float GetCurrentButtonPressClipVolume() =>
+            ButtonPressSound.Sounds[ButtonPressSound.Instance.IncrementalValue] switch
+            {
+                    nameof(Vivid) => 2f,
+                    var _         => 1f,
             };
 
     public void PlayHandTapMenu(int audioClipIndex)
