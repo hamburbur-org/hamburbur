@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod(nameof(Platforms), "Show platforms when you press the grip buttons", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                nameof(Platforms), "Show platforms when you press the grip buttons", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class Platforms : hamburburmod
 {
@@ -42,7 +42,7 @@ public class Platforms : hamburburmod
             rightPlatform.SetActive(true);
             if (!StickyPlatforms.IsEnabled)
                 rightPlatform.transform.position = Tools.Utils.RealRightController.position -
-                                                  Tools.Utils.RealRightController.right * 0.05f;
+                                                   Tools.Utils.RealRightController.right * 0.05f;
             else rightPlatform.transform.position = Tools.Utils.RealRightController.position;
 
             rightPlatform.transform.rotation = Tools.Utils.RealRightController.rotation;

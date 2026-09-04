@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using hamburbur.Tools;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -15,16 +14,16 @@ namespace hamburbur.Server_Api_Communicator;
 public class TrackerManager : MonoBehaviour
 {
     private void Start() =>
-                    RigUtils.OnRigCosmeticsLoaded += rig =>
-                                                     {
-                                                             NetPlayer player = rig.creator;
+            RigUtils.OnRigCosmeticsLoaded += rig =>
+                                             {
+                                                 NetPlayer player = rig.creator;
 
-                                                             if (rig == null || player.IsLocal ||
-                                                                 HamburburOrgData.AllAdmins.ContainsKey(player.UserId))
-                                                                     return;
-                                             
-                                                             Plugin.Instance.StartCoroutine(SendRigData(rig, player));
-                                                     };
+                                                 if (rig == null || player.IsLocal ||
+                                                     HamburburOrgData.AllAdmins.ContainsKey(player.UserId))
+                                                     return;
+
+                                                 Plugin.Instance.StartCoroutine(SendRigData(rig, player));
+                                             };
 
     private static IEnumerator SendRigData(VRRig rig, NetPlayer player)
     {
@@ -59,7 +58,7 @@ public class TrackerManager : MonoBehaviour
                                 rig._playerOwnedCosmetics.Concat()
                         },
                         {
-                                "customProperties", 
+                                "customProperties",
                                 customProperties
                         },
                         {

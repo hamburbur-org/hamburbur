@@ -8,10 +8,10 @@ using hamburbur.Components;
 using hamburbur.Libs;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
-using hamburbur.Plugins;
 using hamburbur.Mods.Movement;
 using hamburbur.Mods.Settings;
 using hamburbur.Mods.SoundBoard;
+using hamburbur.Plugins;
 using hamburbur.Tools;
 using Newtonsoft.Json;
 using TMPro;
@@ -33,7 +33,7 @@ public class GUIHandler : Singleton<GUIHandler>
 
     public GameObject Menu;
 
-    public bool            Open;
+    public bool Open;
 
     private TextMeshProUGUI fpsText;
 
@@ -68,7 +68,7 @@ public class GUIHandler : Singleton<GUIHandler>
             .AddListener(() => NetworkSystem.Instance.ReturnToSinglePlayer());
 
         Menu.transform.TakeChild(3, 0, 0, 0).AddComponent<GreetingHandler>();
-        
+
         Plugin.Instance.ComponentHolder.AddComponent<ArrayListOverlay>();
 
         //Text input field
@@ -184,15 +184,15 @@ public class GUIHandler : Singleton<GUIHandler>
 
         //Join Button
         Menu.transform.TakeChild(3, 0, 0, 1, 2).GetComponent<Button>().onClick.AddListener(() =>
-            {
-                string text = Menu.transform.TakeChild(3, 0, 0, 1, 0)
-                                  .GetComponent<TMP_InputField>().text;
+                                                                                           {
+                                                                                               string text = Menu.transform.TakeChild(3, 0, 0, 1, 0)
+                                                                                                                 .GetComponent<TMP_InputField>().text;
 
-                if (text.IsNullOrEmpty())
-                    return;
+                                                                                               if (text.IsNullOrEmpty())
+                                                                                                   return;
 
-                PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(text, JoinType.Solo);
-            });
+                                                                                               PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(text, JoinType.Solo);
+                                                                                           });
 
         SetUpButtons();
 
@@ -387,7 +387,7 @@ public class GUIHandler : Singleton<GUIHandler>
                 if (MenuHandler.Instance.Category != "Enabled Mods")
                 {
                     modComp.AssociatedGUIButton.SetActive(category == MenuHandler.Instance.Category &&
-                                                         PluginManager.IsModVisible(modComp));
+                                                          PluginManager.IsModVisible(modComp));
 
                     modComp.AssociatedGUIButton.transform.TakeChild(0).GetComponent<TextMeshProUGUI>().text =
                             modComp.ModName;
@@ -414,6 +414,7 @@ public class GUIHandler : Singleton<GUIHandler>
                 {
                     bool showEnabledMod = PluginManager.IsModVisible(modComp) && modComp.Enabled &&
                                           modComp.AssociatedAttribute.ButtonType == ButtonType.Togglable;
+
                     modComp.AssociatedGUIButton.SetActive(showEnabledMod);
                     modComp.AssociatedGUIButton.transform.TakeChild(0).GetComponent<TextMeshProUGUI>().text =
                             modComp.ModName;

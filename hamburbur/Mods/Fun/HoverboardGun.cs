@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Fun;
 
-[hamburburmod("Hoverboard Gun", "Lets you spawn hoverboards everywhere", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Hoverboard Gun", "Lets you spawn hoverboards everywhere", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class HoverboardGun : hamburburmod
 {
@@ -17,10 +17,7 @@ public class HoverboardGun : hamburburmod
     private            bool   wasShooting;
     protected override Type[] Dependencies => [typeof(HoverboardsAnywhere),];
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

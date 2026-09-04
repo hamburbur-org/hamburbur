@@ -6,8 +6,8 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("Elevator Proximity Sensor", "Automatically opens/closes elevator when rig is in camera view and close",
-        ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Elevator Proximity Sensor", "Automatically opens/closes elevator when rig is in camera view and close",
+        ButtonType.Togglable, AccessSetting.Public,        EnabledType.Disabled, 0)]
 public class ElevatorProximitySensor : hamburburmod
 {
     private const float CheckDelay   = 0.1f;

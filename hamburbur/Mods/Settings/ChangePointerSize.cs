@@ -1,4 +1,4 @@
-using System.Reflection;
+using hamburbur.GUI;
 using hamburbur.Mod_Backend;
 using UnityEngine;
 
@@ -22,14 +22,14 @@ public class ChangePointerSize : hamburburmod
         IncrementalValue++;
         if (IncrementalValue > MaxRange) IncrementalValue = MinRange;
 
-        GUI.MenuHandler.Instance.ButtonPresser.transform.localScale = Vector3.one * (IncrementalValue * 0.002f);
+        MenuHandler.Instance.ButtonPresser.transform.localScale = Vector3.one * (IncrementalValue * 0.002f);
     }
 
     protected override void Decrement()
     {
         IncrementalValue--;
         if (IncrementalValue < MinRange) IncrementalValue = MaxRange;
-        
-        GUI.MenuHandler.Instance.ButtonPresser.transform.localScale = Vector3.one * (IncrementalValue * 0.002f);
+
+        MenuHandler.Instance.ButtonPresser.transform.localScale = Vector3.one * (IncrementalValue * 0.002f);
     }
 }

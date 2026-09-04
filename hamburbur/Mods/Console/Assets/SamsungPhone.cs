@@ -17,19 +17,19 @@ public class SamsungPhone : hamburburmod
         Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "consolehamburburassets", "samsungphone", assetId);
 
         Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, assetId, 1);
-        
+
         Components.Console.ExecuteCommand("asset-setlocalposition", ReceiverGroup.All, assetId,
                 new Vector3(-0.075f, 0.1f, 0f));
 
         Components.Console.ExecuteCommand("asset-setlocalrotation", ReceiverGroup.All, assetId,
-                Quaternion.Euler(80f,  90f, 180f));
-        
+                Quaternion.Euler(80f, 90f, 180f));
+
         if (BigAssets.isEnabled)
-                Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, assetId, Vector3.one * 1.5f);
+            Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, assetId, Vector3.one * 1.5f);
         else
-                Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, assetId, Vector3.one * 0.3f);
-        
-        Components.Console.ExecuteCommand("asset-setvideo",  ReceiverGroup.All, assetId, nameof(VideoPlayer), VideoPlayerType.Instance.CurrentUrl);
+            Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, assetId, Vector3.one * 0.3f);
+
+        Components.Console.ExecuteCommand("asset-setvideo", ReceiverGroup.All, assetId, nameof(VideoPlayer), VideoPlayerType.Instance.CurrentUrl);
 
         Components.Console.ExecuteCommand("asset-destroycolliders", ReceiverGroup.All, assetId);
     }

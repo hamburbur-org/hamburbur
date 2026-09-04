@@ -11,7 +11,7 @@ public class SlaughterTravisScoot : hamburburmod
         if (HamburburPromotionManager.Instance.Fin != null)
             HamburburPromotionManager.Instance.Fin.gameObject.SetActive(false);
     }
-    
+
     protected override void OnDisable()
     {
         if (HamburburPromotionManager.Instance.Fin != null)

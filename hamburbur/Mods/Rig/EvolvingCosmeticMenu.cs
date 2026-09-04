@@ -3,8 +3,8 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Rig;
 
-[hamburburmod(EvolvingCosmeticManager.CategoryName, "Manage the evolving cosmetics you are currently wearing",
-        ButtonType.Category, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(               EvolvingCosmeticManager.CategoryName, "Manage the evolving cosmetics you are currently wearing",
+        ButtonType.Category, AccessSetting.Public,                 EnabledType.Disabled, 0)]
 public class EvolvingCosmeticMenu : hamburburmod
 {
     protected override void Pressed()

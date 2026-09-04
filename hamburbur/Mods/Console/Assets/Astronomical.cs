@@ -8,21 +8,21 @@ namespace hamburbur.Mods.Console.Assets;
 [hamburburmod(nameof(Astronomical), "Fortnite astronomical event", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class Astronomical : hamburburmod
 {
-    protected override  Type[] Dependencies => [typeof(DarkFade),];
-    
-    private int assetId;
+
+    private            int    assetId;
+    protected override Type[] Dependencies => [typeof(DarkFade),];
     protected override void OnEnable()
     {
         assetId = Components.Console.GetFreeAssetID();
-        
+
         Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "consolehamburburassets",
                 "Astroworld_Planet", assetId);
 
         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, assetId,
                 new Vector3(-64.2f, 15f, -65.46f));
-        
+
         Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, assetId, Vector3.one * 10f);
-        
+
         Components.Console.ExecuteCommand("asset-setvideo", ReceiverGroup.All, assetId, nameof(VideoPlayer),
                 VideoPlayerType.Instance.CurrentUrl);
     }

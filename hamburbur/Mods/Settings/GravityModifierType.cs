@@ -11,7 +11,7 @@ public enum GravityModifierTypes
     Reverse,
 }
 
-[hamburburmod("Gravity Modifier: ", "Change what type of gravity modifier you have", ButtonType.Incremental,
+[hamburburmod(                "Gravity Modifier: ", "Change what type of gravity modifier you have", ButtonType.Incremental,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class GravityModifierType : hamburburmod
 {

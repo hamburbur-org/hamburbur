@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("Weighted FPS Spoofer", "Spoofs your FPS with a weighted distribution so no bitch can check you",
-        ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Weighted FPS Spoofer", "Spoofs your FPS with a weighted distribution so no bitch can check you",
+        ButtonType.Togglable, AccessSetting.Public,   EnabledType.Disabled, 0)]
 public class FPSSpooferWeighted : hamburburmod
 {
     public static bool    IsEnabled;

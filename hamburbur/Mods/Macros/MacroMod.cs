@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Macros;
 
-[hamburburmod(                "Placeholder", "Whether or not the associated macro is enabled", ButtonType.Togglable,
+[hamburburmod(                "Placeholder",              "Whether or not the associated macro is enabled", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.AlwaysDisabled, 0)]
 public class MacroMod : hamburburmod
 {
@@ -28,7 +28,7 @@ public class MacroMod : hamburburmod
         macroRig?.Tick();
 
         if (isPlayingMacro || !IsMacroInputHeld() || AssociatedMacro.Positions == null ||
-            AssociatedMacro.Positions.Count                                     == 0)
+            AssociatedMacro.Positions.Count                                    == 0)
             return;
 
         if (Vector3.Distance(RigTransform.GetRigPosition(VRRig.LocalRig).RigPosition,
@@ -59,7 +59,7 @@ public class MacroMod : hamburburmod
     private IEnumerator PlayMacro(int startFromPosition = 0)
     {
         if (isPlayingMacro || MacroRecorder.RecordingMacro || AssociatedMacro.Positions == null ||
-            AssociatedMacro.Positions.Count                                              == 0)
+            AssociatedMacro.Positions.Count                                             == 0)
             yield break;
 
         isPlayingMacro = true;

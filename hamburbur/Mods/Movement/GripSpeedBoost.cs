@@ -6,7 +6,7 @@ using hamburbur.Mods.Settings;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Grip Speed Boost", "Applies your speed boost multiplier while either grip is held", ButtonType.Togglable,
+[hamburburmod(                "Grip Speed Boost",   "Applies your speed boost multiplier while either grip is held", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class GripSpeedBoost : hamburburmod
 {

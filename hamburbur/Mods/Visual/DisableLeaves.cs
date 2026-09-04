@@ -1,5 +1,4 @@
 using System.Linq;
-using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Mods.Settings;
 using UnityEngine;
@@ -11,7 +10,7 @@ namespace hamburbur.Mods.Visual;
         0)]
 public class DisableLeaves : hamburburmod
 {
-    private const int    LeavesIndex = 10;
+    private const int LeavesIndex = 10;
 
     private string LeavesName
     {
@@ -27,7 +26,7 @@ public class DisableLeaves : hamburburmod
                 if (LeavesIndex >= 0 && LeavesIndex < forestChildren.Length)
                     field = forestChildren[LeavesIndex].gameObject.name;
             }
-            
+
             return field;
         }
     }

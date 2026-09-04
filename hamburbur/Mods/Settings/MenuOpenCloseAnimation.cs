@@ -2,7 +2,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Menu Animation: ", "Changes how the menu opens and closes.", ButtonType.Incremental,
+[hamburburmod(                "Menu Animation: ",   "Changes how the menu opens and closes.", ButtonType.Incremental,
         AccessSetting.Public, EnabledType.Disabled, 1)]
 public class MenuOpenCloseAnimation : hamburburmod
 {

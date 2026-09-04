@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("Force Restart Jarvis", "Kills and revives jarvis", ButtonType.Fixed, AccessSetting.Public,
+[hamburburmod(                "Force Restart Jarvis", "Kills and revives jarvis", ButtonType.Fixed, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class RestartJarvis : hamburburmod
 {

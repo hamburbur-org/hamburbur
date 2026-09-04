@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Visual;
 
-[hamburburmod(                "Ghost Vision", "See through the ghost globe thingy all the time", ButtonType.Togglable,
+[hamburburmod(                "Ghost Vision",       "See through the ghost globe thingy all the time", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class GhostVision : hamburburmod
 {

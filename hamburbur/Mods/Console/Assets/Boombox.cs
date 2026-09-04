@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod(nameof(Boombox), "Spawns the boombox asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      nameof(Boombox), "Spawns the boombox asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class Boombox : hamburburmod
 {

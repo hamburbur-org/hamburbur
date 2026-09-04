@@ -10,7 +10,7 @@ namespace hamburbur.Managers;
 public static class PatchManager
 {
     private static Harmony instance;
-    private static bool    IsPatched   { get; set; }
+    private static bool    IsPatched     { get; set; }
     private static int     FailedPatches { get; set; }
 
     private static bool IsLockedDown { get; set; }
@@ -64,7 +64,7 @@ public static class PatchManager
         }
 
         IsPatched = true;
-        
+
         return !criticalPatchFailed;
     }
 
@@ -77,14 +77,14 @@ public static class PatchManager
 
         LockdownReason =
                 $"""
-                An important Harmony Patch has failed!
-                The hamburbur menu and Game's NetworkSystem have been disabled for your safety.
-                
-                Failed Patch: {patchName}
-                """;
+                 An important Harmony Patch has failed!
+                 The hamburbur menu and Game's NetworkSystem have been disabled for your safety.
+
+                 Failed Patch: {patchName}
+                 """;
 
         Debug.LogError(LockdownReason);
-        
+
         // GeneralFailureMessage calls NetworkSystem.Instance.SetWrongVersion() which prevents you from connecting to lobbies
         GorillaComputer.instance.GeneralFailureMessage(LockdownReason.ToUpper());
     }

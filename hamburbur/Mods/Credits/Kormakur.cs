@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Credits;
 
-[hamburburmod("Kormakur", "Main ideas and themes provider", ButtonType.Fixed, AccessSetting.Public,
+[hamburburmod(                "Kormakur", "Main ideas and themes provider", ButtonType.Fixed, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class Kormakur : hamburburmod
 {

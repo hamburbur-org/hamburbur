@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Rig;
 
-[hamburburmod(                "Ghost Animations", "Makes your movement look more like a 'ghost'", ButtonType.Togglable,
+[hamburburmod(                "Ghost Animations",   "Makes your movement look more like a 'ghost'", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class GhostAnimations : hamburburmod
 {
@@ -57,7 +57,7 @@ public class GhostAnimations : hamburburmod
         if (Vector3.Distance(handPosL, GorillaTagger.Instance.leftHandTransform.transform.position) >
             PositionThreshold)
             handPosL += Vector3.Normalize(GorillaTagger.Instance.leftHandTransform.transform.position - handPosL) *
-                         PositionSpeed;
+                        PositionSpeed;
 
         if (Quaternion.Angle(Quaternion.Euler(handRotL), GorillaTagger.Instance.leftHandTransform.transform.rotation) >
             RotationThreshold)
@@ -67,7 +67,7 @@ public class GhostAnimations : hamburburmod
         if (Vector3.Distance(handPosR, GorillaTagger.Instance.rightHandTransform.transform.position) >
             PositionThreshold)
             handPosR += Vector3.Normalize(GorillaTagger.Instance.rightHandTransform.transform.position - handPosR) *
-                         PositionSpeed;
+                        PositionSpeed;
 
         if (Quaternion.Angle(Quaternion.Euler(handRotR),
                     GorillaTagger.Instance.rightHandTransform.transform.rotation) > RotationThreshold)

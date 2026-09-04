@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Room;
 
-[hamburburmod("Join random", "Makes you join a random public room", ButtonType.Fixed, AccessSetting.Public,
+[hamburburmod(                "Join random", "Makes you join a random public room", ButtonType.Fixed, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class JoinRandom : hamburburmod
 {

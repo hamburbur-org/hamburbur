@@ -2,8 +2,8 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Black Background on Notifications", "Makes notifications have a black background", ButtonType.Togglable,
-        AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Black Background on Notifications", "Makes notifications have a black background", ButtonType.Togglable,
+        AccessSetting.Public, EnabledType.Disabled,                0)]
 public class BlackBackgroundNotifs : hamburburmod
 {
     public static bool IsEnabled;

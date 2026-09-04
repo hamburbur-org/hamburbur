@@ -1,4 +1,5 @@
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using UnityEngine;
 
 namespace hamburbur.Mods.MapLoader;
@@ -8,7 +9,7 @@ public class Stump : hamburburmod
 {
     protected override void Pressed()
     {
-        Tools.Extensions.RecursiveInvoke(() => ZoneManagement.SetActiveZone(GTZone.forestWithCity), 3);
+        Extensions.RecursiveInvoke(() => ZoneManagement.SetActiveZone(GTZone.forestWithCity), 3);
         Tools.Utils.TeleportPlayer(new Vector3(-64f, 13f, -105f));
     }
 }

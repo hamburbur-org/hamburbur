@@ -46,10 +46,12 @@ public static class ModRegistry
         if (modsByType.TryGetValue(typeof(T), out hamburburmod found) && found is T typed)
         {
             mod = typed;
+
             return true;
         }
 
         mod = null;
+
         return false;
     }
 }

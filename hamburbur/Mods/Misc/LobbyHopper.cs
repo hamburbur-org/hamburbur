@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("Lobby Hopper", "Good for player tracking with the telemetry", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                      "Lobby Hopper", "Good for player tracking with the telemetry", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.AlwaysDisabled, 0)]
 public class LobbyHopper : hamburburmod
 {

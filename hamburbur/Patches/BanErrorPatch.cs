@@ -303,7 +303,7 @@ public static class BanErrorPatch
             }
         }
     }
-    
+
     [HarmonyPatch(
             typeof(GorillaComputer),
             nameof(GorillaComputer.GeneralFailureMessage),

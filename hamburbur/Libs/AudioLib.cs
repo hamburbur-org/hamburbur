@@ -139,7 +139,7 @@ public class AudioLib : MonoBehaviour
 
         while (clip.loadState != AudioDataLoadState.Loaded)
             yield return null;
-        
+
         string wakeWord = VoiceControls.Instance.LastUsedWakeWord;
 
         if (!string.IsNullOrEmpty(wakeWord))

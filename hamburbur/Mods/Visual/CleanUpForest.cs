@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Visual;
 
-[hamburburmod("Clean Up Forest", "Removes annoying ass objects from forest", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Clean Up Forest", "Removes annoying ass objects from forest", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class CleanUpForest : hamburburmod
 {
@@ -17,7 +17,7 @@ public class CleanUpForest : hamburburmod
     {
         ChangeObjectVisibility(FirstPersonVisuals.FirstPersonOnly);
         FirstPersonVisuals.OnFirstPersonOnlyChange += ChangeObjectVisibility;
-        HamburburOrgData.OnDataReloaded               += UpdateObjects;
+        HamburburOrgData.OnDataReloaded            += UpdateObjects;
 
         if (HamburburOrgData.DataLoaded)
             UpdateObjects(HamburburOrgData.Data);
@@ -32,7 +32,7 @@ public class CleanUpForest : hamburburmod
     protected override void OnDisable()
     {
         FirstPersonVisuals.OnFirstPersonOnlyChange -= ChangeObjectVisibility;
-        HamburburOrgData.OnDataReloaded               -= UpdateObjects;
+        HamburburOrgData.OnDataReloaded            -= UpdateObjects;
 
         foreach (Transform child in GameObject.Find("Environment Objects/LocalObjects_Prefab/Forest").transform)
             if (objectNames.Contains(child.gameObject.name))

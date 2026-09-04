@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Rubber Duck Gun", "A gun that lets you spawn in rubber ducks if they have console", ButtonType.Togglable,
+[hamburburmod(                   "Rubber Duck Gun",          "A gun that lets you spawn in rubber ducks if they have console", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class RubberDuckGun : hamburburmod
 {
@@ -28,7 +28,7 @@ public class RubberDuckGun : hamburburmod
         spawnDelay = Time.time + 0.1f;
         int newId = Components.Console.GetFreeAssetID();
         Components.Console.ExecuteCommand("asset-spawn",    ReceiverGroup.All, "clickbaitmenu‎", "Duck", newId);
-        Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, newId, new Vector3(0.01f, 0.01f, 0.01f));
+        Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, newId,            new Vector3(0.01f, 0.01f, 0.01f));
         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, newId,
                 gunLib.Hit.point + new Vector3(0f, 1f, 0f));
 

@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Multiplayer;
 
-[hamburburmod("Anti Report", "Does something when someone potentially tries to report you", ButtonType.Togglable,
+[hamburburmod(                "Anti Report",        "Does something when someone potentially tries to report you", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class AntiReport : hamburburmod
 {
@@ -34,15 +34,15 @@ public class AntiReport : hamburburmod
                                                                                let leftHandDistance =
                                                                                        Vector3.Distance(
                                                                                                rig.leftHandTransform
-                                                                                                      .position,
+                                                                                                  .position,
                                                                                                myReportButton.position)
                                                                                let rightHandDistance =
                                                                                        Vector3.Distance(
                                                                                                rig.rightHandTransform
-                                                                                                      .position,
+                                                                                                  .position,
                                                                                                myReportButton.position)
-                                                                               where leftHandDistance < Range ||
-                                                                                   rightHandDistance  < Range
+                                                                               where leftHandDistance  < Range ||
+                                                                                     rightHandDistance < Range
                                                                                select rig))
         {
             if (AntiReportType.Current == AntiReportType.AntiReportTypes.Notify)

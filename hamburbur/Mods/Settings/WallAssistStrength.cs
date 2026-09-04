@@ -3,8 +3,8 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Wall Assist Strength: ", "Change the strength of the wall assist", ButtonType.Incremental,
-        AccessSetting.Public, EnabledType.Disabled, MinStep)]
+[hamburburmod(                "Wall Assist Strength: ", "Change the strength of the wall assist", ButtonType.Incremental,
+        AccessSetting.Public, EnabledType.Disabled,     MinStep)]
 public class WallAssistStrength : hamburburmod
 {
     private const int MinStep = 3;  // corresponds to -10

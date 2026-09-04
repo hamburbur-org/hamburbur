@@ -5,9 +5,9 @@ namespace hamburbur.Tools;
 
 public struct RigTransform
 {
-    private RigTransform(Vector3    headPosition, Quaternion headRotation, Vector3 rigPosition, Quaternion rigRotation,
-                         Vector3    leftHandPosition, Quaternion leftHandRotation, Vector3 rightHandPosition,
-                         Quaternion rightHandRotation, Vector3 velocity)
+    private RigTransform(Vector3    headPosition,      Quaternion headRotation,     Vector3 rigPosition, Quaternion rigRotation,
+                         Vector3    leftHandPosition,  Quaternion leftHandRotation, Vector3 rightHandPosition,
+                         Quaternion rightHandRotation, Vector3    velocity)
     {
         HeadPosition = headPosition;
         HeadRotation = headRotation;

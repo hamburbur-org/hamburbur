@@ -128,14 +128,14 @@ public class GunLib
                     : isTriggerInput
                             ? InputManager.Instance.RightTrigger.IsPressed
                             : InputManager.Instance.RightGrip.IsPressed;
-    
+
     public static Transform GetGunHand() => LeftHandedGun.IsEnabled
                                                     ? Tools.Utils.RealLeftController
                                                     : Tools.Utils.RealRightController;
-    
+
     public static Transform GetAlternateHand() => LeftHandedGun.IsEnabled
-                                                    ? Tools.Utils.RealRightController
-                                                    : Tools.Utils.RealLeftController;
+                                                          ? Tools.Utils.RealRightController
+                                                          : Tools.Utils.RealLeftController;
 
     public void LateUpdate()
     {

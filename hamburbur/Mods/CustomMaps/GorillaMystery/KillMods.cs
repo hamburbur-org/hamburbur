@@ -6,8 +6,8 @@ using UnityEngine;
 
 namespace hamburbur.Mods.CustomMaps.GorillaMystery;
 
-[hamburburmod("Spawn Kill Skeletons", "Spawn and launch a skeleton when a Gorilla Mystery kill mod is used",
-        ButtonType.Togglable, AccessSetting.Public, EnabledType.Enabled, 0)]
+[hamburburmod(                "Spawn Kill Skeletons", "Spawn and launch a skeleton when a Gorilla Mystery kill mod is used",
+        ButtonType.Togglable, AccessSetting.Public,   EnabledType.Enabled, 0)]
 public class SpawnKillSkeletons : hamburburmod
 {
     public static bool IsEnabled { get; private set; }
@@ -16,7 +16,7 @@ public class SpawnKillSkeletons : hamburburmod
     protected override void OnDisable() => IsEnabled = false;
 }
 
-[hamburburmod("Murder Kill Gun", "Spam kills the selected player with PlayerDeath and high velocity while held",
+[hamburburmod(                "Murder Kill Gun",    "Spam kills the selected player with PlayerDeath and high velocity while held",
         ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MurderKillGun : hamburburmod
 {
@@ -49,7 +49,7 @@ public class MurderKillGun : hamburburmod
     }
 }
 
-[hamburburmod("Sheriff Kill Gun", "Spam kills the selected player with SheriffHit and high velocity while held",
+[hamburburmod(                "Sheriff Kill Gun",   "Spam kills the selected player with SheriffHit and high velocity while held",
         ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class SheriffKillGun : hamburburmod
 {
@@ -82,7 +82,7 @@ public class SheriffKillGun : hamburburmod
     }
 }
 
-[hamburburmod("Kill All", "Kills every other living Gorilla Mystery player", ButtonType.Fixed, AccessSetting.Public,
+[hamburburmod(                "Kill All", "Kills every other living Gorilla Mystery player", ButtonType.Fixed, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class MysteryKillAll : hamburburmod
 {

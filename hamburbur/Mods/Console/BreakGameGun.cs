@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod("Break Game Gun", "A gun that lets you break anyones game if they have console", ButtonType.Togglable,
+[hamburburmod(                        "Break Game Gun",     "A gun that lets you break anyones game if they have console", ButtonType.Togglable,
         AccessSetting.SuperAdminOnly, EnabledType.Disabled, 0)]
 public class BreakGameGun : hamburburmod
 {
@@ -15,10 +15,7 @@ public class BreakGameGun : hamburburmod
 
     private float eventDelay;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

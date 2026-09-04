@@ -2,8 +2,8 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod(                "Toggle Menu", "Allows you to press the selected menu button to toggle the menu being open",
-    ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Toggle Menu",        "Allows you to press the selected menu button to toggle the menu being open",
+        ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class ToggleMenu : hamburburmod
 {
     public static bool IsEnabled;

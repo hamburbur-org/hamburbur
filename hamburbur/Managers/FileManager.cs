@@ -23,7 +23,7 @@ public class FileManager : Singleton<FileManager>
 {
     private const string RootSoundUrl =
             "https://files.hamburbur.org/Maniacs_of_Noise.mp3";
-    
+
     private const string GorillaNotificationsUrl =
             "https://github.com/hamburbur-org/Gorilla-Notifications/releases/latest/download/GorillaNotifications.dll";
 

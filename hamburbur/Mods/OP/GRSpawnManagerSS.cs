@@ -31,7 +31,7 @@ public static class GRSpawnManagerSS
     }
 }
 
-[hamburburmod("GR Trail", "Gives you a server sided trail in ghost reactor", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "GR Trail", "Gives you a server sided trail in ghost reactor", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class GRTrail : hamburburmod
 {
@@ -47,16 +47,13 @@ public class GRTrail : hamburburmod
     }
 }
 
-[hamburburmod(                "GR Draw Gun", "Gives you a server sided draw gun in ghost reactor", ButtonType.Togglable,
+[hamburburmod(                "GR Draw Gun",        "Gives you a server sided draw gun in ghost reactor", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class GRDrawGun : hamburburmod
 {
     private readonly GunLib gunLib = new();
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {
@@ -72,7 +69,7 @@ public class GRDrawGun : hamburburmod
     protected override void OnDisable() => gunLib.OnDisable();
 }
 
-[hamburburmod("GR Blind All", "Blinds everyone in ghost reactor", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "GR Blind All", "Blinds everyone in ghost reactor", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class GRBlindAll : hamburburmod
 {
@@ -95,7 +92,7 @@ public class GRBlindAll : hamburburmod
     }
 }
 
-[hamburburmod("GR Hamburbur Text", "SS hamburbur in ghost reactor", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "GR Hamburbur Text", "SS hamburbur in ghost reactor", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class GRHamburburText : hamburburmod
 {

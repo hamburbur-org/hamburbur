@@ -13,14 +13,14 @@ public class DisableJarvis : hamburburmod
     protected override void OnEnable()
     {
         IsEnabled = true;
-        
+
         VoiceControls.Instance.Obliterate();
     }
 
     protected override void OnDisable()
     {
         IsEnabled = false;
-        
+
         CoroutineManager.Instance.StartCoroutine(RestartJarvis.AddJarvis());
     }
 }

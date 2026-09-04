@@ -4,16 +4,13 @@ using hamburbur.Tools;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("Gorilla Friends Gun", "Lets you friend people with Gorilla Friends from afar!", ButtonType.Togglable,
-        AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Gorilla Friends Gun", "Lets you friend people with Gorilla Friends from afar!", ButtonType.Togglable,
+        AccessSetting.Public, EnabledType.Disabled,  0)]
 public class GorillaFriendsGun : hamburburmod
 {
     private readonly GunLib gunLib = new() { ShouldFollow = true, };
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

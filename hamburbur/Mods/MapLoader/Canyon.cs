@@ -1,5 +1,5 @@
-using System;
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using UnityEngine;
 
 namespace hamburbur.Mods.MapLoader;
@@ -9,7 +9,7 @@ public class Canyon : hamburburmod
 {
     protected override void Pressed()
     {
-        Tools.Extensions.RecursiveInvoke(() => ZoneManagement.SetActiveZone(GTZone.canyon), 3);
+        Extensions.RecursiveInvoke(() => ZoneManagement.SetActiveZone(GTZone.canyon), 3);
         Tools.Utils.TeleportPlayer(new Vector3(-84f, 31f, -78f));
     }
 }

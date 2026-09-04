@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("Anti Lurker", "Stfu about monkey monkey monkey monkey", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Anti Lurker", "Stfu about monkey monkey monkey monkey", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class AntiLurker : hamburburmod
 {

@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Title Animation: ", "Changes how the menu title is animated.", ButtonType.Incremental,
+[hamburburmod(                "Title Animation: ",  "Changes how the menu title is animated.", ButtonType.Incremental,
         AccessSetting.Public, EnabledType.Disabled, 1)]
 public class MenuTitleAnimation : hamburburmod
 {

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod(                "Copy Id Gun", "Copies the chosen players id to your clipboard", ButtonType.Togglable,
+[hamburburmod(                "Copy Id Gun",        "Copies the chosen players id to your clipboard", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class CopyIdGun : hamburburmod
 {

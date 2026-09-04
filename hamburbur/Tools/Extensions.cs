@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using GorillaExtensions;
 using hamburbur.GUI;
 using hamburbur.Managers;
 using hamburbur.Misc;
@@ -45,10 +44,10 @@ public static class Extensions
 
     public static Transform CopyTransform(this Transform transform, Transform source)
     {
-        transform.position = source.position;
-        transform.rotation = source.rotation;
+        transform.position   = source.position;
+        transform.rotation   = source.rotation;
         transform.localScale = source.localScale;
-        
+
         return transform;
     }
 
@@ -118,9 +117,9 @@ public static class Extensions
     }
 
     public static NetPlayer OwningNetPlayer(this VRRig rig) => rig?.Creator;
-    public static Vector3   Velocity(this VRRig rig) => RigUtils.RigVelocities.GetValueOrDefault(rig, Vector3.zero);
-    public static int       Ping(this VRRig rig) => PingLogger.PlayerPing.GetValueOrDefault(rig, 0);
-    public static bool      IsTagged(this VRRig rig) => TagManager.Instance.TaggedRigs.Contains(rig);
+    public static Vector3   Velocity(this        VRRig rig) => RigUtils.RigVelocities.GetValueOrDefault(rig, Vector3.zero);
+    public static int       Ping(this            VRRig rig) => PingLogger.PlayerPing.GetValueOrDefault(rig, 0);
+    public static bool      IsTagged(this        VRRig rig) => TagManager.Instance.TaggedRigs.Contains(rig);
 
     public static Task<string> GetCreationDate(this VRRig rig)
     {
@@ -188,11 +187,11 @@ public static class Extensions
                                                            BindingFlags.NonPublic))
                                        .Select(m => new
                                         {
-                                                Method = m,
+                                                Method    = m,
                                                 Attribute = m.GetCustomAttribute<AccessSettingsAllowedCheckAttribute>(),
-                                        }).Where(x => x.Attribute != null && x.Method.ReturnType == typeof(bool) &&
-                                                      x.Method.GetParameters().Length == 0 &&
-                                                      x.Attribute.AccessSetting == accessSetting)
+                                        }).Where(x => x.Attribute                     != null && x.Method.ReturnType == typeof(bool) &&
+                                                      x.Method.GetParameters().Length == 0    &&
+                                                      x.Attribute.AccessSetting       == accessSetting)
                                        .Select(x => x.Method).ToArray();
 
         return methods.Select(method => (bool)method.Invoke(null, null)!).All(result => result);

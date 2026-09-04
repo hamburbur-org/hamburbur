@@ -16,11 +16,11 @@ namespace hamburbur.Mods.SoundBoard;
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class GliderVisualizer : hamburburmod
 {
-    private const  int   SampleSize       = 1024;
+    private const int   SampleSize       = 1024;
     private const float HeightMultiplier = 10f;
-    private const  float Radius           = 6f;
-    private const  float CircleHeight     = -0.1f;
-    private const  float OrbitSpeed       = 0.3f;
+    private const float Radius           = 6f;
+    private const float CircleHeight     = -0.1f;
+    private const float OrbitSpeed       = 0.3f;
 
     private const float InfluenceLowerBound = 0f;
     private const float InfluenceUpperBound = 20f;
@@ -40,7 +40,7 @@ public class GliderVisualizer : hamburburmod
         int              halfCount = all.Length;
         gliders = new GliderHoldable[halfCount];
         Array.Copy(all, gliders, halfCount);
-        
+
         smoothedHeights = new float[gliders.Length];
 
         shuffledIndices = new int[gliders.Length];
@@ -57,9 +57,9 @@ public class GliderVisualizer : hamburburmod
 
     protected override void Update()
     {
-        if (gliders.Length == 0) 
+        if (gliders.Length == 0)
             return;
-        
+
         VoiceManager.Get().GetMixedOutput(spectrum);
 
         Vector3 center         = GorillaTagger.Instance.headCollider.transform.position;
@@ -99,6 +99,7 @@ public class GliderVisualizer : hamburburmod
                     targetHeight,
                     1f - Mathf.Exp(-SmoothSpeed * Time.deltaTime)
             );
+
             float influence = Mathf.Clamp(smoothedHeights[i], InfluenceLowerBound, InfluenceUpperBound);
 
             pos.y += influence;

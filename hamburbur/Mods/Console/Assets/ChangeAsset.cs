@@ -13,7 +13,7 @@ public class ChangeAsset : hamburburmod
             rotation, Vector3 scale)> Assets =
     [
             ("consolehamburburassets", nameof(Axe), nameof(Axe), new Vector3(0.05f, 0.03f, 0f), Quaternion.Euler(0f, 0f, 90f),
-             new Vector3(5,                                             5,     5)),
+             new Vector3(5,                                                         5,     5)),
             ("consolehamburburassets", "bag", "Bag", new Vector3(0.05f, 0.03f, 0f), Quaternion.Euler(0f, 0f, 90f),
              new Vector3(5,                                             5,     5)),
             ("banhammer", nameof(BanHammer), "Ban Hammer(dont work)", Vector3.zero, Quaternion.Euler(0f, 0f, 90f),
@@ -26,7 +26,7 @@ public class ChangeAsset : hamburburmod
             ("console.main1", nameof(PhysicsGun), "Physics Gun", Vector3.zero, Quaternion.identity, new Vector3(5, 5, 5)),
             ("console.main1", nameof(Sword), "Roblox Sword", Vector3.zero, Quaternion.identity, new Vector3(5,     5, 5)),
             ("consolehamburburassets", nameof(Sword), nameof(Sword), new Vector3(0.1f, 0.1f, 0.2f), Quaternion.Euler(0f, 90f, 90f),
-             new Vector3(0.1f,                                             0.1f, 0.1f)),
+             new Vector3(0.1f,                                                         0.1f, 0.1f)),
     ];
 
     public static ChangeAsset Instance { get; private set; }

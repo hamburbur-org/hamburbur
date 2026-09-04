@@ -4,7 +4,7 @@ using hamburbur.Tools;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Anti Moderator", "Automatically removes you if a moderator joins your code", ButtonType.Togglable,
+[hamburburmod(                "Anti Moderator",     "Automatically removes you if a moderator joins your code", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class AntiModerator : hamburburmod
 {
@@ -13,7 +13,7 @@ public class AntiModerator : hamburburmod
     protected override void OnEnable()
     {
         RigUtils.OnRigCosmeticsLoaded += CheckForModerator;
-        
+
         if (!NetworkSystem.Instance.InRoom)
             return;
 
@@ -27,7 +27,7 @@ public class AntiModerator : hamburburmod
             if (rig._playerOwnedCosmetics.Contains(id))
             {
                 NotificationManager.SendNotification("<color=red>Safety</color>",
-                         $"{rig.creator.SanitizedNickName} has a moderation cosmetic, you have been disconnected!", 5f,
+                        $"{rig.creator.SanitizedNickName} has a moderation cosmetic, you have been disconnected!", 5f,
                         true, true);
 
                 NetworkSystem.Instance.ReturnToSinglePlayer();

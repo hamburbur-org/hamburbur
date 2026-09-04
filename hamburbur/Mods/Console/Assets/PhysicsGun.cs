@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Physics Gun", "Spawns physics gun asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      "Physics Gun", "Spawns physics gun asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class PhysicsGun : hamburburmod
 {

@@ -58,6 +58,7 @@ public static class TelemetryPatches
         private static bool Prefix(ref BacktraceData __result)
         {
             __result = null;
+
             return false;
         }
     }

@@ -16,8 +16,8 @@ public class Mute : hamburburmod
         GorillaPlayerScoreboardLine[] lines = GorillaScoreboardTotalUpdater.allScoreboards
                                                                            .SelectMany(s => s.lines)
                                                                            .Where(l => l.playerActorNumber ==
-                                                                                    player.ActorNumber ||
-                                                                                    player.Equals(l.linePlayer))
+                                                                                       player.ActorNumber ||
+                                                                                       player.Equals(l.linePlayer))
                                                                            .ToArray();
 
         for (int i = 0; i < lines.Length; i++)
@@ -41,8 +41,8 @@ public class Mute : hamburburmod
         GorillaPlayerScoreboardLine[] lines = GorillaScoreboardTotalUpdater.allScoreboards
                                                                            .SelectMany(s => s.lines)
                                                                            .Where(l => l.playerActorNumber ==
-                                                                                    player.ActorNumber ||
-                                                                                    player.Equals(l.linePlayer))
+                                                                                       player.ActorNumber ||
+                                                                                       player.Equals(l.linePlayer))
                                                                            .ToArray();
 
         for (int i = 0; i < lines.Length; i++)

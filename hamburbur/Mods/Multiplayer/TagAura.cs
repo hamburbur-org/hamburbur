@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Multiplayer;
 
-[hamburburmod("Tag Aura", "Increases players Tag hitbox's when holding dont right grip", ButtonType.Togglable,
+[hamburburmod(                "Tag Aura",           "Increases players Tag hitbox's when holding dont right grip", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class TagAura : hamburburmod
 {

@@ -3,18 +3,16 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Categories;
 
-[hamburburmod("Join Discord", "Joins the hamburbur discord server", ButtonType.Fixed, AccessSetting.Public,
+[hamburburmod(                "Join Discord", "Joins the hamburbur discord server", ButtonType.Fixed, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class JoinDiscord : hamburburmod
 {
     public const string DiscordUrl = Constants.HamburburUrl + "/discord";
 
-    protected override void Pressed()
-    {
-        Process.Start(new ProcessStartInfo
-        {
-                FileName        = DiscordUrl,
-                UseShellExecute = true,
-        });
-    }
+    protected override void Pressed() =>
+            Process.Start(new ProcessStartInfo
+            {
+                    FileName        = DiscordUrl,
+                    UseShellExecute = true,
+            });
 }

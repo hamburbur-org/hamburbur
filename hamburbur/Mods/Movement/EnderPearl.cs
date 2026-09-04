@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod(                "Ender Pearl", "Throw one and teleport to where ever it lands", ButtonType.Togglable,
+[hamburburmod(                "Ender Pearl",        "Throw one and teleport to where ever it lands", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class EnderPearl : hamburburmod
 {

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("No Clip", "You don't collide with stuff anymore", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "No Clip", "You don't collide with stuff anymore", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class NoClip : hamburburmod
 {

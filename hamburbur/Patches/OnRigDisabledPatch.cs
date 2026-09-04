@@ -12,7 +12,7 @@ public class OnRigDisabledPatch
     {
         if (__instance.IsLocalRig())
             return;
-        
+
         RigUtils.OnRigUnloaded?.Invoke(__instance);
         RigUtils.LoadedRigs.Remove(__instance);
     }

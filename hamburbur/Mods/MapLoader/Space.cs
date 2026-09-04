@@ -1,4 +1,5 @@
 using hamburbur.Mod_Backend;
+using hamburbur.Tools;
 using UnityEngine;
 
 namespace hamburbur.Mods.MapLoader;
@@ -8,7 +9,7 @@ public class Space : hamburburmod
 {
     protected override void Pressed()
     {
-        Tools.Extensions.RecursiveInvoke(() => ZoneManagement.SetActiveZone(GTZone.spaceMap), 3);
+        Extensions.RecursiveInvoke(() => ZoneManagement.SetActiveZone(GTZone.spaceMap), 3);
         Tools.Utils.TeleportPlayer(new Vector3(-542f, 15.2f, 4f));
     }
 }

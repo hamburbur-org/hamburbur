@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Dark Fade Fog", "Adds fog to the map.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      "Dark Fade Fog", "Adds fog to the map.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class DarkFade : hamburburmod
 {

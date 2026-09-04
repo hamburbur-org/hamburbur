@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 
 namespace hamburbur.Mods.Movement.Walker;
 
-[hamburburmod("PC Walking", "It lets you walk on the PC (almost like WS)", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "PC Walking", "It lets you walk on the PC (almost like WS)", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class WalkerMovement : hamburburmod
 {
@@ -85,10 +85,10 @@ public class WalkerMovement : hamburburmod
         {
             NotificationManager.SendNotification("<color=grey>Info</color>", "You cannot use PC Walking whilst in VR",
                     3f, true, true);
-            
+
             Toggle(ButtonState.Normal, false, false);
         }
-        
+
         Vector3 euler = GorillaTagger.Instance.headCollider.transform.eulerAngles;
         yaw   = euler.y;
         pitch = euler.x;

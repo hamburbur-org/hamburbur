@@ -251,14 +251,14 @@ public sealed class BlockFountain : TimedBlockEffect
     protected override BuilderBlockLib.BlockShot CreateShot()
     {
         Vector3 position = GTPlayer.Instance.bodyCollider.bounds.min + Vector3.up * 0.15f;
-        Vector3 velocity = Vector3.up * Random.Range(7f, 11f) + BuilderBlockLib.RandomHorizontal(3.5f);
+        Vector3 velocity = Vector3.up                                             * Random.Range(7f, 11f) + BuilderBlockLib.RandomHorizontal(3.5f);
 
         return new BuilderBlockLib.BlockShot(position, Random.rotation, velocity,
                 Random.insideUnitSphere * 8f);
     }
 }
 
-[hamburburmod(                "Block Aura", "Continuously pops blocks outward around your body", ButtonType.Togglable,
+[hamburburmod(                "Block Aura",         "Continuously pops blocks outward around your body", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public sealed class BlockAura : TimedBlockEffect
 {
@@ -279,7 +279,7 @@ public sealed class BlockAura : TimedBlockEffect
     }
 }
 
-[hamburburmod(                "Block Trail", "Leaves a trail of selected blocks as you move", ButtonType.Togglable,
+[hamburburmod(                "Block Trail",        "Leaves a trail of selected blocks as you move", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public sealed class BlockTrail : hamburburmod
 {

@@ -16,10 +16,7 @@ public class TugGun : hamburburmod
     private          Coroutine tagRoutine;
     private          bool      wasShooting;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {
@@ -61,19 +58,20 @@ public class TugGun : hamburburmod
 
     private IEnumerator TryTagPlayer(VRRig rigToTag)
     {
-        if (rigToTag == null || rigToTag.IsTagged()) 
+        if (rigToTag == null || rigToTag.IsTagged())
             yield break;
 
         if (Tools.Utils.IsMasterClient)
         {
             TagManager.Instance.AddInfected(rigToTag.creator);
+
             yield break;
         }
 
         RigUtils.ToggleRig(false);
 
-        const float Timeout        = 8f;
-        float       timer          = 0f;
+        const float Timeout = 8f;
+        float       timer   = 0f;
         while (timer < Timeout && !rigToTag.IsTagged())
         {
             timer += Time.deltaTime;

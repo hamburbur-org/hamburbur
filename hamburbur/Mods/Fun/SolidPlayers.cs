@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using hamburbur.Mod_Backend;
 using hamburbur.Tools;
@@ -18,7 +17,7 @@ public class SolidPlayers : hamburburmod
 {
     protected override void OnEnable()
     {
-        RigUtils.OnRigLoaded += MakeSolid;
+        RigUtils.OnRigLoaded   += MakeSolid;
         RigUtils.OnRigUnloaded += RevertSolidity;
 
         if (!NetworkSystem.Instance.InRoom)
@@ -157,23 +156,21 @@ internal class SolidPlayerCollider : MonoBehaviour
             Destroy(physicsMaterial);
     }
 
-    private void CreatePhysicsMaterial()
-    {
-        physicsMaterial = new PhysicsMaterial("HamburburSolidPlayer")
-        {
-                dynamicFriction = 0f,
-                staticFriction  = 0f,
-                bounciness      = 0f,
-                frictionCombine = PhysicsMaterialCombine.Minimum,
-                bounceCombine   = PhysicsMaterialCombine.Minimum,
-        };
-    }
+    private void CreatePhysicsMaterial() =>
+            physicsMaterial = new PhysicsMaterial("HamburburSolidPlayer")
+            {
+                    dynamicFriction = 0f,
+                    staticFriction  = 0f,
+                    bounciness      = 0f,
+                    frictionCombine = PhysicsMaterialCombine.Minimum,
+                    bounceCombine   = PhysicsMaterialCombine.Minimum,
+            };
 
     private void CreateColliderRoot()
     {
         colliderRoot = new GameObject("HamburburSolidPlayerColliders")
         {
-                layer     = CollisionLayer,
+                layer = CollisionLayer,
                 transform =
                 {
                         position = rig.transform.position,

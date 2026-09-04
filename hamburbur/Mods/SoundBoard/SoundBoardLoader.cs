@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using hamburbur.GUI;
 using hamburbur.Managers;
+using hamburbur.Mod_Backend;
 using UnityEngine;
 using UnityEngine.Networking;
 using Object = UnityEngine.Object;
@@ -15,15 +16,9 @@ public static class SoundBoardLoader
 {
     private const string SoundBoardCategory = "SoundBoard";
 
-    private sealed class PendingSoundLoad
-    {
-        public readonly List<Action<AudioClip>> Callbacks = [];
-        public int Generation;
-    }
-
-    private static readonly Dictionary<string, AudioClip>       AudioFilePool = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly Dictionary<string, PendingSoundLoad> PendingLoads = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly Queue<(string path, string name, int generation)> LoadQueue = new();
+    private static readonly Dictionary<string, AudioClip>                     AudioFilePool = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, PendingSoundLoad>              PendingLoads  = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Queue<(string path, string name, int generation)> LoadQueue     = new();
 
     private static bool hasLoadedSoundButtons;
     private static bool isLoading;
@@ -55,12 +50,12 @@ public static class SoundBoardLoader
     {
         CancelPendingLoads();
 
-        if (Buttons.Categories.TryGetValue(SoundBoardCategory, out (Type, Mod_Backend.hamburburmod)[] buttons))
-            foreach (Mod_Backend.hamburburmod soundButton in buttons
-                         .Where(button => button.Item1 == typeof(Sound))
-                         .Select(button => button.Item2)
-                         .Where(button => button != null)
-                         .ToArray())
+        if (Buttons.Categories.TryGetValue(SoundBoardCategory, out (Type, hamburburmod)[] buttons))
+            foreach (hamburburmod soundButton in buttons
+                                                .Where(button => button.Item1 == typeof(Sound))
+                                                .Select(button => button.Item2)
+                                                .Where(button => button != null)
+                                                .ToArray())
                 ButtonHandler.RemoveButton(soundButton);
 
         ClearAudioCache();
@@ -80,12 +75,14 @@ public static class SoundBoardLoader
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
         {
             callback?.Invoke(null);
+
             return;
         }
 
         if (AudioFilePool.TryGetValue(filePath, out AudioClip clip) && clip != null)
         {
             callback?.Invoke(clip);
+
             return;
         }
 
@@ -127,26 +124,27 @@ public static class SoundBoardLoader
             HasLoadedAllSounds = true;
             IsLoadingAllSounds = false;
             onComplete?.Invoke(0, 0);
+
             return;
         }
 
         foreach (string filePath in soundFiles)
             LoadSound(filePath, Path.GetFileName(filePath), clip =>
-                                                               {
-                                                                   if (generation != loadGeneration)
-                                                                       return;
+                                                            {
+                                                                if (generation != loadGeneration)
+                                                                    return;
 
-                                                                   completed++;
-                                                                   if (clip != null)
-                                                                       loaded++;
+                                                                completed++;
+                                                                if (clip != null)
+                                                                    loaded++;
 
-                                                                   if (completed != total)
-                                                                       return;
+                                                                if (completed != total)
+                                                                    return;
 
-                                                                   HasLoadedAllSounds = loaded == total;
-                                                                   IsLoadingAllSounds = false;
-                                                                   onComplete?.Invoke(loaded, total);
-                                                               });
+                                                                HasLoadedAllSounds = loaded == total;
+                                                                IsLoadingAllSounds = false;
+                                                                onComplete?.Invoke(loaded, total);
+                                                            });
     }
 
     private static IEnumerator ProcessQueue()
@@ -156,6 +154,7 @@ public static class SoundBoardLoader
         while (LoadQueue.Count > 0)
         {
             (string path, string name, int generation) = LoadQueue.Dequeue();
+
             yield return LoadSoundRoutine(path, name, generation);
         }
 
@@ -178,6 +177,7 @@ public static class SoundBoardLoader
         {
             Debug.LogError($"Failed to load {filePath}: {request.error}");
             CompletePendingLoad(filePath, generation, null);
+
             yield break;
         }
 
@@ -229,6 +229,12 @@ public static class SoundBoardLoader
                                                                        ".wav" => AudioType.WAV,
                                                                        ".ogg" => AudioType.OGGVORBIS,
                                                                        ".mp3" => AudioType.MPEG,
-                                                                       _      => AudioType.UNKNOWN,
+                                                                       var _  => AudioType.UNKNOWN,
                                                                };
+
+    private sealed class PendingSoundLoad
+    {
+        public readonly List<Action<AudioClip>> Callbacks = [];
+        public          int                     Generation;
+    }
 }

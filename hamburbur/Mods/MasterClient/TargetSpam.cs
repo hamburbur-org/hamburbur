@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.MasterClient;
 
-[hamburburmod(                "Target Spam", "Spams all the targets if you're master client", ButtonType.Togglable,
+[hamburburmod(                "Target Spam",        "Spams all the targets if you're master client", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class TargetSpam : hamburburmod
 {

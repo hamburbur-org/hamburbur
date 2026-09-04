@@ -7,7 +7,7 @@ using UnityEngine;
 namespace hamburbur.Mods.Misc;
 
 [hamburburmod(                "Copy Mothership Id Gun", "Copies the chosen mothership id to your clipboard", ButtonType.Togglable,
-        AccessSetting.Public, EnabledType.Disabled, 0)]
+        AccessSetting.Public, EnabledType.Disabled,     0)]
 public class CopyMSIdGun : hamburburmod
 {
     private readonly GunLib gunLib = new() { ShouldFollow = true, };

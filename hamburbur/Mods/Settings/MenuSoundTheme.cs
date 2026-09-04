@@ -4,7 +4,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Menu Sounds: ", "Changes the optional sounds played when opening and closing the menu.",
+[hamburburmod(                  "Menu Sounds: ",      "Changes the optional sounds played when opening and closing the menu.",
         ButtonType.Incremental, AccessSetting.Public, EnabledType.Disabled, 1)]
 public class MenuSoundTheme : hamburburmod
 {

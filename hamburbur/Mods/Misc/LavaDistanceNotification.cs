@@ -12,8 +12,8 @@ namespace hamburbur.Mods.Misc;
 public class LavaDistanceNotification : hamburburmod
 {
     private object activeNotification;
-    private VRRig             closestLava;
-    private string            formatted;
+    private VRRig  closestLava;
+    private string formatted;
 
     protected override void Update()
     {
@@ -86,5 +86,5 @@ public class LavaDistanceNotification : hamburburmod
         }
     }
 
-    protected override void OnDisable() =>             NotificationManager.RemoveNotificationEntry(activeNotification);
+    protected override void OnDisable() => NotificationManager.RemoveNotificationEntry(activeNotification);
 }

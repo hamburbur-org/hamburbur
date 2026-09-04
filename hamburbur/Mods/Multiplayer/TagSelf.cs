@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Linq;
-using GorillaGameModes;
-using GorillaLocomotion;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Tools;
@@ -20,41 +18,45 @@ public class TagSelf : hamburburmod
         if (VRRig.LocalRig.IsTagged())
         {
             NotificationManager.SendNotification(
-                "<color=red>Error</color>",
-                "You're already tagged!",
-                5f,
-                true,
-                false);
+                    "<color=red>Error</color>",
+                    "You're already tagged!",
+                    5f,
+                    true,
+                    false);
 
             Toggle(ButtonState.Normal, false, false);
+
             yield break;
         }
-        
+
         if (Tools.Utils.IsMasterClient)
         {
             TagManager.Instance.AddInfected(PhotonNetwork.LocalPlayer);
+
             yield break;
         }
+
         VRRig taggedPlayer = VRRigCache.m_activeRigs
-            .FirstOrDefault(rig => rig != null && !rig.IsLocalRig() && rig.IsTagged());
+                                       .FirstOrDefault(rig => rig != null && !rig.IsLocalRig() && rig.IsTagged());
 
         if (taggedPlayer == null)
         {
             NotificationManager.SendNotification(
-                "<color=red>Error</color>",
-                "No tagged players found!",
-                5f,
-                true,
-                false);
+                    "<color=red>Error</color>",
+                    "No tagged players found!",
+                    5f,
+                    true,
+                    false);
 
             Toggle(ButtonState.Normal, false, false);
+
             yield break;
         }
 
         RigUtils.ToggleRig(false);
 
         const float Timeout = 8f;
-        float timer = 0f;
+        float       timer   = 0f;
 
         while (timer < Timeout && !VRRig.LocalRig.IsTagged())
         {

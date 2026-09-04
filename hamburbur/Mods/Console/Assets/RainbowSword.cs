@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Rainbow Sword", "Spawns the rainbow sword asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      "Rainbow Sword", "Spawns the rainbow sword asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class RainbowSword : hamburburmod
 {

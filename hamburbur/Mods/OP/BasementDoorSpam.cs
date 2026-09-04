@@ -17,7 +17,7 @@ public class BasementDoorSpam : hamburburmod
 
     protected override void Update()
     {
-        if (/*!(lastTime + Delay < Time.time) || */!PhotonNetwork.InRoom)
+        if ( /*!(lastTime + Delay < Time.time) || */!PhotonNetwork.InRoom)
             return;
 
         lastTime = Time.time;

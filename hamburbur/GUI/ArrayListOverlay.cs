@@ -198,6 +198,7 @@ public class ArrayListOverlay : MonoBehaviour
                             Active  = true,
                             Content = new GUIContent(name),
                     });
+
                     membershipChanged = true;
                 }
             }
@@ -227,6 +228,7 @@ public class ArrayListOverlay : MonoBehaviour
 
         bool resolutionChanged = lastScreenWidth  != Screen.width ||
                                  lastScreenHeight != Screen.height;
+
         if (entriesDirty || resolutionChanged)
         {
             SortEntries();
@@ -453,7 +455,7 @@ public class ArrayListOverlay : MonoBehaviour
         if (sortedNames.Count == 0)
             return;
 
-        Array.Clear(columnWidths, 0, columnWidths.Length);
+        Array.Clear(columnWidths,     0, columnWidths.Length);
         Array.Clear(columnRightEdges, 0, columnRightEdges.Length);
 
         for (int i = 0; i < sortedNames.Count; i++)

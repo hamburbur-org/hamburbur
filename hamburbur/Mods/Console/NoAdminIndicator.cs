@@ -4,7 +4,7 @@ using Photon.Realtime;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod("No Admin Indicator", "Removes the admin indicator to play sneakily", ButtonType.Togglable,
+[hamburburmod(                   "No Admin Indicator", "Removes the admin indicator to play sneakily", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class NoAdminIndicator : hamburburmod
 {

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("Tag Lag Detector", "Sends a notification when there is most likely tag lag", ButtonType.Togglable,
+[hamburburmod(                "Tag Lag Detector",   "Sends a notification when there is most likely tag lag", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class TagLagDetector : hamburburmod
 {

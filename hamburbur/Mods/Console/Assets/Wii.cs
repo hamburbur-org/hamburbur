@@ -10,11 +10,11 @@ namespace hamburbur.Mods.Console.Assets;
 [hamburburmod(nameof(Wii), "Wii twin", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class Wii : hamburburmod
 {
-    private int clickerAssetId = -1;
-    private int remoteAssetId;
+    private int   clickerAssetId = -1;
+    private float moveDelay;
+    private int   remoteAssetId;
 
     private VRRig selectedRig;
-    private float moveDelay;
 
     private float updateCooldown;
 
@@ -44,20 +44,20 @@ public class Wii : hamburburmod
     {
         if (clickerAssetId < 0)
             return;
-        
+
         if (!Components.Console.ConsoleAssets.TryGetValue(clickerAssetId, out Components.Console.ConsoleAsset consoleAsset))
             return;
 
         GameObject gameObject = consoleAsset.AssetObject;
 
         GameObject remote = Components.Console.ConsoleAssets[remoteAssetId].AssetObject;
-            
+
         Vector3 startPos  = remote.transform.position;
         Vector3 direction = remote.transform.up;
 
         Physics.Raycast(startPos + direction / 4f * GTPlayer.Instance.scale, direction, out RaycastHit ray, 512f,
                 Tools.Utils.NoInvisLayerMask());
-        
+
         VRRig hitRig = ray.collider ? ray.collider.GetComponentInParent<VRRig>() : null;
 
         if (InputManager.Instance.RightPrimary.WasPressed)
@@ -65,9 +65,9 @@ public class Wii : hamburburmod
             if (selectedRig == null && hitRig && !hitRig.IsLocalRig())
             {
                 Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, nameof(AudioSource), "wiistart");
-                
+
                 selectedRig = hitRig;
-            }            
+            }
             else if (selectedRig == null)
             {
                 Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, nameof(AudioSource), "wiiclick");
@@ -87,7 +87,7 @@ public class Wii : hamburburmod
             if (Time.time > moveDelay)
             {
                 moveDelay = Time.time + 0.05f;
-                
+
                 Components.Console.ExecuteCommand("tpnv", selectedRig.creator.ActorNumber, targetPos);
             }
         }
@@ -97,7 +97,7 @@ public class Wii : hamburburmod
             if (hitRig != null && !hitRig.IsLocalRig())
             {
                 Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, remoteAssetId, nameof(AudioSource), "wiistart");
-                
+
                 Vector3 flingVel = direction * 30f;
                 Components.Console.ExecuteCommand("vel", hitRig.creator.ActorNumber, flingVel);
             }
@@ -110,16 +110,16 @@ public class Wii : hamburburmod
         Vector3 endPos = ray.point;
 
         Transform head = GTPlayer.Instance.headCollider.transform;
-        
+
         Vector3 lookDir = (head.position - endPos).normalized;
-        
+
         Vector3 pos = endPos + Vector3.up * 0.05f + lookDir * 0.1f;
 
         gameObject.transform.position = pos;
-        
+
         Quaternion lookRot = Quaternion.LookRotation(lookDir);
-        lookRot *= Quaternion.Euler(0f, 180f, 0f);
-        gameObject.transform.rotation = lookRot;
+        lookRot                       *= Quaternion.Euler(0f, 180f, 0f);
+        gameObject.transform.rotation =  lookRot;
 
         if (!(Time.time > updateCooldown))
             return;
@@ -127,7 +127,7 @@ public class Wii : hamburburmod
         updateCooldown = Time.time + 0.1f;
         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, clickerAssetId,
                 gameObject.transform.position);
-        
+
         Components.Console.ExecuteCommand("asset-setrotation", ReceiverGroup.All, clickerAssetId,
                 gameObject.transform.rotation);
     }
@@ -136,7 +136,7 @@ public class Wii : hamburburmod
     {
         Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, remoteAssetId);
         Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, clickerAssetId);
-        
+
         clickerAssetId = -1;
     }
 }

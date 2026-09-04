@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("WASD Fly", "Lets you fly around on PC with WASD", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "WASD Fly", "Lets you fly around on PC with WASD", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class WASDFly : hamburburmod
 {

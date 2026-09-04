@@ -12,10 +12,7 @@ public class FlyTowardsGun : hamburburmod
 {
     private readonly GunLib gunLib = new();
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void FixedUpdate()
     {

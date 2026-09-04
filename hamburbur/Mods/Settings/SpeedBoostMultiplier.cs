@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Speed Boost Multiplier: ", "The speedboost multiplier!", ButtonType.Incremental, AccessSetting.Public,
+[hamburburmod(                "Speed Boost Multiplier: ", "The speedboost multiplier!", ButtonType.Incremental, AccessSetting.Public,
         EnabledType.Disabled, 120)]
 public class SpeedBoostMultiplier : hamburburmod
 {

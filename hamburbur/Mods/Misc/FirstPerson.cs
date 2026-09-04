@@ -5,15 +5,15 @@ using UnityEngine.InputSystem;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("First Person", "Issa good first person, better then Liv", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "First Person", "Issa good first person, better then Liv", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class FirstPerson : hamburburmod
 {
-    public static bool  isEnabled;
-    private bool  wasEnabled = true;
-    private float zoomFov    = 35f;
+    public static bool isEnabled;
 
     private float cachedNearClip;
+    private bool  wasEnabled = true;
+    private float zoomFov    = 35f;
 
     protected override void LateUpdate()
     {
@@ -42,13 +42,13 @@ public class FirstPerson : hamburburmod
         Plugin.Instance.ThirdPersonCamera.gameObject.transform.position = Keyboard.current.cKey.isPressed
                                                                                   ? Vector3.Lerp(
                                                                                           Plugin.Instance
-                                                                                                 .ThirdPersonCamera
-                                                                                                 .transform.position,
+                                                                                                .ThirdPersonCamera
+                                                                                                .transform.position,
                                                                                           GorillaTagger.Instance
-                                                                                                 .headCollider.transform
-                                                                                                 .position, 0.1f)
+                                                                                                       .headCollider.transform
+                                                                                                       .position, 0.1f)
                                                                                   : GorillaTagger.Instance.headCollider
-                                                                                         .transform.position;
+                                                                                                 .transform.position;
 
         Plugin.Instance.ThirdPersonCamera.gameObject.transform.rotation = Quaternion.Lerp(
                 Plugin.Instance.ThirdPersonCamera.transform.rotation,
@@ -58,24 +58,26 @@ public class FirstPerson : hamburburmod
     protected override void OnEnable()
     {
         isEnabled = true;
-        
+
         if (Plugin.Instance.ThirdPersonCamera != null)
             wasEnabled = Plugin.Instance.ThirdPersonCamera.gameObject.transform.Find("CM vcam1")
                                .GetComponent<CinemachineVirtualCamera>().enabled;
-        cachedNearClip = Plugin.Instance.ThirdPersonCamera.nearClipPlane;
+
+        cachedNearClip                                  = Plugin.Instance.ThirdPersonCamera.nearClipPlane;
         Plugin.Instance.ThirdPersonCamera.nearClipPlane = 0.13f;
     }
 
     protected override void OnDisable()
     {
         isEnabled = false;
-        
+
         if (Plugin.Instance.ThirdPersonCamera == null)
             return;
 
         Plugin.Instance.ThirdPersonCamera.GetComponent<Camera>().fieldOfView = 60f;
         Plugin.Instance.ThirdPersonCamera.gameObject.transform.Find("CM vcam1").GetComponent<CinemachineVirtualCamera>()
               .enabled = wasEnabled;
+
         Plugin.Instance.ThirdPersonCamera.nearClipPlane = cachedNearClip;
     }
 }

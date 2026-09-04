@@ -4,7 +4,7 @@ using HarmonyLib;
 
 namespace hamburbur.Mods.Room;
 
-[hamburburmod("No Network Triggers", "Disables network triggers", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "No Network Triggers", "Disables network triggers", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class NoNetworkTriggers : hamburburmod
 {

@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Categories;
 
-[hamburburmod("Macro Settings", "Go to the macro settings category", ButtonType.Category, AccessSetting.Public,
+[hamburburmod(                "Macro Settings", "Go to the macro settings category", ButtonType.Category, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class MacroSettings : hamburburmod
 {

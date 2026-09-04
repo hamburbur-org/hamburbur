@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Text;
 using hamburbur.GUI;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
@@ -10,10 +11,10 @@ namespace hamburbur.Mods.Categories;
         EnabledType.Disabled, 0)]
 public class Console : hamburburmod
 {
-    private string animatedName;
-    public override string ModName => animatedName ?? AssociatedAttribute.Name;
-    protected override void Pressed() => ButtonHandler.Instance.SetCategory(nameof(Console));
-    
+    private            string animatedName;
+    public override    string ModName   => animatedName ?? AssociatedAttribute.Name;
+    protected override void   Pressed() => ButtonHandler.Instance.SetCategory(nameof(Console));
+
     protected override void Start() => CoroutineManager.Instance.StartCoroutine(AnimateTitle(AssociatedAttribute.Name));
 
     private IEnumerator AnimateTitle(string name)
@@ -27,11 +28,12 @@ public class Console : hamburburmod
             if (string.IsNullOrEmpty(name) || !MenuHandler.Instance.MenuOpen || MenuHandler.Instance.Category != nameof(Main))
             {
                 yield return null;
+
                 continue;
             }
 
-            System.Text.StringBuilder sb  = new();
-            int                       len = name.Length;
+            StringBuilder sb  = new();
+            int           len = name.Length;
 
             for (int i = 0; i < len; i++)
             {

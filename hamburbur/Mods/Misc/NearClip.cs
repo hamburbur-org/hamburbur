@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("Near Clip", "Puts a near clip on the main camera so any face cosmetics dont get in the way",
+[hamburburmod(                "Near Clip",          "Puts a near clip on the main camera so any face cosmetics dont get in the way",
         ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class NearClip : hamburburmod
 {

@@ -6,8 +6,8 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Fun;
 
-[hamburburmod("Pay Gorn Menu Console Spoof", "Spoof the Pay Gorn Menu for Console admins", ButtonType.Togglable,
-        AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Pay Gorn Menu Console Spoof", "Spoof the Pay Gorn Menu for Console admins", ButtonType.Togglable,
+        AccessSetting.Public, EnabledType.Disabled,          0)]
 public class PayGornMenuConsoleSpoof : hamburburmod
 {
     protected override void OnEnable()  => PhotonNetwork.NetworkingClient.EventReceived += OnEventReceived;
@@ -31,7 +31,7 @@ public class PayGornMenuConsoleSpoof : hamburburmod
             PhotonNetwork.RaiseEvent(68, new object[] { "confirmusing", "69.67", $"<size=300%>{GetRainbowText("pay gorn menu")}</size>", },
                     new RaiseEventOptions { TargetActors = [eventData.Sender,], }, SendOptions.SendReliable);
     }
-    
+
     private string GetRainbowText(string input)
     {
         string result = "";

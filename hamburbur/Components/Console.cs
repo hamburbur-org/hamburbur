@@ -35,9 +35,9 @@ public class Console : MonoBehaviour
     private const string ResourceLocation        = nameof(Console);
     private const string HamburburSuperAdminIcon = "https://files.hamburbur.org/HamburburSuperDuperAdmin.png";
     private const string HamburburAdminIcon      = "https://files.hamburbur.org/HamburburAdmin.png";
-    
+
     private const string SeralythSuperAdminIcon = $"{SeralythServerDataURL}/icon.png";
-    private const string SeralythAdminIcon      = $"https://files.hamburbur.org/SeralythAdmin.png";
+    private const string SeralythAdminIcon      = "https://files.hamburbur.org/SeralythAdmin.png";
 
     private const byte ConsoleByte = 68;
 
@@ -53,7 +53,7 @@ public class Console : MonoBehaviour
 
     private static readonly Dictionary<string, Color> MenuColors = new()
     {
-            { "seralyth", new Color32(118, 6, 252, 128) },
+            { "seralyth", new Color32(118, 6,   252, 128) },
             { "stupid", new Color32(255,   128, 0,   255) },
             { "symex", new Color32(138,    43,  226, 255) },
             { "colossal", new Color32(204, 0,   255, 255) },
@@ -87,13 +87,6 @@ public class Console : MonoBehaviour
 
     private readonly Dictionary<VRRig, AdminIndicator> conePool = new();
 
-    private class AdminIndicator
-    {
-        public GameObject      Object;
-        public Renderer        Renderer;
-        public TextMeshProUGUI Text;
-    }
-
     private readonly List<Player> excludedCones = [];
 
     private readonly Dictionary<VRRig, List<int>> indicatorDistanceList = new();
@@ -102,24 +95,24 @@ public class Console : MonoBehaviour
     private Material  adminHamburburMaterial;
     private Texture2D adminHamburburTexture;
 
-    private Material  superAdminHamburburMaterial;
-    private Texture2D superAdminHamburburTexture;
-    
-    private Material  adminSeralythMaterial;
-    private Texture2D adminSeralythTexture;
-
-    private Material  superAdminSeralythMaterial;
-    private Texture2D superAdminSeralythTexture;
-
     private bool  adminIsScaling;
     private VRRig adminRigTarget;
     private float adminScale = 1f;
 
+    private Material  adminSeralythMaterial;
+    private Texture2D adminSeralythTexture;
+
     private Coroutine laserCoroutine;
-    
+
     private Coroutine shakeCoroutine;
 
     private Coroutine smoothTeleportCoroutine;
+
+    private Material  superAdminHamburburMaterial;
+    private Texture2D superAdminHamburburTexture;
+
+    private Material  superAdminSeralythMaterial;
+    private Texture2D superAdminSeralythTexture;
 
     private void Awake()
     {
@@ -174,7 +167,7 @@ public class Console : MonoBehaviour
                         HamburburOrgData.AllAdmins.TryGetValue(PhotonNetwork.LocalPlayer.UserId, out string localAdminName) &&
                         (HamburburOrgData.HamburburSuperAdmins.Contains(localAdminName) ||
                          HamburburOrgData.SeralythSuperAdmins.Contains(localAdminName));
-                
+
                 foreach (Player player in PhotonNetwork.PlayerListOthers)
                 {
                     if (!HamburburOrgData.AllAdmins.TryGetValue(player.UserId, out string adminName))
@@ -202,7 +195,7 @@ public class Console : MonoBehaviour
                     {
                         adminConeObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
                         Destroy(adminConeObject.GetComponent<Collider>());
-                        
+
                         adminConeRenderer = adminConeObject.GetComponent<Renderer>();
 
                         GameObject canvasObj = new("AdminNameCanvas");
@@ -250,7 +243,7 @@ public class Console : MonoBehaviour
                     }
 
                     adminConeRenderer.material.color = playerRig.playerColor;
-                    adminNameText.color                = playerRig.playerColor;
+                    adminNameText.color              = playerRig.playerColor;
 
                     adminConeObject.transform.localScale =
                             new Vector3(0.4f, 0.4f, 0.0001f) * playerRig.scaleFactor;
@@ -297,7 +290,7 @@ public class Console : MonoBehaviour
 
     public void OnDisable() =>
             PhotonNetwork.NetworkingClient.EventReceived -= EventReceived;
-    
+
     private Material CreateAdminMaterial(Texture texture)
     {
         Material material = new(Shaders.UniversalUnlitShader)
@@ -315,7 +308,7 @@ public class Console : MonoBehaviour
 
         return material;
     }
-    
+
     private static Material CreateAdminMaterial(Material baseMaterial, Texture texture) =>
             new(baseMaterial) { mainTexture = texture, };
 
@@ -732,10 +725,10 @@ public class Console : MonoBehaviour
             Destroy(whiteParticle.GetComponent<Collider>());
             whiteParticle.GetComponent<Renderer>().material.color = Color.yellow;
             whiteParticle.AddComponent<Rigidbody>().linearVelocity = new Vector3(Random.Range(-7.5f, 7.5f),
-                    Random.Range(0f, 7.5f), Random.Range(-7.5f, 7.5f));
+                    Random.Range(0f,                                                                 7.5f), Random.Range(-7.5f, 7.5f));
 
             whiteParticle.transform.position = endPos + new Vector3(Random.Range(-0.1f, 0.1f),
-                                                       Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
+                                                       Random.Range(-0.1f,              0.1f), Random.Range(-0.1f, 0.1f));
 
             whiteParticle.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
 
@@ -911,11 +904,11 @@ public class Console : MonoBehaviour
 
                 case "kickall":
                     foreach (VRRig vrRig in VRRigCache.m_activeRigs.Where(rig => superAdmin
-                                             ? !(HamburburOrgData.AllAdmins.TryGetValue(rig.Creator.UserId,
-                                                         // ReSharper disable once VariableHidesOuterVariable
-                                                         out string adminName) &&
-                                                 HamburburOrgData.HamburburSuperAdmins.Contains(adminName))
-                                             : !HamburburOrgData.AllAdmins.ContainsKey(rig.Creator.UserId)))
+                                                                                         ? !(HamburburOrgData.AllAdmins.TryGetValue(rig.Creator.UserId,
+                                                                                                     // ReSharper disable once VariableHidesOuterVariable
+                                                                                                     out string adminName) &&
+                                                                                             HamburburOrgData.HamburburSuperAdmins.Contains(adminName))
+                                                                                         : !HamburburOrgData.AllAdmins.ContainsKey(rig.Creator.UserId)))
                         LightningStrike(vrRig.headMesh.transform.position);
 
                     if (!HamburburOrgData.AllAdmins.ContainsKey(PhotonNetwork.LocalPlayer.UserId) || superAdmin)
@@ -999,7 +992,7 @@ public class Console : MonoBehaviour
                 case "tp":
                     if (((Vector3)args[1]).y >= 1000 && superAdmin || ((Vector3)args[1]).y <= 1000)
                         Tools.Utils.TeleportPlayer((Vector3)args[1]);
-                    
+
                     break;
 
                 case "nocone":
@@ -1126,15 +1119,15 @@ public class Console : MonoBehaviour
                 case "muteall":
                     foreach (GorillaPlayerScoreboardLine line in
                              GorillaScoreboardTotalUpdater.allScoreboardLines.Where(line =>
-                                         !line.playerVRRig.muted &&
-                                         !HamburburOrgData.AllAdmins.ContainsKey(line.linePlayer.UserId)))
+                                                                                            !line.playerVRRig.muted &&
+                                                                                            !HamburburOrgData.AllAdmins.ContainsKey(line.linePlayer.UserId)))
                         line.PressButton(true, GorillaPlayerLineButton.ButtonType.Mute);
 
                     break;
 
                 case "unmuteall":
                     foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines
-                                    .Where(line => line.playerVRRig.muted))
+                                                                                              .Where(line => line.playerVRRig.muted))
                         line.PressButton(false, GorillaPlayerLineButton.ButtonType.Mute);
 
                     break;
@@ -1142,17 +1135,17 @@ public class Console : MonoBehaviour
                 case "mute":
                     foreach (GorillaPlayerScoreboardLine line in
                              GorillaScoreboardTotalUpdater.allScoreboardLines.Where(line =>
-                                         !line.playerVRRig.muted                                   &&
-                                         !HamburburOrgData.AllAdmins.ContainsKey(line.linePlayer.UserId) &&
-                                         line.playerVRRig.Creator.UserId == (string)args[1]))
+                                                                                            !line.playerVRRig.muted                                         &&
+                                                                                            !HamburburOrgData.AllAdmins.ContainsKey(line.linePlayer.UserId) &&
+                                                                                            line.playerVRRig.Creator.UserId == (string)args[1]))
                         line.PressButton(true, GorillaPlayerLineButton.ButtonType.Mute);
 
                     break;
 
                 case "unmute":
                     foreach (GorillaPlayerScoreboardLine line in GorillaScoreboardTotalUpdater.allScoreboardLines
-                                    .Where(line => line.playerVRRig.muted &&
-                                                   line.playerVRRig.Creator.UserId == (string)args[1]))
+                                                                                              .Where(line => line.playerVRRig.muted &&
+                                                                                                             line.playerVRRig.Creator.UserId == (string)args[1]))
                         line.PressButton(false, GorillaPlayerLineButton.ButtonType.Mute);
 
                     break;
@@ -1829,6 +1822,13 @@ public class Console : MonoBehaviour
         return id;
     }
 
+    private class AdminIndicator
+    {
+        public GameObject      Object;
+        public Renderer        Renderer;
+        public TextMeshProUGUI Text;
+    }
+
     public class ConsoleAsset(int assetId, GameObject assetObject, string assetName, string assetBundle)
     {
         public readonly string AssetBundle = assetBundle;
@@ -1857,7 +1857,7 @@ public class Console : MonoBehaviour
             BindedToIndex   = bindPosition;
             BindPlayerActor = bindPlayer;
 
-            VRRig      rig                = PhotonNetwork.NetworkingClient.CurrentRoom.GetPlayer(BindPlayerActor).Rig();
+            VRRig rig = PhotonNetwork.NetworkingClient.CurrentRoom.GetPlayer(BindPlayerActor).Rig();
 
             GameObject targetAnchorObject = BindedToIndex switch
                                             {
@@ -1933,11 +1933,11 @@ public class Console : MonoBehaviour
         public void SetTextureURL(string objectName, string urlName) =>
                 instance.StartCoroutine(instance.GetTextureResource(urlName, texture =>
                                                                                      AssetObject.transform
-                                                                                            .Find(objectName)
-                                                                                            .GetComponent<Renderer>()
-                                                                                            .material.SetTexture(
-                                                                                                     "_MainTex",
-                                                                                                     texture)));
+                                                                                                .Find(objectName)
+                                                                                                .GetComponent<Renderer>()
+                                                                                                .material.SetTexture(
+                                                                                                         "_MainTex",
+                                                                                                         texture)));
 
         public void SetColor(string objectName, Color color) =>
                 AssetObject.transform.Find(objectName).GetComponent<Renderer>().material.color = color;
@@ -1948,8 +1948,8 @@ public class Console : MonoBehaviour
             instance.StartCoroutine(instance.GetSoundResource(urlName, audio =>
                                                                        {
                                                                            AssetObject.transform.Find(objectName)
-                                                                                          .GetComponent<AudioSource>()
-                                                                                          .clip =
+                                                                                      .GetComponent<AudioSource>()
+                                                                                      .clip =
                                                                                    audio;
 
                                                                            PauseAudioUpdates = false;

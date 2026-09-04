@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using GorillaLocomotion;
 using hamburbur.Components;
-using hamburbur.Managers;
 using hamburbur.Mods.Settings;
-using Photon.Pun;
 using UnityEngine;
 
 namespace hamburbur.Tools;
@@ -27,7 +25,7 @@ public class RigUtils : Singleton<RigUtils>
     public static Quaternion RigRotation;
 
     private GameObject rBall, lBall;
-    
+
     private void Start()
     {
         rBall = CreateBall(Utils.RealRightController);
@@ -46,6 +44,7 @@ public class RigUtils : Singleton<RigUtils>
                 VRRig.LocalRig.transform.rotation = RigRotation;
             }
         }
+
         bool showControllerBalls = !IsRigEnabled;
 
         rBall.SetActive(showControllerBalls);

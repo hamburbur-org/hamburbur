@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod("Console User Text", "Shows console users and their mods on a text thingy", ButtonType.Togglable,
+[hamburburmod(                   "Console User Text",  "Shows console users and their mods on a text thingy", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class ConsoleUserText : hamburburmod
 {
@@ -21,10 +21,7 @@ public class ConsoleUserText : hamburburmod
     private static     TextMeshProUGUI text;
     protected override Type[]          Dependencies => [typeof(AutoGetConsoleUsers),];
 
-    protected override void Start()
-    {
-        text = CreateText();
-    }
+    protected override void Start() => text = CreateText();
 
     protected override void Update()
     {

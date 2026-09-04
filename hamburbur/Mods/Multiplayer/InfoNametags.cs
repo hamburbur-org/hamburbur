@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Multiplayer;
 
-[hamburburmod("Info Nametags", "Custom nametags with information above their head", ButtonType.Togglable,
+[hamburburmod(                "Info Nametags",      "Custom nametags with information above their head", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class InfoNametags : hamburburmod
 {
@@ -55,7 +55,7 @@ public class InfoNametags : hamburburmod
 
         if (!nametags.Remove(rig, out InfoNametagsComp nametagComp))
             return;
- 
+
         if (nametagComp != null)
             Object.Destroy(nametagComp);
     }

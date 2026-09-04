@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Anti Report Type: ", "Change what happens when someone attempts to report you", ButtonType.Incremental,
+[hamburburmod(                "Anti Report Type: ", "Change what happens when someone attempts to report you", ButtonType.Incremental,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class AntiReportType : hamburburmod
 {
@@ -27,13 +27,7 @@ public class AntiReportType : hamburburmod
 
     protected override void Start() => Instance = this;
 
-    protected override void Increment()
-    {
-        IncrementalValue = (IncrementalValue + 1) % Types.Length;
-    }
+    protected override void Increment() => IncrementalValue = (IncrementalValue + 1) % Types.Length;
 
-    protected override void Decrement()
-    {
-        IncrementalValue = (IncrementalValue - 1 + Types.Length) % Types.Length;
-    }
+    protected override void Decrement() => IncrementalValue = (IncrementalValue - 1 + Types.Length) % Types.Length;
 }

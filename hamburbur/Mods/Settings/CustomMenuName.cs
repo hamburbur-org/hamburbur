@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Custom Menu Name", "Uses a saved custom title while enabled", ButtonType.Togglable,
+[hamburburmod(                "Custom Menu Name",   "Uses a saved custom title while enabled", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class CustomMenuName : hamburburmod
 {
@@ -43,14 +43,12 @@ public class CustomMenuName : hamburburmod
         MenuHandler.Instance?.RefreshMenuTitle();
     }
 
-    private static void PromptForName()
-    {
-        ButtonHandler.Instance?.Prompt(new PromptData(
-                PromptType.Keyboard,
-                "Enter a custom menu name",
-                SaveName,
-                null));
-    }
+    private static void PromptForName() =>
+            ButtonHandler.Instance?.Prompt(new PromptData(
+                    PromptType.Keyboard,
+                    "Enter a custom menu name",
+                    SaveName,
+                    null));
 
     private static void SaveName(string input)
     {

@@ -76,7 +76,37 @@ public class Utils : MonoBehaviour
             ['Y'] = [V(0, 4), V(1, 3), V(2, 4), V(1, 2), V(1, 1), V(1, 0),],
             ['Z'] = [V(0, 4), V(1, 4), V(2, 4), V(1, 3), V(1, 2), V(1, 1), V(0, 0), V(1, 0), V(2, 0),],
     };
-    
+
+    public static bool IsMasterClient => PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient;
+
+    public static bool IsModdedRoom =>
+            NetworkSystem.Instance.InRoom && NetworkSystem.Instance.GameModeString.Contains("MODDED");
+
+    public static bool InVR => XRSettings.isDeviceActive;
+    private void Update()
+    {
+        ModRuntime.Update();
+        OnUpdate?.Invoke();
+    }
+
+    private void FixedUpdate()
+    {
+        ModRuntime.FixedUpdate();
+        OnFixedUpdate?.Invoke();
+    }
+
+    private void LateUpdate()
+    {
+        ModRuntime.LateUpdate();
+        OnLateUpdate?.Invoke();
+    }
+
+    private void OnGUI()
+    {
+        ModRuntime.OnGUI();
+        OnOnGUI?.Invoke();
+    }
+
     public static void MakeMaterialTransparent(
             Material material,
             Color    colour, float alpha = 1f)
@@ -110,7 +140,7 @@ public class Utils : MonoBehaviour
                 (int)RenderQueue.Transparent;
 
         Color transparentColour = colour;
-        transparentColour.a     = alpha;
+        transparentColour.a = alpha;
 
         if (material.HasProperty("_Color"))
         {
@@ -120,36 +150,6 @@ public class Utils : MonoBehaviour
         }
 
         material.color = transparentColour;
-    }
-
-    public static bool IsMasterClient => PhotonNetwork.InRoom && PhotonNetwork.IsMasterClient;
-
-    public static bool IsModdedRoom =>
-            NetworkSystem.Instance.InRoom && NetworkSystem.Instance.GameModeString.Contains("MODDED");
-
-    public static bool InVR     => XRSettings.isDeviceActive;
-    private void Update()
-    {
-        ModRuntime.Update();
-        OnUpdate?.Invoke();
-    }
-
-    private void FixedUpdate()
-    {
-        ModRuntime.FixedUpdate();
-        OnFixedUpdate?.Invoke();
-    }
-
-    private void LateUpdate()
-    {
-        ModRuntime.LateUpdate();
-        OnLateUpdate?.Invoke();
-    }
-
-    private void OnGUI()
-    {
-        ModRuntime.OnGUI();
-        OnOnGUI?.Invoke();
     }
 
     private static Vector2Int V(int x, int y) => new(x, y);
@@ -287,7 +287,7 @@ public class Utils : MonoBehaviour
                     (byte)Random.Range(0,     range),
                     (byte)Random.Range(0,     range),
                     alpha);
-    
+
     public static string CleanString(string input, int maxLength, char[] ignoredChars = null)
     {
         input = new string(Array.FindAll(input.ToCharArray(), character =>
@@ -300,13 +300,14 @@ public class Utils : MonoBehaviour
 
         return input.ToUpper();
     }
-    
+
     public static string NoASCIIStringCheck(string input, int maxLength = 12)
     {
         if (input.Length > maxLength)
             input = input[..(maxLength - 1)];
 
         input = input.ToUpper();
+
         return input;
     }
 }

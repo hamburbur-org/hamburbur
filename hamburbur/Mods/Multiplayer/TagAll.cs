@@ -45,11 +45,12 @@ public class TagAll : hamburburmod
         if (Tools.Utils.IsMasterClient)
         {
             TagManager.Instance.AddInfected(rigToTag.creator);
+
             yield break;
         }
-        
-        const float Timeout        = 3f;
-        float       timer          = 0f;
+
+        const float Timeout = 3f;
+        float       timer   = 0f;
         while (timer < Timeout && !rigToTag.IsTagged())
         {
             timer += Time.deltaTime;
@@ -58,7 +59,7 @@ public class TagAll : hamburburmod
 
             GTPlayer.Instance.leftHand.controllerTransform.position = rigToTag.transform.position;
             VRRig.LocalRig.leftHand.rigTarget.transform.position    = rigToTag.transform.position;
-            
+
             GameMode.ReportTag(rigToTag.OwningNetPlayer());
 
             yield return null;

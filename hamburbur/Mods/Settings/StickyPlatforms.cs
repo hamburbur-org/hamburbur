@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Sticky Platforms", "Makes the platforms sticky", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Sticky Platforms", "Makes the platforms sticky", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class StickyPlatforms : hamburburmod
 {

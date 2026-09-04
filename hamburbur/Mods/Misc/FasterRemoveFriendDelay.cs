@@ -5,8 +5,8 @@ using UnityEngine.SceneManagement;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("Faster Remove Friend Delay", "Makes the remove friend delay at the friend station alot faster",
-        ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Faster Remove Friend Delay", "Makes the remove friend delay at the friend station alot faster",
+        ButtonType.Togglable, AccessSetting.Public,         EnabledType.Disabled, 0)]
 public class FasterRemoveFriendDelay : hamburburmod
 {
     public static bool IsEnabled;

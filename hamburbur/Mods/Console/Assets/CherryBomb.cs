@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod("Cherry Bomb", "Spawns the cherry bomb asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      "Cherry Bomb", "Spawns the cherry bomb asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class CherryBomb : hamburburmod
 {

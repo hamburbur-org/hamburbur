@@ -21,7 +21,7 @@ public class ChangeMenuSize : hamburburmod
     {
         IncrementalValue++;
         if (IncrementalValue > MaxRange) IncrementalValue = MinRange;
-        
+
         MenuHandler.Instance.Menu.transform.parent.localScale = Vector3.one * (IncrementalValue * 0.1f);
     }
 
@@ -29,7 +29,7 @@ public class ChangeMenuSize : hamburburmod
     {
         IncrementalValue--;
         if (IncrementalValue < MinRange) IncrementalValue = MaxRange;
-        
+
         MenuHandler.Instance.Menu.transform.parent.localScale = Vector3.one * (IncrementalValue * 0.1f);
     }
 }

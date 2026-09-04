@@ -8,12 +8,10 @@ namespace hamburbur.Mods.Room;
         EnabledType.Disabled, 0)]
 public class JoinPrivate : hamburburmod
 {
-    protected override void Pressed()
-    {
-        ButtonHandler.Instance.Prompt(new PromptData(
-                PromptType.Keyboard,
-                "Enter room code",
-                code => PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(code, JoinType.Solo),
-                null));
-    }
+    protected override void Pressed() =>
+            ButtonHandler.Instance.Prompt(new PromptData(
+                    PromptType.Keyboard,
+                    "Enter room code",
+                    code => PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(code, JoinType.Solo),
+                    null));
 }

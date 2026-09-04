@@ -2,12 +2,11 @@ using GorillaLocomotion;
 using hamburbur.Mod_Backend;
 using HarmonyLib;
 using UnityEngine;
-
 #pragma warning disable CS0618 // Type or member is obsolete
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Projectile Monke", "You get propelled in the direction you throw projectiles", ButtonType.Togglable,
+[hamburburmod(                "Projectile Monke",   "You get propelled in the direction you throw projectiles", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class ProjectileMonke : hamburburmod
 {

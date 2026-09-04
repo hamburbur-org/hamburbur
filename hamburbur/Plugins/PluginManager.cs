@@ -11,6 +11,7 @@ using hamburbur.Mod_Backend;
 using hamburbur.Tools;
 using Newtonsoft.Json;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace hamburbur.Plugins;
 
@@ -18,23 +19,23 @@ public sealed class PluginManager : Singleton<PluginManager>
 {
     public const string PluginListCategory = "Plugins";
 
-    private const string DetailCategoryPrefix = "hamburbur.plugin.";
-    private const string StateFileName         = "PluginState.json";
+    private const    string                       DetailCategoryPrefix = "hamburbur.plugin.";
+    private const    string                       StateFileName        = "PluginState.json";
+    private readonly Dictionary<string, Assembly> dependencyAssemblies = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string>              managementCategories = [];
 
     private readonly List<PluginRecord> records = [];
-    private readonly HashSet<string> managementCategories = [];
-    private readonly Dictionary<string, Assembly> dependencyAssemblies = new(StringComparer.OrdinalIgnoreCase);
+    private          bool               hasLoaded;
 
     private PluginState state = new();
-    private bool hasLoaded;
 
-    public string PluginDirectory { get; private set; }
-    public IReadOnlyList<PluginDescriptor> Plugins => records.Select(record => record.Descriptor).ToArray();
+    public string                          PluginDirectory { get; private set; }
+    public IReadOnlyList<PluginDescriptor> Plugins         => records.Select(record => record.Descriptor).ToArray();
 
     protected override void Awake()
     {
         base.Awake();
-        PluginDirectory = Path.Combine(Paths.GameRootPath, nameof(hamburbur), PluginListCategory);
+        PluginDirectory                         =  Path.Combine(Paths.GameRootPath, nameof(hamburbur), PluginListCategory);
         AppDomain.CurrentDomain.AssemblyResolve += ResolvePluginDependency;
     }
 
@@ -43,7 +44,7 @@ public sealed class PluginManager : Singleton<PluginManager>
         Directory.CreateDirectory(PluginDirectory);
         LoadState();
 
-        while (hamburbur.Plugin.Instance == null || !hamburbur.Plugin.Instance.MenuLoaded)
+        while (Plugin.Instance == null || !Plugin.Instance.MenuLoaded)
             yield return null;
 
         yield return null;
@@ -97,6 +98,7 @@ public sealed class PluginManager : Singleton<PluginManager>
     public void EnablePlugin(string id)
     {
         PluginRecord record = FindRecord(id);
+
         if (record == null || record.IsLegacy || record.IsEnabled)
             return;
 
@@ -112,6 +114,7 @@ public sealed class PluginManager : Singleton<PluginManager>
     public void DisablePlugin(string id)
     {
         PluginRecord record = FindRecord(id);
+
         if (record == null || record.IsLegacy || !record.IsEnabled)
             return;
 
@@ -124,6 +127,7 @@ public sealed class PluginManager : Singleton<PluginManager>
     public void ReloadPlugin(string id)
     {
         PluginRecord record = FindRecord(id);
+
         if (record == null || record.IsLegacy)
             return;
 
@@ -137,14 +141,14 @@ public sealed class PluginManager : Singleton<PluginManager>
             {
                 Assembly reloadedAssembly = LoadAssemblyWithoutLock(record.SourcePath);
                 Type replacement = GetLoadableTypes(reloadedAssembly)
-                                  .FirstOrDefault(type => typeof(IHamburburPlugin).IsAssignableFrom(type) &&
-                                                          !type.IsAbstract &&
-                                                          type.GetCustomAttribute<HamburburPluginAttribute>()?.Id == id);
+                       .FirstOrDefault(type => typeof(IHamburburPlugin).IsAssignableFrom(type) &&
+                                               !type.IsAbstract                                &&
+                                               type.GetCustomAttribute<HamburburPluginAttribute>()?.Id == id);
 
                 if (replacement == null)
                     throw new InvalidOperationException($"Reloaded assembly no longer contains plugin '{id}'.");
 
-                record.Assembly = reloadedAssembly;
+                record.Assembly  = reloadedAssembly;
                 record.EntryType = replacement;
                 ApplyMetadata(record, replacement.GetCustomAttribute<HamburburPluginAttribute>());
                 DiscoverMods(record);
@@ -174,7 +178,7 @@ public sealed class PluginManager : Singleton<PluginManager>
         else
             state.HiddenMods.Add(key);
 
-        PluginRecord record = FindRecord(pluginId);
+        PluginRecord   record   = FindRecord(pluginId);
         OwnedPluginMod ownedMod = record?.OwnedMods.FirstOrDefault(mod => GetTypeName(mod.Type) == modTypeName);
         ownedMod?.Instance.AssociatedGUIButton?.SetActive(visible);
 
@@ -190,6 +194,7 @@ public sealed class PluginManager : Singleton<PluginManager>
         foreach (PluginRecord record in Instance.records)
         {
             OwnedPluginMod owned = record.OwnedMods.FirstOrDefault(item => item.Instance == mod);
+
             if (owned != null)
                 return Instance.IsModVisible(record.Id, GetTypeName(owned.Type));
         }
@@ -203,16 +208,18 @@ public sealed class PluginManager : Singleton<PluginManager>
             return null;
 
         OwnedPluginMod existing = record.OwnedMods.FirstOrDefault(mod => mod.Type == modType);
+
         if (existing != null)
             return existing.Instance;
 
         if (Activator.CreateInstance(modType) is not hamburburmod instance)
             return null;
 
-        hamburburmodAttribute attribute = modType.GetCustomAttribute<hamburburmodAttribute>();
-        string buttonName = attribute?.Name ?? modType.Name;
+        hamburburmodAttribute attribute  = modType.GetCustomAttribute<hamburburmodAttribute>();
+        string                buttonName = attribute?.Name ?? modType.Name;
         instance.ConfigKey = $"{record.Name}_{buttonName}_{record.Id}_{GetTypeName(modType)}";
-        instance = ButtonHandler.AddButton(category, instance, true, modType);
+        instance           = ButtonHandler.AddButton(category, instance, true, modType);
+
         if (instance == null)
             return null;
 
@@ -222,12 +229,14 @@ public sealed class PluginManager : Singleton<PluginManager>
 
         record.OwnedMods.Add(new OwnedPluginMod(modType, category, instance));
         instance.AssociatedGUIButton?.SetActive(IsModVisible(record.Id, typeName));
+
         return instance;
     }
 
     internal void OpenPluginDetails(string id)
     {
         PluginRecord record = FindRecord(id);
+
         if (record == null || record.IsLegacy)
             return;
 
@@ -243,7 +252,7 @@ public sealed class PluginManager : Singleton<PluginManager>
 
         Type[] types = GetLoadableTypes(assembly);
         Type[] entries = types.Where(type => typeof(IHamburburPlugin).IsAssignableFrom(type) &&
-                                             !type.IsAbstract &&
+                                             !type.IsAbstract                                &&
                                              type.GetCustomAttribute<HamburburPluginAttribute>() != null)
                               .ToArray();
 
@@ -252,6 +261,7 @@ public sealed class PluginManager : Singleton<PluginManager>
             foreach (Type entryType in entries)
             {
                 HamburburPluginAttribute metadata = entryType.GetCustomAttribute<HamburburPluginAttribute>();
+
                 if (records.Any(record => record.Id == metadata.Id))
                     continue;
 
@@ -278,18 +288,19 @@ public sealed class PluginManager : Singleton<PluginManager>
     {
         try
         {
-            record.LastError = null;
+            record.LastError     = null;
             record.RuntimeObject = new GameObject($"hamburbur plugin - {record.Name}");
-            record.RuntimeObject.transform.SetParent(hamburbur.Plugin.Instance.ComponentHolder.transform);
+            record.RuntimeObject.transform.SetParent(Plugin.Instance.ComponentHolder.transform);
             record.RuntimeHost = record.RuntimeObject.AddComponent<PluginRuntimeHost>();
-            record.Context = new PluginContext(record);
-            record.Entry = (IHamburburPlugin)Activator.CreateInstance(record.EntryType);
+            record.Context     = new PluginContext(record);
+            record.Entry       = (IHamburburPlugin)Activator.CreateInstance(record.EntryType);
             record.Entry.Load(record.Context);
 
             foreach (PluginModDescriptor mod in record.ModDescriptors)
                 RegisterMod(record, mod.Type, mod.Category);
 
             record.IsEnabled = true;
+
             return true;
         }
         catch (Exception exception)
@@ -297,6 +308,7 @@ public sealed class PluginManager : Singleton<PluginManager>
             record.LastError = exception.GetBaseException().Message;
             Debug.LogError($"[hamburbur Plugins] Failed to enable {record.Name}: {exception}");
             UnloadRecord(record);
+
             return false;
         }
     }
@@ -313,6 +325,7 @@ public sealed class PluginManager : Singleton<PluginManager>
                     Enabled          = owned.Instance.Enabled,
                     IncrementalValue = owned.Instance.IncrementalValue,
             };
+
             ButtonHandler.RemoveButton(owned.Instance);
         }
 
@@ -347,7 +360,7 @@ public sealed class PluginManager : Singleton<PluginManager>
                 Debug.LogError($"[hamburbur Plugins] Dispose failed for {record.Name}: {exception}");
             }
 
-        foreach (UnityEngine.Object unityObject in record.UnityObjects.ToArray())
+        foreach (Object unityObject in record.UnityObjects.ToArray())
             if (unityObject != null)
                 Destroy(unityObject);
 
@@ -356,10 +369,10 @@ public sealed class PluginManager : Singleton<PluginManager>
         if (record.RuntimeObject != null)
             Destroy(record.RuntimeObject);
 
-        record.Entry = null;
-        record.Context = null;
+        record.Entry         = null;
+        record.Context       = null;
         record.RuntimeObject = null;
-        record.RuntimeHost = null;
+        record.RuntimeHost   = null;
         record.CleanupActions.Clear();
         record.Disposables.Clear();
         record.UnityObjects.Clear();
@@ -392,7 +405,8 @@ public sealed class PluginManager : Singleton<PluginManager>
                 continue;
 
             HamburburPluginModAttribute pluginMod = type.GetCustomAttribute<HamburburPluginModAttribute>();
-            hamburburmodAttribute mod = type.GetCustomAttribute<hamburburmodAttribute>();
+            hamburburmodAttribute       mod       = type.GetCustomAttribute<hamburburmodAttribute>();
+
             if (pluginMod == null || mod == null)
                 continue;
 
@@ -410,11 +424,12 @@ public sealed class PluginManager : Singleton<PluginManager>
         ClearManagementCategory(PluginListCategory);
         foreach (string category in managementCategories.ToArray())
             ClearManagementCategory(category);
+
         managementCategories.Clear();
 
         foreach (PluginRecord record in records.OrderBy(record => record.Name, StringComparer.OrdinalIgnoreCase))
             ButtonHandler.AddButton(PluginListCategory, new PluginListEntry(record),
-                    register: false, loadSavedData: false);
+                    false, loadSavedData: false);
 
         if (currentCategory != null && currentCategory.StartsWith(DetailCategoryPrefix, StringComparison.Ordinal))
         {
@@ -438,13 +453,14 @@ public sealed class PluginManager : Singleton<PluginManager>
                             () => ReloadPlugin(record.Id))
                     {
                             ConfigKey = $"{record.Name}_Reload Plugin_{record.Id}",
-                    }, register: false, loadSavedData: false);
+                    }, false, loadSavedData: false);
+
             ButtonHandler.AddButton(category,
                     new PluginActionEntry("Disable Plugin", "Unload this plugin and hide all of its mod buttons",
                             () => DisablePlugin(record.Id))
                     {
                             ConfigKey = $"{record.Name}_Disable Plugin_{record.Id}",
-                    }, register: false, loadSavedData: false);
+                    }, false, loadSavedData: false);
         }
         else
         {
@@ -453,13 +469,14 @@ public sealed class PluginManager : Singleton<PluginManager>
                             () => EnablePlugin(record.Id))
                     {
                             ConfigKey = $"{record.Name}_Enable Plugin_{record.Id}",
-                    }, register: false, loadSavedData: false);
+                    }, false, loadSavedData: false);
+
             ButtonHandler.AddButton(category,
                     new PluginActionEntry("Reload Plugin", "Reload the plugin assembly from disk",
                             () => ReloadPlugin(record.Id))
                     {
                             ConfigKey = $"{record.Name}_Reload Plugin_{record.Id}",
-                    }, register: false, loadSavedData: false);
+                    }, false, loadSavedData: false);
         }
 
         foreach (PluginModDescriptor mod in record.ModDescriptors)
@@ -468,7 +485,7 @@ public sealed class PluginManager : Singleton<PluginManager>
                             IsModVisible(record.Id, mod.TypeName))
                     {
                             ConfigKey = $"{record.Name}_{mod.Name}_{record.Id}_{mod.TypeName}_Visibility",
-                    }, register: false, loadSavedData: false);
+                    }, false, loadSavedData: false);
     }
 
     private static void ClearManagementCategory(string category)
@@ -476,6 +493,7 @@ public sealed class PluginManager : Singleton<PluginManager>
         if (!Buttons.Categories.TryGetValue(category, out (Type, hamburburmod)[] entries))
         {
             Buttons.Categories[category] = [];
+
             return;
         }
 
@@ -493,19 +511,20 @@ public sealed class PluginManager : Singleton<PluginManager>
 
     private PluginRecord FindRecord(string id) => records.FirstOrDefault(record => record.Id == id);
 
-    private static string GetDetailCategory(string id) => DetailCategoryPrefix + id;
-    private static string GetTypeName(Type type) => type.FullName ?? type.Name;
-    private static string GetModStateKey(string pluginId, string typeName) => pluginId + "::" + typeName;
+    private static string GetDetailCategory(string id)                        => DetailCategoryPrefix + id;
+    private static string GetTypeName(Type         type)                      => type.FullName ?? type.Name;
+    private static string GetModStateKey(string    pluginId, string typeName) => pluginId + "::" + typeName;
 
     private void LoadState()
     {
         string path = Path.Combine(PluginDirectory, StateFileName);
+
         if (!File.Exists(path))
             return;
 
         try
         {
-            state = JsonConvert.DeserializeObject<PluginState>(File.ReadAllText(path)) ?? new PluginState();
+            state                 =   JsonConvert.DeserializeObject<PluginState>(File.ReadAllText(path)) ?? new PluginState();
             state.DisabledPlugins ??= [];
             state.HiddenMods      ??= [];
         }
@@ -538,6 +557,7 @@ public sealed class PluginManager : Singleton<PluginManager>
         string name = new AssemblyName(args.Name).Name;
         Assembly loaded = AppDomain.CurrentDomain.GetAssemblies()
                                    .FirstOrDefault(assembly => assembly.GetName().Name == name);
+
         if (loaded != null)
             return loaded;
 
@@ -546,11 +566,13 @@ public sealed class PluginManager : Singleton<PluginManager>
 
         string dependency = Directory.GetFiles(PluginDirectory, name + ".dll", SearchOption.AllDirectories)
                                      .FirstOrDefault();
+
         if (dependency == null)
             return null;
 
         Assembly assembly = LoadAssemblyWithoutLock(dependency);
         dependencyAssemblies[name] = assembly;
+
         return assembly;
     }
 
@@ -586,18 +608,20 @@ public sealed class PluginManager : Singleton<PluginManager>
 
     private static bool IsPotentiallyLegacyPlugin(IEnumerable<Type> types) =>
             types.Any(type => typeof(hamburburmod).IsAssignableFrom(type) &&
-                              type != typeof(hamburburmod) &&
+                              type != typeof(hamburburmod)                &&
                               type.GetCustomAttributes(false)
                                   .Any(attribute => attribute.GetType().Name.Contains("hamburburPluginAttribute",
-                                          StringComparison.OrdinalIgnoreCase)));
+                                               StringComparison.OrdinalIgnoreCase)));
 
     private static PluginRecord CreateLegacyRecord(Assembly assembly, Type[] types, string sourcePath)
     {
         BepInPlugin metadata = types.Select(type => type.GetCustomAttribute<BepInPlugin>())
                                     .FirstOrDefault(attribute => attribute != null);
-        string name = metadata?.Name ?? assembly.GetName().Name;
-        string id = metadata?.GUID ?? assembly.FullName;
+
+        string name    = metadata?.Name                ?? assembly.GetName().Name;
+        string id      = metadata?.GUID                ?? assembly.FullName;
         string version = metadata?.Version?.ToString() ?? assembly.GetName().Version?.ToString() ?? "Unknown";
+
         return PluginRecord.Legacy(assembly, sourcePath, id, name, version);
     }
 
@@ -620,6 +644,30 @@ internal sealed class PluginRuntimeHost : MonoBehaviour { }
 
 internal sealed class PluginRecord
 {
+    internal readonly List<Action>                    CleanupActions = [];
+    internal readonly List<Coroutine>                 Coroutines     = [];
+    internal readonly PluginDescriptor                Descriptor;
+    internal readonly List<IDisposable>               Disposables = [];
+    internal readonly string                          Id;
+    internal readonly bool                            IsLegacy;
+    internal readonly List<PluginModDescriptor>       ModDescriptors   = [];
+    internal readonly List<OwnedPluginMod>            OwnedMods        = [];
+    internal readonly Dictionary<string, ModSaveInfo> RuntimeModStates = [];
+    internal readonly string                          SourcePath;
+    internal readonly List<Object>                    UnityObjects = [];
+
+    internal Assembly          Assembly;
+    internal string            Author;
+    internal PluginContext     Context;
+    internal string            Description;
+    internal IHamburburPlugin  Entry;
+    internal Type              EntryType;
+    internal bool              IsEnabled;
+    internal string            LastError;
+    internal string            Name;
+    internal PluginRuntimeHost RuntimeHost;
+    internal GameObject        RuntimeObject;
+    internal string            Version;
     internal PluginRecord(Assembly assembly, Type entryType, string sourcePath, HamburburPluginAttribute metadata)
     {
         Assembly    = assembly;
@@ -648,35 +696,11 @@ internal sealed class PluginRecord
 
     internal static PluginRecord Legacy(Assembly assembly, string sourcePath, string id, string name, string version) =>
             new(assembly, sourcePath, id, name, version);
-
-    internal Assembly Assembly;
-    internal Type EntryType;
-    internal readonly string Id;
-    internal string Name;
-    internal string Version;
-    internal string Author;
-    internal string Description;
-    internal readonly string SourcePath;
-    internal readonly bool IsLegacy;
-    internal bool IsEnabled;
-    internal string LastError;
-    internal IHamburburPlugin Entry;
-    internal PluginContext Context;
-    internal GameObject RuntimeObject;
-    internal PluginRuntimeHost RuntimeHost;
-    internal readonly PluginDescriptor Descriptor;
-    internal readonly List<PluginModDescriptor> ModDescriptors = [];
-    internal readonly List<OwnedPluginMod> OwnedMods = [];
-    internal readonly Dictionary<string, ModSaveInfo> RuntimeModStates = [];
-    internal readonly List<Action> CleanupActions = [];
-    internal readonly List<IDisposable> Disposables = [];
-    internal readonly List<UnityEngine.Object> UnityObjects = [];
-    internal readonly List<Coroutine> Coroutines = [];
 }
 
 internal sealed class OwnedPluginMod(Type type, string category, hamburburmod instance)
 {
-    internal Type Type { get; } = type;
-    internal string Category { get; } = category;
+    internal Type         Type     { get; } = type;
+    internal string       Category { get; } = category;
     internal hamburburmod Instance { get; } = instance;
 }

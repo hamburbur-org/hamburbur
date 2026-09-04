@@ -2,13 +2,12 @@ using System.IO;
 using System.Linq;
 using BepInEx;
 using hamburbur.Libs;
-using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using Photon.Realtime;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod("Block Gun", "A gun that lets you block anyone locally who has console", ButtonType.Togglable,
+[hamburburmod(                   "Block Gun",          "A gun that lets you block anyone locally who has console", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class BlockGun : hamburburmod
 {
@@ -21,10 +20,7 @@ public class BlockGun : hamburburmod
 
     private bool wasShooting;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void OnEnable()
     {

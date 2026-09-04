@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using GorillaNetworking;
 using hamburbur.Components;
 using hamburbur.Mods.Settings;
@@ -107,7 +106,7 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
 
             Destroy(board.GetComponent<Collider>());
         }
-        
+
         if (coc == null)
         {
             coc                      = GameObject.CreatePrimitive(PrimitiveType.Plane);
@@ -115,18 +114,18 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
             coc.transform.position   = new Vector3(-67.96f, 11.95f, -80.7f);
             coc.transform.rotation   = Quaternion.Euler(276.3606f, 332.0349f, 0.1003f);
             coc.transform.localScale = new Vector3(0.106f, 0.1f, 0.106f);
-            
+
             Destroy(coc.GetComponent<Collider>());
         }
-            
+
         if (motd == null)
         {
             motd                      = GameObject.CreatePrimitive(PrimitiveType.Plane);
             motd.name                 = "Hamburbur Custom MOTD";
-            motd.transform.position   = new Vector3(-64.8004f, 13.8196f, -82.6573f);
-            motd.transform.rotation   = Quaternion.Euler(53.2205f, 100.0001f, 180.7898f);
-            motd.transform.localScale = new Vector3(0.2193f, 4.1847f, 0.1084f);
-            
+            motd.transform.position   = new Vector3(-68.9618f, 12.2286f, -81.2488f);
+            motd.transform.rotation   = Quaternion.Euler(83.0389f, 296.2112f, 180.0051f);
+            motd.transform.localScale = new Vector3(0.1156f, 0.0056f, 0.0506f);
+
             Destroy(motd.GetComponent<Collider>());
         }
 
@@ -157,10 +156,9 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
 
                 ApplyMaterial(objectBoard.GetComponent<Renderer>());
             }
-            
+
             ApplyMaterial(coc.GetComponent<Renderer>());
             ApplyMaterial(motd.GetComponent<Renderer>());
-            
 
             if (PhotonNetworkController.Instance != null)
             {
@@ -232,7 +230,7 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
         ReloadAllBoards();
     }
 
-    private void CreateObjectBoard(string scene, string gameObject, Vector3? position = null, Vector3? rotation = null,
+    private void CreateObjectBoard(string   scene, string gameObject, Vector3? position = null, Vector3? rotation = null,
                                    Vector3? scale = null)
     {
         try

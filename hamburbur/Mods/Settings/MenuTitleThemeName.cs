@@ -7,7 +7,7 @@ namespace hamburbur.Mods.Settings;
 public class MenuTitleThemeName : hamburburmod
 {
     public static bool IsEnabled;
-    
+
     protected override void OnEnable()
     {
         IsEnabled = true;

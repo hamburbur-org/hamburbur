@@ -42,7 +42,7 @@ public class DiscordDebug : ILogger
         string text = "TRACE: " + message;
         if (args.Length != 0)
         {
-            Debug.Log(text + ": " +  args);
+            Debug.Log(text + ": " + args);
 
             return;
         }
@@ -58,7 +58,7 @@ public class DiscordDebug : ILogger
         string text = "INFO: " + message;
         if (args.Length != 0)
         {
-            Debug.Log(text + ": " +  args);
+            Debug.Log(text + ": " + args);
 
             return;
         }
@@ -74,7 +74,7 @@ public class DiscordDebug : ILogger
         string text = "WARN: " + message;
         if (args.Length != 0)
         {
-            Debug.LogWarning(text + ": " +  args);
+            Debug.LogWarning(text + ": " + args);
 
             return;
         }

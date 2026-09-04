@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Full Bright", "Adds full bright fog to the map.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      "Full Bright", "Adds full bright fog to the map.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class FullBright : hamburburmod
 {

@@ -9,21 +9,21 @@ namespace hamburbur.Mods.Console;
 [hamburburmod("Telekinesis", "Controll people with your hands", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class Telekinesis : hamburburmod
 {
-    private const float MaximumRayDistance = 512f;
-    private const float MinimumDistance     = 0.1f;
-    private const float JoystickDeadzone    = 0.2f;
-    private const float FlingCooldown       = 0.5f;
-    private const float TeleportInterval    = 0.05f;
-    private const float FlingForce          = 30f;
-    private const float IndicatorScale      = 0.025f;
+    private const    float     MaximumRayDistance = 512f;
+    private const    float     MinimumDistance    = 0.1f;
+    private const    float     JoystickDeadzone   = 0.2f;
+    private const    float     FlingCooldown      = 0.5f;
+    private const    float     TeleportInterval   = 0.05f;
+    private const    float     FlingForce         = 30f;
+    private const    float     IndicatorScale     = 0.025f;
+    private readonly HandState leftHandState      = new();
 
     private readonly HandState rightHandState = new();
-    private readonly HandState leftHandState  = new();
 
     protected override void Update()
     {
         ProcessHand(HandType.Right, rightHandState);
-        ProcessHand(HandType.Left, leftHandState);
+        ProcessHand(HandType.Left,  leftHandState);
     }
 
     protected override void OnDisable()
@@ -40,35 +40,36 @@ public class Telekinesis : hamburburmod
         bool isRightHand = handType == HandType.Right;
 
         Transform handTransform = isRightHand
-                ? GorillaTagger.Instance.rightHandTransform
-                : GorillaTagger.Instance.leftHandTransform;
+                                          ? GorillaTagger.Instance.rightHandTransform
+                                          : GorillaTagger.Instance.leftHandTransform;
 
         Transform controllerTransform = isRightHand
-                ? Tools.Utils.RealRightController
-                : Tools.Utils.RealLeftController;
+                                                ? Tools.Utils.RealRightController
+                                                : Tools.Utils.RealLeftController;
 
         if (handTransform == null || controllerTransform == null)
         {
             ResetHand(handState);
+
             return;
         }
 
         bool isGrabbing = isRightHand
-                ? InputManager.Instance.RightGrip.IsPressed
-                : InputManager.Instance.LeftGrip.IsPressed;
+                                  ? InputManager.Instance.RightGrip.IsPressed
+                                  : InputManager.Instance.LeftGrip.IsPressed;
 
         bool triggerPressed = isRightHand
-                ? InputManager.Instance.RightTrigger.IsPressed
-                : InputManager.Instance.LeftTrigger.IsPressed;
+                                      ? InputManager.Instance.RightTrigger.IsPressed
+                                      : InputManager.Instance.LeftTrigger.IsPressed;
 
         float joystickY = isRightHand
-                ? InputManager.Instance.RightJoystick.Axis.y
-                : InputManager.Instance.LeftJoystick.Axis.y;
+                                  ? InputManager.Instance.RightJoystick.Axis.y
+                                  : InputManager.Instance.LeftJoystick.Axis.y;
 
         if (!isGrabbing)
             ResetHand(handState);
 
-        Vector3 rayOrigin = handTransform.position + controllerTransform.forward * 0.25f;
+        Vector3 rayOrigin    = handTransform.position + controllerTransform.forward * 0.25f;
         Vector3 rayDirection = controllerTransform.forward;
 
         bool hitSomething = Physics.Raycast(
@@ -126,9 +127,9 @@ public class Telekinesis : hamburburmod
 
     private static void TryGrabTarget(
             HandState handState,
-            VRRig target,
-            float hitDistance,
-            bool isGrabbing)
+            VRRig     target,
+            float     hitDistance,
+            bool      isGrabbing)
     {
         if (!isGrabbing)
             return;
@@ -136,15 +137,15 @@ public class Telekinesis : hamburburmod
         if (handState.Target != null)
             return;
 
-        handState.Target = target;
+        handState.Target   = target;
         handState.Distance = Mathf.Max(hitDistance, MinimumDistance);
     }
 
     private static void TryFlingTarget(
             HandState handState,
-            VRRig target,
-            Vector3 direction,
-            bool triggerPressed)
+            VRRig     target,
+            Vector3   direction,
+            bool      triggerPressed)
     {
         if (!triggerPressed)
             return;
@@ -168,7 +169,7 @@ public class Telekinesis : hamburburmod
             return;
 
         handState.Distance += joystickY * 4f * Time.deltaTime;
-        handState.Distance = Mathf.Max(handState.Distance, MinimumDistance);
+        handState.Distance =  Mathf.Max(handState.Distance, MinimumDistance);
     }
 
     private static void UpdateTargetPosition(HandState handState, Vector3 position)
@@ -178,6 +179,7 @@ public class Telekinesis : hamburburmod
         if (!IsValidTarget(target))
         {
             ResetHand(handState);
+
             return;
         }
 
@@ -196,13 +198,13 @@ public class Telekinesis : hamburburmod
 
     private static void ShowTargetIndicator(
             HandState handState,
-            Vector3 position,
-            bool isTargetValid)
+            Vector3   position,
+            bool      isTargetValid)
     {
         if (handState.Indicator == null)
         {
-            handState.Indicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            handState.Indicator.name = "Telekinesis Target Indicator";
+            handState.Indicator                      = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            handState.Indicator.name                 = "Telekinesis Target Indicator";
             handState.Indicator.transform.localScale = Vector3.one * IndicatorScale;
 
             Object.Destroy(handState.Indicator.GetComponent<Collider>());
@@ -226,7 +228,7 @@ public class Telekinesis : hamburburmod
 
     private static void ResetHand(HandState handState)
     {
-        handState.Target = null;
+        handState.Target   = null;
         handState.Distance = 0f;
 
         HideTargetIndicator(handState);
@@ -243,11 +245,11 @@ public class Telekinesis : hamburburmod
 
     private sealed class HandState
     {
-        public VRRig Target;
-        public GameObject Indicator;
 
-        public float Distance;
-        public float NextFlingTime;
-        public float NextTeleportTime;
+        public float      Distance;
+        public GameObject Indicator;
+        public float      NextFlingTime;
+        public float      NextTeleportTime;
+        public VRRig      Target;
     }
 }

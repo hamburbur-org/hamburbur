@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Fun;
 
-[hamburburmod("No Snowball Knockback", "Disable snowball knockback", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(               "No Snowball Knockback", "Disable snowball knockback", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Enabled, 0)]
 public class NoSnowballKnockback : hamburburmod
 {

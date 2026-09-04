@@ -4,7 +4,7 @@ using Photon.Realtime;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod("Teleport All Gun", "A gun that lets you teleport everyone that has console", ButtonType.Togglable,
+[hamburburmod(                   "Teleport All Gun",   "A gun that lets you teleport everyone that has console", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class TpAllGun : hamburburmod
 {
@@ -13,10 +13,7 @@ public class TpAllGun : hamburburmod
             ShouldFollow = true,
     };
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod("Auto Get Console Users", "Automatically detects who is using console", ButtonType.Togglable,
-        AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
+[hamburburmod(                   "Auto Get Console Users", "Automatically detects who is using console", ButtonType.Togglable,
+        AccessSetting.AdminOnly, EnabledType.Disabled,     0)]
 public class AutoGetConsoleUsers : hamburburmod
 {
     public static AutoGetConsoleUsers Instance { get; private set; }
@@ -18,7 +18,7 @@ public class AutoGetConsoleUsers : hamburburmod
         NetworkSystem.Instance.OnJoinedRoomEvent += () =>
                                                     {
                                                         foreach (NetPlayer player in NetworkSystem.Instance
-                                                                        .PlayerListOthers)
+                                                                                                  .PlayerListOthers)
                                                             PingForConsole(player);
                                                     };
     }

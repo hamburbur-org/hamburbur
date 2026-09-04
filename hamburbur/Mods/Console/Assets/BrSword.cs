@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("BR Sword", "Spawns the sword asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      "BR Sword", "Spawns the sword asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class BrSword : hamburburmod
 {

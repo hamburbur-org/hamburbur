@@ -1,25 +1,23 @@
 using hamburbur.Components;
 using hamburbur.Tools;
-using HarmonyLib;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Video;
 
 namespace hamburbur.Misc;
 
 public class HamburburPromotionManager : Singleton<HamburburPromotionManager>
 {
-    public  GameObject  Fin;
-    private GameObject  stumpObj;
+    public  GameObject Fin;
+    private GameObject stumpObj;
 
     private void Start()
     {
-        Fin = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Fin                      = GameObject.CreatePrimitive(PrimitiveType.Cube);
         Fin.transform.localScale = new Vector3(0.8f,    0.9f, 0.0001f);
         Fin.transform.position   = new Vector3(-64.72f, 12f,  -84.72f);
         Fin.transform.rotation   = Quaternion.Euler(0f, 271.63f, 0f);
-        
+
         if (Fin.TryGetComponent(out Collider collider)) collider.Obliterate();
 
         if (!Fin.TryGetComponent(out Renderer renderer))
@@ -30,7 +28,7 @@ public class HamburburPromotionManager : Singleton<HamburburPromotionManager>
         renderer.sharedMaterial.EnableKeyword("_USE_TEXTURE");
         renderer.sharedMaterial.color = Color.white;
     }
-    
+
     public void CreateStumpStatus(string text, Texture2D icon)
     {
         if (stumpObj != null)

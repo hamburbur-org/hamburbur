@@ -20,10 +20,10 @@ public class GrayZone : hamburburmod
                     5f,
                     false,
                     false);
-            
+
             return;
         }
-        
+
         greyZones = Object.FindObjectsOfType<GreyZoneManager>();
 
         foreach (GreyZoneManager greyZone in greyZones)
@@ -39,7 +39,7 @@ public class GrayZone : hamburburmod
     {
         if (!Tools.Utils.IsMasterClient)
             return;
-        
+
         foreach (GreyZoneManager greyZone in greyZones)
         {
             greyZone.greyZoneAmbienceVolume = 0f;

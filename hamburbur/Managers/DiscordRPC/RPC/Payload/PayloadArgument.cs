@@ -14,10 +14,7 @@ internal class ArgumentPayload : IPayload
     public ArgumentPayload() => Arguments = null;
     public ArgumentPayload(long nonce) : base(nonce) => Arguments = null;
 
-    public ArgumentPayload(object args, long nonce) : base(nonce)
-    {
-        SetObject(args);
-    }
+    public ArgumentPayload(object args, long nonce) : base(nonce) => SetObject(args);
 
 	/// <summary>
 	///     The data the server sent too us
@@ -29,10 +26,7 @@ internal class ArgumentPayload : IPayload
 	///     Sets the obejct stored within the data.
 	/// </summary>
 	/// <param name="obj"></param>
-	public void SetObject(object obj)
-    {
-        Arguments = JObject.FromObject(obj);
-    }
+	public void SetObject(object obj) => Arguments = JObject.FromObject(obj);
 
 	/// <summary>
 	///     Gets the object stored within the Data

@@ -11,32 +11,32 @@ namespace hamburbur.Mod_Backend;
 // ReSharper disable once InconsistentNaming
 public class hamburburmod
 {
-    public static int EnabledStateRevision { get; private set; }
+
+    private readonly HashSet<Type> modsDisabledByCompatibilitySystem = [];
+    private readonly HashSet<Type> modsEnabledByCompatibilitySystem  = [];
 
     public hamburburmodAttribute AssociatedAttribute;
-    public GameObject AssociatedGUIButton;
+    public GameObject            AssociatedGUIButton;
+
+    private       bool        hasStarted;
+    public        int         IncrementalValue;
+    public        bool        LoadSavedDataWhenStartCalled;
+    private       ModSaveInfo pendingSavedData;
+    public static int         EnabledStateRevision { get; private set; }
 
     public bool Enabled { get; private set; }
-    public int IncrementalValue;
-    public bool LoadSavedDataWhenStartCalled;
 
     public string ConfigKey { get; set; }
 
-    public            string PreferencesKey   => string.IsNullOrEmpty(ConfigKey)
-                                                        ? AssociatedAttribute?.Name ?? GetType().Name
-                                                        : ConfigKey;
-    public virtual    string ModName          => AssociatedAttribute.Name;
-    protected bool    IsUserInitiatedToggle { get; private set; }
-    protected virtual Type[] Dependencies     => [];
-    protected virtual Type[] IncompatibleMods => [];
+    public string PreferencesKey => string.IsNullOrEmpty(ConfigKey)
+                                            ? AssociatedAttribute?.Name ?? GetType().Name
+                                            : ConfigKey;
+    public virtual    string ModName               => AssociatedAttribute.Name;
+    protected         bool   IsUserInitiatedToggle { get; private set; }
+    protected virtual Type[] Dependencies          => [];
+    protected virtual Type[] IncompatibleMods      => [];
 
     internal ModTickPhase TickPhases { get; private set; }
-
-    private readonly HashSet<Type> modsDisabledByCompatibilitySystem = [];
-    private readonly HashSet<Type> modsEnabledByCompatibilitySystem = [];
-
-    private bool hasStarted;
-    private ModSaveInfo pendingSavedData;
 
     public void InvokeStart()
     {
@@ -46,12 +46,13 @@ public class hamburburmod
         if (AssociatedAttribute == null)
         {
             Debug.LogError($"[hamburbur] Missing hamburburmodAttribute on {GetType().FullName}");
+
             return;
         }
 
-        Enabled = false;
+        Enabled          = false;
         IncrementalValue = AssociatedAttribute.IncrementalValue;
-        TickPhases = ModRuntime.GetTickPhases(GetType());
+        TickPhases       = ModRuntime.GetTickPhases(GetType());
 
         Start();
 
@@ -82,6 +83,7 @@ public class hamburburmod
         if (!hasStarted)
         {
             pendingSavedData = savedModInfo;
+
             return;
         }
 
@@ -96,8 +98,8 @@ public class hamburburmod
 
     public void Toggle(
             ButtonState buttonState,
-            bool playNotification = true,
-            bool careAboutDependenciesAndIncompatibleMods = true)
+            bool        playNotification                         = true,
+            bool        careAboutDependenciesAndIncompatibleMods = true)
     {
         int buttonUpdateRevision = ButtonHandler.UpdateRevision;
 
@@ -121,10 +123,12 @@ public class hamburburmod
             case ButtonType.Fixed:
                 Pressed();
                 Notify("Pressed", "yellow", playNotification);
+
                 break;
 
             case ButtonType.Incremental:
                 HandleIncrementalButton(buttonState, playNotification);
+
                 break;
 
             default:
@@ -140,7 +144,7 @@ public class hamburburmod
 
     private void SetEnabled(
             bool enabled,
-            bool playNotification = true,
+            bool playNotification                         = true,
             bool careAboutDependenciesAndIncompatibleMods = true)
     {
         if (AssociatedAttribute.ButtonType != ButtonType.Togglable)
@@ -189,11 +193,13 @@ public class hamburburmod
             case ButtonState.Increment:
                 Increment();
                 Notify("Incremented", "yellow", playNotification);
+
                 break;
 
             case ButtonState.Decrement:
                 Decrement();
                 Notify("Decremented", "yellow", playNotification);
+
                 break;
 
             case ButtonState.Normal:
@@ -267,20 +273,20 @@ public class hamburburmod
                 false);
     }
 
-    protected virtual void Start() { }
-    protected virtual void OnEnable() { }
-    protected virtual void OnDisable() { }
-    protected virtual void Update() { }
-    protected virtual void LateUpdate() { }
-    protected virtual void FixedUpdate() { }
-    protected virtual void OnGUI() { }
-    protected virtual void Pressed() { }
-    protected virtual void Increment() { }
-    protected virtual void Decrement() { }
+    protected virtual void Start()                    { }
+    protected virtual void OnEnable()                 { }
+    protected virtual void OnDisable()                { }
+    protected virtual void Update()                   { }
+    protected virtual void LateUpdate()               { }
+    protected virtual void FixedUpdate()              { }
+    protected virtual void OnGUI()                    { }
+    protected virtual void Pressed()                  { }
+    protected virtual void Increment()                { }
+    protected virtual void Decrement()                { }
     protected virtual void OnIncrementalStateLoaded() { }
 
-    internal void InvokeUpdate() => Update();
-    internal void InvokeLateUpdate() => LateUpdate();
+    internal void InvokeUpdate()      => Update();
+    internal void InvokeLateUpdate()  => LateUpdate();
     internal void InvokeFixedUpdate() => FixedUpdate();
-    internal void InvokeOnGUI() => OnGUI();
+    internal void InvokeOnGUI()       => OnGUI();
 }

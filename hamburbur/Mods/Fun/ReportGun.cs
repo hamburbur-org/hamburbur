@@ -39,10 +39,7 @@ public class ReportGun : hamburburmod
 
     private float lastTime;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

@@ -1,9 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+using System.IO;
 using hamburbur.Mod_Backend;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace hamburbur.Plugins;
 
@@ -35,11 +36,11 @@ public sealed class PluginContext
 
     internal PluginContext(PluginRecord record) => this.record = record;
 
-    public string Id              => record.Id;
-    public string Name            => record.Name;
+    public string Id   => record.Id;
+    public string Name => record.Name;
     public string PluginDirectory => record.SourcePath == null
                                              ? PluginManager.Instance.PluginDirectory
-                                             : System.IO.Path.GetDirectoryName(record.SourcePath);
+                                             : Path.GetDirectoryName(record.SourcePath);
 
     public hamburburmod RegisterMod<T>(string category) where T : hamburburmod, new() =>
             RegisterMod(typeof(T), category);
@@ -49,9 +50,10 @@ public sealed class PluginContext
 
     public T AddComponent<T>(GameObject target = null) where T : Component
     {
-        GameObject owner = target == null ? record.RuntimeObject : target;
-        T component = owner.AddComponent<T>();
+        GameObject owner     = target == null ? record.RuntimeObject : target;
+        T          component = owner.AddComponent<T>();
         TrackUnityObject(component);
+
         return component;
     }
 
@@ -60,9 +62,10 @@ public sealed class PluginContext
         if (componentType == null || !typeof(Component).IsAssignableFrom(componentType))
             throw new ArgumentException("The type must derive from UnityEngine.Component.", nameof(componentType));
 
-        GameObject owner = target == null ? record.RuntimeObject : target;
-        Component component = owner.AddComponent(componentType);
+        GameObject owner     = target == null ? record.RuntimeObject : target;
+        Component  component = owner.AddComponent(componentType);
         TrackUnityObject(component);
+
         return component;
     }
 
@@ -70,6 +73,7 @@ public sealed class PluginContext
     {
         GameObject gameObject = new(name);
         TrackUnityObject(gameObject);
+
         return gameObject;
     }
 
@@ -80,6 +84,7 @@ public sealed class PluginContext
 
         Coroutine coroutine = record.RuntimeHost.StartCoroutine(routine);
         record.Coroutines.Add(coroutine);
+
         return coroutine;
     }
 
@@ -91,7 +96,7 @@ public sealed class PluginContext
         return resource;
     }
 
-    public T TrackUnityObject<T>(T unityObject) where T : UnityEngine.Object
+    public T TrackUnityObject<T>(T unityObject) where T : Object
     {
         if (unityObject != null)
             record.UnityObjects.Add(unityObject);

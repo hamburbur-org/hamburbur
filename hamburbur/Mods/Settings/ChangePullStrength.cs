@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Pull Strength: ", "Change the pull strength", ButtonType.Incremental, AccessSetting.Public,
+[hamburburmod(                "Pull Strength: ", "Change the pull strength", ButtonType.Incremental, AccessSetting.Public,
         EnabledType.Disabled, MinStep)]
 public class ChangePullStrength : hamburburmod
 {

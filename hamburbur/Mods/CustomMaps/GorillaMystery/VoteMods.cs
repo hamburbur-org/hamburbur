@@ -45,21 +45,21 @@ public abstract class SpamMysteryVote : hamburburmod
     }
 }
 
-[hamburburmod("Spam Vote Map 1", "Continuously forces room votes to Gorilla Mystery map one while no game is active",
+[hamburburmod(                "Spam Vote Map 1",    "Continuously forces room votes to Gorilla Mystery map one while no game is active",
         ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class SpamVoteMap1 : SpamMysteryVote
 {
     protected override int MapNumber => 1;
 }
 
-[hamburburmod("Spam Vote Map 2", "Continuously forces room votes to Gorilla Mystery map two while no game is active",
+[hamburburmod(                "Spam Vote Map 2",    "Continuously forces room votes to Gorilla Mystery map two while no game is active",
         ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class SpamVoteMap2 : SpamMysteryVote
 {
     protected override int MapNumber => 2;
 }
 
-[hamburburmod("Spam Vote Map 3", "Continuously forces room votes to Gorilla Mystery map three while no game is active",
+[hamburburmod(                "Spam Vote Map 3",    "Continuously forces room votes to Gorilla Mystery map three while no game is active",
         ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class SpamVoteMap3 : SpamMysteryVote
 {

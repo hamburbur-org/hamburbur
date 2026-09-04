@@ -29,47 +29,47 @@ public static class MacroManager
     public static void FinishRecordingMacro(List<RigTransform> recordingData)
     {
         ButtonHandler.Instance.Prompt(new PromptData(PromptType.AcceptAndDeny, "Do you want to save this macro?", () =>
-        {
-            ButtonHandler.Instance.Prompt(new PromptData(PromptType.Keyboard, "Please enter a name for the macro",
-                    typedText =>
-                    {
-                        if (string.IsNullOrEmpty(typedText))
-                        {
-                            NotificationManager.SendNotification(
-                                    "<color=yellow>Macros</color>",
-                                    "Macro <color=red>discarded</color>!",
-                                    3f,
-                                    false,
-                                    false);
+                                                                                                                  {
+                                                                                                                      ButtonHandler.Instance.Prompt(new PromptData(PromptType.Keyboard, "Please enter a name for the macro",
+                                                                                                                              typedText =>
+                                                                                                                              {
+                                                                                                                                  if (string.IsNullOrEmpty(typedText))
+                                                                                                                                  {
+                                                                                                                                      NotificationManager.SendNotification(
+                                                                                                                                              "<color=yellow>Macros</color>",
+                                                                                                                                              "Macro <color=red>discarded</color>!",
+                                                                                                                                              3f,
+                                                                                                                                              false,
+                                                                                                                                              false);
 
-                            return;
-                        }
+                                                                                                                                      return;
+                                                                                                                                  }
 
-                        Macro macro = new()
-                        {
-                                Name      = typedText,
-                                Positions = recordingData,
-                        };
+                                                                                                                                  Macro macro = new()
+                                                                                                                                  {
+                                                                                                                                          Name      = typedText,
+                                                                                                                                          Positions = recordingData,
+                                                                                                                                  };
 
-                        SaveMacro(macro);
-                    }, () =>
-                       {
-                           NotificationManager.SendNotification(
-                                   "<color=yellow>Macros</color>",
-                                   "Macro <color=red>discarded</color>!",
-                                   3f,
-                                   false,
-                                   false);
-                       }));
-        }, () =>
-           {
-               NotificationManager.SendNotification(
-                       "<color=yellow>Macros</color>",
-                       "Macro <color=red>discarded</color>!",
-                       3f,
-                       false,
-                       false);
-           }, "Yes", "No"));
+                                                                                                                                  SaveMacro(macro);
+                                                                                                                              }, () =>
+                                                                                                                                 {
+                                                                                                                                     NotificationManager.SendNotification(
+                                                                                                                                             "<color=yellow>Macros</color>",
+                                                                                                                                             "Macro <color=red>discarded</color>!",
+                                                                                                                                             3f,
+                                                                                                                                             false,
+                                                                                                                                             false);
+                                                                                                                                 }));
+                                                                                                                  }, () =>
+                                                                                                                     {
+                                                                                                                         NotificationManager.SendNotification(
+                                                                                                                                 "<color=yellow>Macros</color>",
+                                                                                                                                 "Macro <color=red>discarded</color>!",
+                                                                                                                                 3f,
+                                                                                                                                 false,
+                                                                                                                                 false);
+                                                                                                                     }, "Yes", "No"));
 
         NotificationManager.SendNotification(
                 "<color=yellow>Macros</color>",

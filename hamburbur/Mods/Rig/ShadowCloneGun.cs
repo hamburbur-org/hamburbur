@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Rig;
 
-[hamburburmod("Shadow Clone Gun", "Copies a selected player's movement beside them in modded rooms",
+[hamburburmod(                "Shadow Clone Gun",   "Copies a selected player's movement beside them in modded rooms",
         ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class ShadowCloneGun : hamburburmod
 {
@@ -18,12 +18,13 @@ public class ShadowCloneGun : hamburburmod
     protected override void LateUpdate()
     {
         gunLib.LateUpdate();
-        
+
         VRRig target = gunLib.ChosenRig;
 
         if (!gunLib.IsShooting || target == null)
         {
             RestoreRig();
+
             return;
         }
 

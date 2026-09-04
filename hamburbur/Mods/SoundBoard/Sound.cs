@@ -6,16 +6,16 @@ using UnityEngine;
 
 namespace hamburbur.Mods.SoundBoard;
 
-[hamburburmod(nameof(Sound), "Plays a sound through your mic in-game", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                      nameof(Sound), "Plays a sound through your mic in-game", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.AlwaysDisabled, 0)]
 public class Sound : hamburburmod
 {
-    private Guid playingSound;
     private bool isLoading;
+    private Guid playingSound;
     private int  playRequestVersion;
 
-    public  string SoundName = "";
-    public  string SoundPath = "";
+    public string SoundName = "";
+    public string SoundPath = "";
 
     public override string ModName => SoundName;
 
@@ -49,8 +49,8 @@ public class Sound : hamburburmod
         if (isLoading)
             return;
 
-        if (playingSound == Guid.Empty ||
-            VoiceManager.Instance == null ||
+        if (playingSound          == Guid.Empty ||
+            VoiceManager.Instance == null       ||
             VoiceManager.Instance.AudioClips.All(c => c.Id != playingSound))
             Toggle(ButtonState.Normal, false, false);
     }

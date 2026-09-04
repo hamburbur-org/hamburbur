@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod(nameof(Karambit), "Spawns the karambit asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      nameof(Karambit), "Spawns the karambit asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class Karambit : hamburburmod
 {

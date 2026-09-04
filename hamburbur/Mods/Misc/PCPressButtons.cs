@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("PC Press Buttons", "Lets you press buttons on PC", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "PC Press Buttons", "Lets you press buttons on PC", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class PCPressButtons : hamburburmod
 {
@@ -28,14 +28,14 @@ public class PCPressButtons : hamburburmod
             return;
 
         Camera cameraToUse = Tools.Utils.GetActiveCamera();
-        
+
         // ReSharper disable once Unity.PreferNonAllocApi
-        RaycastHit[] hits        = Physics.RaycastAll(cameraToUse.ScreenPointToRay(Mouse.current.position.ReadValue()), 30f);
-        RaycastHit hit = default;
-        
+        RaycastHit[] hits = Physics.RaycastAll(cameraToUse.ScreenPointToRay(Mouse.current.position.ReadValue()), 30f);
+        RaycastHit   hit  = default;
+
         foreach (RaycastHit candidate in hits)
             if ((1 << candidate.collider.gameObject.layer & GTPlayer.Instance.locomotionEnabledLayers) != 0)
-                hit         = candidate;
+                hit = candidate;
 
         handIndicator.transform.position = hit.point;
 

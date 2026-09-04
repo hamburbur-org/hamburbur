@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Pred Strength: ", "Change the pred strength", ButtonType.Incremental, AccessSetting.Public,
+[hamburburmod(                "Pred Strength: ", "Change the pred strength", ButtonType.Incremental, AccessSetting.Public,
         EnabledType.Disabled, 2)]
 public class ChangePredStrength : hamburburmod
 {

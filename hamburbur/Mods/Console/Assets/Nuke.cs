@@ -89,9 +89,9 @@ public class Nuke : hamburburmod
         }
 
         int explosionId = Components.Console.GetFreeAssetID();
-        Components.Console.ExecuteCommand("asset-spawn",       ReceiverGroup.All, "btools", "Explosion", explosionId);
+        Components.Console.ExecuteCommand("asset-spawn",       ReceiverGroup.All, "btools",    "Explosion", explosionId);
         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, explosionId, position);
-        
+
         Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, explosionId, "Sound", nameof(Explode));
 
         Task.Run(async () =>

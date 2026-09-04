@@ -2,7 +2,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod(                "Jarvis Dictate", "Makes Jarvis speak some of your notifications", ButtonType.Togglable,
+[hamburburmod(                "Jarvis Dictate",     "Makes Jarvis speak some of your notifications", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class JarvisDictate : hamburburmod
 {

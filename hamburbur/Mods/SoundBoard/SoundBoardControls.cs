@@ -1,15 +1,13 @@
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using UnityEngine;
 using Process = System.Diagnostics.Process;
-using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
 namespace hamburbur.Mods.SoundBoard;
 
-[hamburburmod("Reload Sounds", "Rescans the sounds folder and refreshes the soundboard list", ButtonType.Fixed,
+[hamburburmod(                "Reload Sounds",      "Rescans the sounds folder and refreshes the soundboard list", ButtonType.Fixed,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class ReloadSounds : hamburburmod
 {
@@ -26,7 +24,7 @@ public class ReloadSounds : hamburburmod
     }
 }
 
-[hamburburmod("Open Sounds Folder", "Opens the folder containing your soundboard files", ButtonType.Fixed,
+[hamburburmod(                "Open Sounds Folder", "Opens the folder containing your soundboard files", ButtonType.Fixed,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class OpenSoundsFolder : hamburburmod
 {

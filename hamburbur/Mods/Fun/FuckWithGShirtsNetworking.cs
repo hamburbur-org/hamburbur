@@ -9,8 +9,8 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Fun;
 
-[hamburburmod("Fuck With GShirts Networking", "A mod to fuck with gorilla shirts networking",
-        ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Fuck With GShirts Networking", "A mod to fuck with gorilla shirts networking",
+        ButtonType.Togglable, AccessSetting.Public,           EnabledType.Disabled, 0)]
 public class FuckWithGShirtsNetworking : hamburburmod
 {
     private const float PropertyChangeCooldown = 0.1f;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod(                   "Freeze Gun", "A gun that lets you freeze anyone who has console", ButtonType.Togglable,
+[hamburburmod(                   "Freeze Gun",         "A gun that lets you freeze anyone who has console", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class ConsoleFreezeGun : hamburburmod
 {
@@ -15,10 +15,7 @@ public class ConsoleFreezeGun : hamburburmod
 
     private float lastLagTime;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

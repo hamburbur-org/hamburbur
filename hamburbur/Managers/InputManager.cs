@@ -60,15 +60,15 @@ public class InputManager : Singleton<InputManager>
 
     public ControllerButton GetInput(InputType inputType) => inputType switch
                                                              {
-                                                                     InputType.RightPrimary => RightPrimary,
+                                                                     InputType.RightPrimary   => RightPrimary,
                                                                      InputType.RightSecondary => RightSecondary,
-                                                                     InputType.RightTrigger => RightTrigger,
-                                                                     InputType.RightGrip => RightGrip,
-                                                                     InputType.LeftPrimary => LeftPrimary,
-                                                                     InputType.LeftSecondary => LeftSecondary,
-                                                                     InputType.LeftTrigger => LeftTrigger,
-                                                                     InputType.LeftGrip => LeftGrip,
-                                                                     var _ => default(ControllerButton),
+                                                                     InputType.RightTrigger   => RightTrigger,
+                                                                     InputType.RightGrip      => RightGrip,
+                                                                     InputType.LeftPrimary    => LeftPrimary,
+                                                                     InputType.LeftSecondary  => LeftSecondary,
+                                                                     InputType.LeftTrigger    => LeftTrigger,
+                                                                     InputType.LeftGrip       => LeftGrip,
+                                                                     var _                    => default(ControllerButton),
                                                              };
 
     private void HandleInput(ref ControllerButton button, bool isPressed)

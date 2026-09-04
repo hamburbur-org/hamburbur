@@ -19,7 +19,7 @@ public class Shreksophone : hamburburmod
 
         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, assetId,
                 new Vector3(-76f, 1.7f, -80f));
-        
+
         Components.Console.ExecuteCommand("asset-setrotation", ReceiverGroup.All, assetId, Quaternion.Euler(0f, 40f, 0f));
 
         Components.Console.ExecuteCommand("asset-setscale", ReceiverGroup.All, assetId, Vector3.one * 5f);

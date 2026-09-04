@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using GorillaNetworking;
 using hamburbur.Components;
@@ -88,7 +89,7 @@ public class VoiceControls : Singleton<VoiceControls>
             ["jarvis", "system", "assistant", "friday", "echo", "cortana", "mainframe", "ultron", "terminal",];
 
     private DictationRecognizer dictationRecognizer;
-    
+
     private bool              isListening;
     private KeywordRecognizer wakeRecognizer;
 
@@ -96,7 +97,7 @@ public class VoiceControls : Singleton<VoiceControls>
     {
         if (DisableJarvis.IsEnabled)
             yield break;
-        
+
         if (Application.platform != RuntimePlatform.WindowsPlayer || Environment.OSVersion.Version.Major < 10)
         {
             NotificationManager.SendNotification(
@@ -108,7 +109,7 @@ public class VoiceControls : Singleton<VoiceControls>
 
             yield break;
         }
-        
+
         if (!Plugin.Instance.JarvisDidFirstInitialisation)
         {
             yield return new WaitForSeconds(5f);
@@ -116,7 +117,7 @@ public class VoiceControls : Singleton<VoiceControls>
         }
 
         // This gets annoying over time
-        
+
         /*yield return AudioLib.Instance.SpeakRoutine("Hamburbur Voice Assistant active", 1f);
 
         string text = wakeWords.Aggregate("", (current, word) => current + $"[{word}]" + " ");
@@ -242,8 +243,8 @@ public class VoiceControls : Singleton<VoiceControls>
         Log("You said: " + text);
 
         if (lowerText.StartsWith("nevermind")  || lowerText.StartsWith("never-mind") ||
-            lowerText.StartsWith("never mind") || lowerText.StartsWith("cancel") || lowerText.StartsWith("forget") ||
-            lowerText.StartsWith("shut up")    || lowerText.StartsWith("fuck you") || lowerText.StartsWith("fuck off"))
+            lowerText.StartsWith("never mind") || lowerText.StartsWith("cancel")     || lowerText.StartsWith("forget") ||
+            lowerText.StartsWith("shut up")    || lowerText.StartsWith("fuck you")   || lowerText.StartsWith("fuck off"))
         {
             VoiceManager.Get().AudioClip(MenuSoundsHandler.Instance.CancelSound);
             wakeRecognizer.Start();
@@ -252,7 +253,7 @@ public class VoiceControls : Singleton<VoiceControls>
         }
 
         if (lowerText.StartsWith("join code") || lowerText.StartsWith("join room") ||
-                 lowerText.StartsWith("join"))
+            lowerText.StartsWith("join"))
         {
             string roomCode = lowerText
                              .Replace("join code", "")
@@ -373,7 +374,7 @@ public class VoiceControls : Singleton<VoiceControls>
             foreach ((Type, hamburburmod) mod in from tuples in Buttons.Categories
                                                  from mod in tuples.Value
                                                  where mod.Item2.ModName.ToLower().Replace(" ", "") == modName
-                                                 where mod.Item2.AssociatedAttribute.ButtonType == ButtonType.Togglable
+                                                 where mod.Item2.AssociatedAttribute.ButtonType     == ButtonType.Togglable
                                                  where !mod.Item2.Enabled
                                                  select mod)
             {
@@ -397,7 +398,7 @@ public class VoiceControls : Singleton<VoiceControls>
             foreach ((Type, hamburburmod) mod in from tuples in Buttons.Categories
                                                  from mod in tuples.Value
                                                  where mod.Item2.ModName.ToLower().Replace(" ", "") == modName
-                                                 where mod.Item2.AssociatedAttribute.ButtonType == ButtonType.Togglable
+                                                 where mod.Item2.AssociatedAttribute.ButtonType     == ButtonType.Togglable
                                                  where mod.Item2.Enabled
                                                  select mod)
             {
@@ -432,7 +433,7 @@ public class VoiceControls : Singleton<VoiceControls>
         //
         // using UnityWebRequest request = UnityWebRequest.Get(api);
 
-        const string Api = "https://chat.hamburbur.org/api/chat";
+        const string Api          = "https://chat.hamburbur.org/api/chat";
         MenuSnapshot menuSnapshot = CreateMenuSnapshot();
 
         string json = JsonUtility.ToJson(new ChatRequest
@@ -445,7 +446,7 @@ public class VoiceControls : Singleton<VoiceControls>
 
         using UnityWebRequest request = new(Api, UnityWebRequest.kHttpVerbPOST);
 
-        request.uploadHandler   = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(json));
+        request.uploadHandler   = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
         request.downloadHandler = new DownloadHandlerBuffer();
 
         request.SetRequestHeader("Content-Type", "application/json");
@@ -483,8 +484,8 @@ public class VoiceControls : Singleton<VoiceControls>
 
     private static MenuSnapshot CreateMenuSnapshot()
     {
-        MenuSnapshot snapshot = new();
-        HashSet<string> usedIds = new(StringComparer.OrdinalIgnoreCase);
+        MenuSnapshot    snapshot = new();
+        HashSet<string> usedIds  = new(StringComparer.OrdinalIgnoreCase);
 
         foreach ((string category, (Type Type, hamburburmod Mod)[] mods) in Buttons.Categories)
         {
@@ -515,9 +516,9 @@ public class VoiceControls : Singleton<VoiceControls>
                         description = mod.AssociatedAttribute.Description,
                         category    = category,
                         type        = GetApiButtonType(mod.AssociatedAttribute.ButtonType),
-                        state       = mod.AssociatedAttribute.ButtonType == ButtonType.Togglable
-                                              ? mod.Enabled ? "enabled" : "disabled"
-                                              : null,
+                        state = mod.AssociatedAttribute.ButtonType == ButtonType.Togglable
+                                        ? mod.Enabled ? "enabled" : "disabled"
+                                        : null,
                 };
 
                 snapshot.Buttons.Add(button);
@@ -533,13 +534,14 @@ public class VoiceControls : Singleton<VoiceControls>
         Match commandMatch = JarvisCommandRegex.Match(response);
         if (!commandMatch.Success)
             commandMatch = LegacyJarvisCommandRegex.Match(response);
+
         if (!commandMatch.Success)
             commandMatch = FlexibleJarvisCommandRegex.Match(response);
 
         if (!commandMatch.Success)
             return LooseJarvisCommandRegex.IsMatch(response)
-                    ? "I didn't catch that."
-                    : CleanJarvisResponse(response);
+                           ? "I didn't catch that."
+                           : CleanJarvisResponse(response);
 
         string action = commandMatch.Groups[1].Value.ToLowerInvariant();
         string target = NormalizeCommandIdentifier(commandMatch.Groups[2].Value);
@@ -549,10 +551,11 @@ public class VoiceControls : Singleton<VoiceControls>
         if (!menuSnapshot.ModsById.TryGetValue(target, out hamburburmod mod))
         {
             Log($"AI returned an unknown menu button: {target}");
+
             return "I couldn't find that menu button.";
         }
 
-        ButtonType buttonType = mod.AssociatedAttribute.ButtonType;
+        ButtonType  buttonType = mod.AssociatedAttribute.ButtonType;
         ButtonState buttonState;
 
         switch (action)
@@ -560,30 +563,38 @@ public class VoiceControls : Singleton<VoiceControls>
             case "toggle" when buttonType == ButtonType.Togglable:
             case "press" when buttonType is ButtonType.Fixed or ButtonType.Category:
                 buttonState = ButtonState.Normal;
+
                 break;
 
             case "enable" when buttonType == ButtonType.Togglable:
                 if (mod.Enabled)
                     return $"{mod.ModName} is already enabled.";
+
                 buttonState = ButtonState.Normal;
+
                 break;
 
             case "disable" when buttonType == ButtonType.Togglable:
                 if (!mod.Enabled)
                     return $"{mod.ModName} is already disabled.";
+
                 buttonState = ButtonState.Normal;
+
                 break;
 
             case "increment" when buttonType == ButtonType.Incremental:
                 buttonState = ButtonState.Increment;
+
                 break;
 
             case "decrement" when buttonType == ButtonType.Incremental:
                 buttonState = ButtonState.Decrement;
+
                 break;
 
             default:
                 Log($"AI returned invalid action '{action}' for {mod.ModName} ({buttonType})");
+
                 return "I couldn't apply that command to this button.";
         }
 
@@ -607,10 +618,11 @@ public class VoiceControls : Singleton<VoiceControls>
                 @"\b(?:greater|less)\s+than\s+sign\b",
                 "",
                 RegexOptions.IgnoreCase);
+
         cleaned = cleaned.Replace("<", "").Replace(">", "");
         cleaned = Regex.Replace(cleaned, @"\s{2,}", " ").Trim().TrimEnd(' ', ',');
 
-        bool isGarbage = Regex.IsMatch(cleaned, @"\d{5,}") ||
+        bool isGarbage = Regex.IsMatch(cleaned, @"\d{5,}")        ||
                          LooseJarvisCommandRegex.IsMatch(cleaned) ||
                          cleaned.Length > 240;
 
@@ -634,12 +646,12 @@ public class VoiceControls : Singleton<VoiceControls>
                     ButtonType.Fixed       => "fixed",
                     ButtonType.Incremental => "incremental",
                     ButtonType.Category    => "category",
-                    _                      => throw new ArgumentOutOfRangeException(nameof(buttonType), buttonType, null),
+                    var _                  => throw new ArgumentOutOfRangeException(nameof(buttonType), buttonType, null),
             };
 
     private sealed class MenuSnapshot
     {
-        public readonly List<MenuButtonInfo> Buttons = [];
+        public readonly List<MenuButtonInfo>             Buttons  = [];
         public readonly Dictionary<string, hamburburmod> ModsById = new(StringComparer.OrdinalIgnoreCase);
     }
 

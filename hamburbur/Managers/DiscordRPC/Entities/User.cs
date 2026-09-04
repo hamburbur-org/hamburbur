@@ -153,8 +153,8 @@ public class User
         /// <summary>No subscription</summary>
         None = 0,
 
-		/// <summary>Nitro Classic. The precursor to the <see cref="NitroBasic" /></summary>
-		NitroClassic = 1,
+        /// <summary>Nitro Classic. The precursor to the <see cref="NitroBasic" /></summary>
+        NitroClassic = 1,
 
         /// <summary>Nitro. Access to all premium features</summary>
         Nitro = 2,
@@ -245,10 +245,7 @@ public class User
 	///     Updates the URL paths to the appropriate configuration
 	/// </summary>
 	/// <param name="configuration">The configuration received by the OnReady event.</param>
-	internal void SetConfiguration(Configuration configuration)
-    {
-        CdnEndpoint = configuration.CdnHost;
-    }
+	internal void SetConfiguration(Configuration configuration) => CdnEndpoint = configuration.CdnHost;
 
 	/// <summary>
 	///     Gets a URL to the user's avatar PNG.

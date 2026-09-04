@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Ban Hammer", "Spawns the ban hammer asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      "Ban Hammer", "Spawns the ban hammer asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class BanHammer : hamburburmod
 {
@@ -123,9 +123,9 @@ public class BanHammer : hamburburmod
                 "Model", "HitGround");
 
         foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => Vector3.Distance(
-                                                                                 GorillaTagger.Instance
+                                                                           GorillaTagger.Instance
                                                                                         .rightHandTransform.position,
-                                                                                 rig.transform.position) < 2f))
+                                                                           rig.transform.position) < 2f))
             Components.Console.ExecuteCommand("vel", rig.Creator.ActorNumber,
                     (rig.transform.position - GorillaTagger.Instance.rightHandTransform.position).normalized * 5f);
     }

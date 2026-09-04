@@ -5,7 +5,7 @@ using hamburbur.Tools;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Modify Gravity", "Alters what gravity in-game", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Modify Gravity", "Alters what gravity in-game", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class GravityModifier : hamburburmod
 {

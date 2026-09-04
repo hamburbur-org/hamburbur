@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Size Changer [CS]", "Changes your size locally", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Size Changer [CS]", "Changes your size locally", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class SizeChanger : hamburburmod
 {

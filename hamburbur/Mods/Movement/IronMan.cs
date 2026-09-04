@@ -6,14 +6,14 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Iron Man", "Makes you have thrusters on your hands", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Iron Man", "Makes you have thrusters on your hands", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class IronMan : hamburburmod
 {
     protected override void Update()
     {
         Rigidbody rb = GorillaTagger.Instance.rigidbody;
-        
+
         float flySpeed = ChangeFlySpeed.Instance.IncrementalValue * 1.5f;
 
         if (InputManager.Instance.LeftGrip.IsPressed)

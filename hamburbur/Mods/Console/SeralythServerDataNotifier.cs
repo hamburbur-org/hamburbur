@@ -1,8 +1,6 @@
 using System.Collections;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
-using hamburbur.Server_Api_Communicator;
-using Photon.Pun;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -11,9 +9,9 @@ namespace hamburbur.Mods.Console;
 [hamburburmod("Seralyth Server Data Notifier", "Checks official console server data status", ButtonType.Togglable, AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class SeralythServerDataNotifier : hamburburmod
 {
-    private       bool?  lastUp;
-    private       bool   isRunning;
     private Coroutine checkRoutine;
+    private bool      isRunning;
+    private bool?     lastUp;
 
     protected override void OnEnable()
     {
@@ -27,11 +25,11 @@ public class SeralythServerDataNotifier : hamburburmod
     protected override void OnDisable()
     {
         isRunning = false;
-        
+
         if (checkRoutine != null)
             CoroutineManager.Instance.StopCoroutine(checkRoutine);
-        
-        lastUp    = !lastUp;
+
+        lastUp = !lastUp;
     }
 
     private IEnumerator CheckRoutine()
@@ -48,6 +46,7 @@ public class SeralythServerDataNotifier : hamburburmod
     private IEnumerator CheckStatus()
     {
         using UnityWebRequest req = UnityWebRequest.Get(Constants.SeralythUrl + "/serverdata");
+
         yield return req.SendWebRequest();
 
         bool   isUp        = req.result == UnityWebRequest.Result.Success;

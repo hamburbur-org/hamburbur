@@ -160,13 +160,13 @@ public class Btools : hamburburmod
 
         return Components.Console.ConsoleAssets.Values.FirstOrDefault(asset => asset.AssetObject != null &&
                                                                                obj.transform.IsChildOf(asset
-                                                                                      .AssetObject.transform));
+                                                                                                      .AssetObject.transform));
     }
 
     private void Explode(Vector3 position, Vector3? scale = null, bool sound = true)
     {
         int explosionId = Components.Console.GetFreeAssetID();
-        Components.Console.ExecuteCommand("asset-spawn",       ReceiverGroup.All, "btools", "Explosion", explosionId);
+        Components.Console.ExecuteCommand("asset-spawn",       ReceiverGroup.All, "btools",    "Explosion", explosionId);
         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, explosionId, position);
 
         if (scale != null)

@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Blank Gun", "A gun that does nothing for testing visuals", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                      "Blank Gun", "A gun that does nothing for testing visuals", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.AlwaysDisabled, 0)]
 public class BlankGun : hamburburmod
 {

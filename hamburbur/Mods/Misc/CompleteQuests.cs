@@ -27,15 +27,16 @@ public class CompleteQuests : hamburburmod
         if (manager?.quests == null)
         {
             completionRoutine = null;
+
             yield break;
         }
 
         RotatingQuest[] activeQuests = manager.quests.DailyQuests
-                                                     .Concat(manager.quests.WeeklyQuests)
-                                                     .SelectMany(group => group.quests)
-                                                     .Where(quest => quest.isQuestActive &&
-                                                                     !quest.isQuestComplete)
-                                                     .ToArray();
+                                              .Concat(manager.quests.WeeklyQuests)
+                                              .SelectMany(group => group.quests)
+                                              .Where(quest => quest.isQuestActive &&
+                                                              !quest.isQuestComplete)
+                                              .ToArray();
 
         foreach (RotatingQuest quest in activeQuests)
         {

@@ -2,8 +2,8 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Button Press Sound: ", "Change the sound that plays when buttons get pressed.", ButtonType.Incremental,
-        AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Button Press Sound: ", "Change the sound that plays when buttons get pressed.", ButtonType.Incremental,
+        AccessSetting.Public, EnabledType.Disabled,   0)]
 public class ButtonPressSound : hamburburmod
 {
     public static string[] Sounds =

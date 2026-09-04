@@ -35,7 +35,7 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
     private AudioClip Destiny       { get; set; }
     private AudioClip Watch         { get; set; }
     private AudioClip Creamy        { get; set; }
-    private AudioClip Minimal        { get; set; }
+    private AudioClip Minimal       { get; set; }
 
     public int MenuSoundSetCount => menuSoundSets.Count;
 
@@ -59,7 +59,7 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
                 "Seralyth",
                 bundle.LoadAsset<AudioClip>("SeralythOpen"),
                 bundle.LoadAsset<AudioClip>("SeralythClose"));
-        
+
         RegisterMenuSoundSet(
                 "Minimal",
                 bundle.LoadAsset<AudioClip>("minimalOpen"),
@@ -93,7 +93,7 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
         Destiny       = bundle.LoadAsset<AudioClip>("destiny");
         Watch         = bundle.LoadAsset<AudioClip>("watch");
         Creamy        = bundle.LoadAsset<AudioClip>("creamy");
-        Minimal        = bundle.LoadAsset<AudioClip>("minimalPress");
+        Minimal       = bundle.LoadAsset<AudioClip>("minimalPress");
     }
 
     public void RegisterMenuSoundSet(string name, AudioClip openSound = null, AudioClip closeSound = null)
@@ -182,7 +182,7 @@ public class MenuSoundsHandler : Singleton<MenuSoundsHandler>
                     nameof(Destiny)     => Destiny,
                     nameof(Watch)       => Watch,
                     nameof(Creamy)      => Creamy,
-                    nameof(Minimal)      => Minimal,
+                    nameof(Minimal)     => Minimal,
                     var _               => throw new ArgumentOutOfRangeException(),
             };
 

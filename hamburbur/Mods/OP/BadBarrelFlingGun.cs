@@ -1,17 +1,15 @@
 using System.Collections;
-using ExitGames.Client.Photon;
+using System.Globalization;
 using hamburbur.Libs;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
-using Photon.Pun;
-using Photon.Realtime;
 using UnityEngine;
 
 namespace hamburbur.Mods.OP;
 
 // R.I.P Barrel Mods 21/08/2026 - They removed the tiny collider :sob:
 
-[hamburburmod("Barrel Fling Gun", "Fling people with the barrel cosmetic", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Barrel Fling Gun", "Fling people with the barrel cosmetic", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class BadBarrelFlingGun : hamburburmod
 {
@@ -24,17 +22,17 @@ public class BadBarrelFlingGun : hamburburmod
     private const float FlingForce    = 5382.4f;
     private const float ForceVariance = 0f;
 
-    private const float OffsetX      = 0f;
-    private const float OffsetY      = -3.47f;
-    private const float OffsetZ      = 0f;
+    private const float OffsetX = 0f;
+    private const float OffsetY = -3.47f;
+    private const float OffsetZ = 0f;
 
     private const float UpwardsBias = 0f;
 
-    private readonly GunLib    gunLib = new() { ShouldFollow = true, };
-    private          Coroutine cleanupCoroutine;
-    private          Coroutine flingCoroutine;
-    
-    private object activeNotification;
+    private readonly GunLib gunLib = new() { ShouldFollow = true, };
+
+    private object    activeNotification;
+    private Coroutine cleanupCoroutine;
+    private Coroutine flingCoroutine;
 
     protected override void Start() => gunLib.Start();
 
@@ -55,7 +53,7 @@ public class BadBarrelFlingGun : hamburburmod
 
         flingCoroutine ??= CoroutineManager.Instance.StartCoroutine(FlingLoop());
     }
-    
+
     private void UpdateDistanceNotification(VRRig rig)
     {
         if (rig == null || VRRig.LocalRig == null) return;
@@ -69,7 +67,7 @@ public class BadBarrelFlingGun : hamburburmod
         {
             activeNotification = NotificationManager.SendNotification(
                     "<color=red>Barrel Fling</color>",
-                    $"Target distance: {distance.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)}m",
+                    $"Target distance: {distance.ToString("F1", CultureInfo.InvariantCulture)}m",
                     9999f,
                     false,
                     false
@@ -78,7 +76,7 @@ public class BadBarrelFlingGun : hamburburmod
         else
         {
             NotificationManager.UpdateNotificationEntry(activeNotification, "<color=red>Barrel Fling</color>",
-                    $"Target distance: {distance.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)}m",
+                    $"Target distance: {distance.ToString("F1", CultureInfo.InvariantCulture)}m",
                     9999f);
         }
     }
@@ -100,7 +98,7 @@ public class BadBarrelFlingGun : hamburburmod
         for (int i = 0; i < shots; i++)
         {
             if (rig == null) yield break;
-            
+
             UpdateDistanceNotification(rig);
 
             Vector3 targetPos = rig.transform.position;
@@ -136,7 +134,7 @@ public class BadBarrelFlingGun : hamburburmod
 
         deployable._child.Deploy(deployable, pos, rot, vel);
         deployable.DeployChild();
-        
+
         Tools.Utils.RPCProtection();
 
         if (cleanupCoroutine != null)
@@ -159,12 +157,12 @@ public class BadBarrelFlingGun : hamburburmod
 
     private void StopFling()
     {
-        if (flingCoroutine == null) 
+        if (flingCoroutine == null)
             return;
-        
+
         CoroutineManager.Instance.StopCoroutine(flingCoroutine);
         flingCoroutine = null;
-        
+
         NotificationManager.RemoveNotificationEntry(activeNotification);
         activeNotification = null;
     }

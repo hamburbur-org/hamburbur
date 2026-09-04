@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Disable Forest Colliders", "Removes the fuckass colliders in forest.", ButtonType.Togglable,
-        AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Disable Forest Colliders", "Removes the fuckass colliders in forest.", ButtonType.Togglable,
+        AccessSetting.Public, EnabledType.Disabled,       0)]
 public class DisableForestColliders : hamburburmod
 {
     public static bool WindDisabled;

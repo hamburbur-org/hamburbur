@@ -40,15 +40,13 @@ public static class StringTools
 	/// </summary>
 	/// <param name="str">The string to convert</param>
 	/// <returns></returns>
-	public static string ToCamelCase(this string str)
-    {
-        return str == null
-                       ? null
-                       : str.ToLowerInvariant()
-                            .Split(new[] { "_", " ", }, StringSplitOptions.RemoveEmptyEntries)
-                            .Select(s => char.ToUpper(s[0])         + s.Substring(1, s.Length - 1))
-                            .Aggregate(string.Empty, (s1, s2) => s1 + s2);
-    }
+	public static string ToCamelCase(this string str) =>
+            str == null
+                    ? null
+                    : str.ToLowerInvariant()
+                         .Split(new[] { "_", " ", }, StringSplitOptions.RemoveEmptyEntries)
+                         .Select(s => char.ToUpper(s[0])         + s.Substring(1, s.Length - 1))
+                         .Aggregate(string.Empty, (s1, s2) => s1 + s2);
 
 	/// <summary>
 	///     Converts the string into UPPER_SNAKE_CASE

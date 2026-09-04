@@ -32,7 +32,7 @@ public class SpamGrayZone : hamburburmod
             {
                 greyZone.greyZoneAmbienceVolume = 0f;
                 greyZone.ActivateGreyZoneAuthority();
-                
+
                 greyZone.DeactivateGreyZoneLocal();
             }
     }

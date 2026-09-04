@@ -6,7 +6,7 @@ using UnityEngine.XR;
 
 namespace hamburbur.Mods.Misc;
 
-[hamburburmod("World Scale Bypass", "You can bypass the world scale checks", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "World Scale Bypass", "You can bypass the world scale checks", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class WorldScaleBypass : hamburburmod
 {

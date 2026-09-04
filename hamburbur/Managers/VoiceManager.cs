@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Photon.Voice;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace hamburbur.Managers;
 
@@ -21,15 +22,20 @@ public class VoiceManager : IAudioReader<float>
     /// </summary>
     public readonly Dictionary<string, Action<float[]>> PostProcessors = new();
 
-    private int       lastSamplePosition;
-    private AudioClip microphoneClip;
-    private NetworkSystem subscribedNetworkSystem;
+    private float[] lastMixedBuffer;
+    private double  lastMixedBufferDspTime = double.NegativeInfinity;
 
-    private int   outputRate = 48000;
-    private float pitch      = 1f;
-    private float resample;
-    private int   samplingRate = 48000;
-    private float step;
+    private int       lastSamplePosition;
+    private float[]   localChannelOutputBuffer;
+    private float[]   localOutputBuffer;
+    private AudioClip microphoneClip;
+
+    private int           outputRate = 48000;
+    private float         pitch      = 1f;
+    private float         resample;
+    private int           samplingRate = 48000;
+    private float         step;
+    private NetworkSystem subscribedNetworkSystem;
 
     private float[] tempBuffer;
 
@@ -67,7 +73,7 @@ public class VoiceManager : IAudioReader<float>
     /// <summary>
     ///     Gets or sets the microphone gain multiplier.
     /// </summary>
-    private float Gain { get; set; } = 1;
+    private float Gain { get; } = 1;
 
     /// <summary>
     ///     Gets or sets the pitch. Lowest possible value can be 0.1f.
@@ -194,7 +200,7 @@ public class VoiceManager : IAudioReader<float>
         if (subscribedNetworkSystem != null)
         {
             subscribedNetworkSystem.OnReturnedToSinglePlayer -= (Action)StopNetworkAudioClips;
-            subscribedNetworkSystem = null;
+            subscribedNetworkSystem                          =  null;
         }
 
         StopAudioClips();
@@ -312,14 +318,14 @@ public class VoiceManager : IAudioReader<float>
         Guid id = Guid.NewGuid();
         Clip playingClip = new()
         {
-                Id               = id,
-                Source           = clip,
-                Samples          = mono,
-                Position         = 0f,
-                Step             = clip.frequency / (float)OutputRate,
-                MuteMicrophone   = disableMicrophone,
+                Id                = id,
+                Source            = clip,
+                Samples           = mono,
+                Position          = 0f,
+                Step              = clip.frequency / (float)OutputRate,
+                MuteMicrophone    = disableMicrophone,
                 TransmitOverVoice = NetworkSystem.Instance != null && NetworkSystem.Instance.InRoom,
-                LocalAudioSource = new GameObject(id.ToString()).AddComponent<AudioSource>(),
+                LocalAudioSource  = new GameObject(id.ToString()).AddComponent<AudioSource>(),
         };
 
         audioClips.Add(playingClip);
@@ -381,11 +387,6 @@ public class VoiceManager : IAudioReader<float>
         return resampled;
     }
 
-    private float[] lastMixedBuffer;
-    private double  lastMixedBufferDspTime = double.NegativeInfinity;
-    private float[] localChannelOutputBuffer;
-    private float[] localOutputBuffer;
-
     /// <summary>
     ///     Fills the provided buffer with the current mixed audio output for waveform analysis.
     ///     A fresh Photon Voice mix is used while in a room. Local-only playback is mixed directly from
@@ -399,9 +400,9 @@ public class VoiceManager : IAudioReader<float>
         Array.Clear(buffer, 0, buffer.Length);
 
         double currentDspTime = AudioSettings.dspTime;
-        bool hasFreshNetworkMix = NetworkSystem.Instance != null &&
-                                  NetworkSystem.Instance.InRoom &&
-                                  lastMixedBuffer != null &&
+        bool hasFreshNetworkMix = NetworkSystem.Instance != null                  &&
+                                  NetworkSystem.Instance.InRoom                   &&
+                                  lastMixedBuffer                         != null &&
                                   currentDspTime - lastMixedBufferDspTime <= NetworkMixFreshnessSeconds;
 
         if (hasFreshNetworkMix)
@@ -418,12 +419,13 @@ public class VoiceManager : IAudioReader<float>
         int requiredBufferSize = Mathf.NextPowerOfTwo(buffer.Length);
         if (localOutputBuffer == null || localOutputBuffer.Length < requiredBufferSize)
             localOutputBuffer = new float[requiredBufferSize];
+
         if (localChannelOutputBuffer == null || localChannelOutputBuffer.Length < requiredBufferSize)
             localChannelOutputBuffer = new float[requiredBufferSize];
 
         foreach (Clip clip in audioClips)
         {
-            if (clip.LocalAudioSource == null ||
+            if (clip.LocalAudioSource == null    ||
                 !clip.LocalAudioSource.isPlaying ||
                 !includeTransmittedClips && clip.TransmitOverVoice)
                 continue;
@@ -431,8 +433,8 @@ public class VoiceManager : IAudioReader<float>
             Array.Clear(localOutputBuffer, 0, localOutputBuffer.Length);
             clip.LocalAudioSource.GetOutputData(localOutputBuffer, 0);
 
-            int channelCount = Mathf.Max(clip.Source?.channels ?? 1, 1);
-            float channelGain = 1f / Mathf.Sqrt(channelCount);
+            int   channelCount = Mathf.Max(clip.Source?.channels ?? 1, 1);
+            float channelGain  = 1f / Mathf.Sqrt(channelCount);
             for (int i = 0; i < buffer.Length; i++)
                 localOutputBuffer[i] *= channelGain;
 
@@ -506,8 +508,8 @@ public class VoiceManager : IAudioReader<float>
             int nextIndex = index + 1;
             if (nextIndex >= clip.Samples.Length)
             {
-                mixed += clip.Samples[index];
-                clip.TransmitOverVoice = false;
+                mixed                  += clip.Samples[index];
+                clip.TransmitOverVoice =  false;
 
                 continue;
             }
@@ -531,7 +533,7 @@ public class VoiceManager : IAudioReader<float>
         if (subscribedNetworkSystem != null)
             subscribedNetworkSystem.OnReturnedToSinglePlayer -= (Action)StopNetworkAudioClips;
 
-        subscribedNetworkSystem = networkSystem;
+        subscribedNetworkSystem                          =  networkSystem;
         subscribedNetworkSystem.OnReturnedToSinglePlayer += (Action)StopNetworkAudioClips;
     }
 
@@ -565,7 +567,7 @@ public class VoiceManager : IAudioReader<float>
         }
 
         if (localAudioSource != null)
-            UnityEngine.Object.Destroy(localAudioSource.gameObject);
+            Object.Destroy(localAudioSource.gameObject);
     }
 
     private static void StopLocalPlayback(Clip clip)
@@ -574,7 +576,7 @@ public class VoiceManager : IAudioReader<float>
             return;
 
         clip.LocalAudioSource.Stop();
-        UnityEngine.Object.Destroy(clip.LocalAudioSource.gameObject);
+        Object.Destroy(clip.LocalAudioSource.gameObject);
         clip.LocalAudioSource = null;
     }
 

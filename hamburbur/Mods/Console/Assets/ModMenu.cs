@@ -5,7 +5,7 @@ using Vector3 = System.Numerics.Vector3;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Mod Menu", "Spawns the mod menu asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      "Mod Menu", "Spawns the mod menu asset.", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class ModMenu : hamburburmod
 {

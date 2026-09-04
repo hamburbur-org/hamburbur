@@ -6,7 +6,7 @@ namespace hamburbur.Mods.Console;
 public class DontDestroyOtherConsoleInstances : hamburburmod
 {
     public static bool IsEnabled;
-    
-    protected override void OnEnable() => IsEnabled = true;
+
+    protected override void OnEnable()  => IsEnabled = true;
     protected override void OnDisable() => IsEnabled = false;
 }

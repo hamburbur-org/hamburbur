@@ -16,21 +16,21 @@ public class EvolvingCosmeticManager : MonoBehaviour
 
     private const string DetailCategoryPrefix = "Evolving Cosmetic ";
 
-    private readonly List<EvolvingCosmeticInfo> cosmetics = [];
-    private readonly HashSet<string> detailCategories = [];
+    private readonly List<EvolvingCosmeticInfo> cosmetics        = [];
+    private readonly HashSet<string>            detailCategories = [];
+    private          Coroutine                  refreshCoroutine;
+    private          int                        refreshVersion;
 
     private CosmeticsController subscribedController;
-    private Coroutine refreshCoroutine;
-    private int refreshVersion;
 
     public static EvolvingCosmeticManager Instance { get; private set; }
 
     private IEnumerator Start()
     {
-        Instance = this;
+        Instance                      =  this;
         RigUtils.OnRigCosmeticsLoaded += OnRigCosmeticsLoaded;
 
-        while (hamburbur.Plugin.Instance == null || !hamburbur.Plugin.Instance.MenuLoaded)
+        while (Plugin.Instance == null || !Plugin.Instance.MenuLoaded)
             yield return null;
 
         yield return new WaitForSeconds(0.25f);
@@ -82,7 +82,7 @@ public class EvolvingCosmeticManager : MonoBehaviour
             return;
 
         int minimumDays = cosmetic.ageAwareGameObjects[stage].minActiveDays;
-        cosmetic._daysAccrued = Mathf.Max(cosmetic._daysAccrued.GetValueOrDefault(), minimumDays);
+        cosmetic._daysAccrued        = Mathf.Max(cosmetic._daysAccrued.GetValueOrDefault(), minimumDays);
         cosmetic.SelectedObjectIndex = stage;
         cosmetic.ActivateSelectedIndex();
         VRRig.LocalRig?.reliableState?.SetIsDirty();
@@ -125,8 +125,8 @@ public class EvolvingCosmeticManager : MonoBehaviour
 
     private IEnumerator RefreshCosmeticsRoutine(int version)
     {
-        while (CosmeticsController.instance == null ||
-               VRRig.LocalRig == null ||
+        while (CosmeticsController.instance           == null ||
+               VRRig.LocalRig                         == null ||
                VRRig.LocalRig.cosmeticsObjectRegistry == null ||
                !CosmeticsV2Spawner_Dirty.isPrepared)
         {
@@ -138,11 +138,11 @@ public class EvolvingCosmeticManager : MonoBehaviour
 
         yield return null;
 
-        List<EvolvingCosmeticInfo> discoveredCosmetics = [];
-        HashSet<string> discoveredIds = [];
-        CosmeticsController controller = CosmeticsController.instance;
-        CosmeticItemRegistry registry = VRRig.LocalRig.cosmeticsObjectRegistry;
-        CosmeticsController.CosmeticItem[] wornItems = controller.currentWornSet.items;
+        List<EvolvingCosmeticInfo>         discoveredCosmetics = [];
+        HashSet<string>                    discoveredIds       = [];
+        CosmeticsController                controller          = CosmeticsController.instance;
+        CosmeticItemRegistry               registry            = VRRig.LocalRig.cosmeticsObjectRegistry;
+        CosmeticsController.CosmeticItem[] wornItems           = controller.currentWornSet.items;
 
         foreach (CosmeticsController.CosmeticItem item in wornItems)
         {
@@ -166,6 +166,7 @@ public class EvolvingCosmeticManager : MonoBehaviour
                 continue;
 
             EvolvingCosmetic evolvingCosmetic = FindEvolvingCosmetic(itemInstance);
+
             if (evolvingCosmetic == null || !discoveredIds.Add(item.itemName))
                 continue;
 
@@ -198,6 +199,7 @@ public class EvolvingCosmeticManager : MonoBehaviour
                 continue;
 
             EvolvingCosmetic evolvingCosmetic = cosmeticObject.GetComponentInChildren<EvolvingCosmetic>(true);
+
             if (evolvingCosmetic != null)
                 return evolvingCosmetic;
         }
@@ -208,7 +210,7 @@ public class EvolvingCosmeticManager : MonoBehaviour
     private void RebuildCosmeticCategory()
     {
         string currentCategory = MenuHandler.Instance?.Category;
-        string selectedItemId = GetItemIdFromDetailCategory(currentCategory);
+        string selectedItemId  = GetItemIdFromDetailCategory(currentCategory);
 
         ClearCategory(CategoryName);
 
@@ -282,6 +284,7 @@ public class EvolvingCosmeticManager : MonoBehaviour
         if (!Buttons.Categories.TryGetValue(category, out (Type, hamburburmod)[] buttons))
         {
             Buttons.Categories[category] = [];
+
             return;
         }
 
@@ -303,14 +306,14 @@ public sealed class EvolvingCosmeticInfo
 {
     public EvolvingCosmeticInfo(string itemId, string displayName, EvolvingCosmetic cosmetic)
     {
-        ItemId = itemId;
+        ItemId      = itemId;
         DisplayName = displayName;
-        Cosmetic = cosmetic;
+        Cosmetic    = cosmetic;
     }
 
-    public string ItemId { get; }
-    public string DisplayName { get; }
-    public EvolvingCosmetic Cosmetic { get; }
+    public string           ItemId      { get; }
+    public string           DisplayName { get; }
+    public EvolvingCosmetic Cosmetic    { get; }
 }
 
 internal sealed class EvolvingCosmeticRefreshButton : hamburburmod
@@ -341,15 +344,15 @@ internal sealed class EvolvingCosmeticEntry : hamburburmod
 internal sealed class EvolvingCosmeticStage : hamburburmod
 {
     private readonly EvolvingCosmetic cosmetic;
-    private readonly int stage;
+    private readonly int              stage;
 
     internal EvolvingCosmeticStage(EvolvingCosmetic cosmetic, int stage)
     {
         this.cosmetic = cosmetic;
-        this.stage = stage;
+        this.stage    = stage;
         int minimumDays = cosmetic.ageAwareGameObjects[stage].minActiveDays;
         AssociatedAttribute = new hamburburmodAttribute($"Stage {stage + 1}",
-                $"Send stage {stage + 1} as cosmetic state; remote clients can reject it if their age check fails. Local minimum: {minimumDays} days",
+                $"Send stage {stage                                    + 1} as cosmetic state; remote clients can reject it if their age check fails. Local minimum: {minimumDays} days",
                 ButtonType.Fixed, AccessSetting.Public, EnabledType.Disabled, 0);
     }
 
@@ -394,7 +397,7 @@ internal sealed class EvolvingCosmeticLocalAge : hamburburmod
 
 internal sealed class EvolvingCosmeticReset : hamburburmod
 {
-    private readonly EvolvingCosmetic cosmetic;
+    private readonly EvolvingCosmetic         cosmetic;
     private readonly EvolvingCosmeticLocalAge localAge;
 
     internal EvolvingCosmeticReset(EvolvingCosmetic cosmetic, EvolvingCosmeticLocalAge localAge)

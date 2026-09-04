@@ -15,7 +15,7 @@ public class MecchaRainbowPaintGun : MecchaTargetGun
             MecchaNetwork.PaintMini(rig.Creator.ActorNumber, MecchaNetwork.Rainbow(0.35f));
 }
 
-[hamburburmod("Paint Dot Gun", "Covers the targeted mini in synchronized rainbow paint dots", ButtonType.Togglable,
+[hamburburmod(                "Paint Dot Gun",      "Covers the targeted mini in synchronized rainbow paint dots", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaDotGun : MecchaTargetGun
 {
@@ -26,7 +26,7 @@ public class MecchaDotGun : MecchaTargetGun
                     MecchaNetwork.Rainbow(0.45f));
 }
 
-[hamburburmod("Clear Paint Gun", "Clears synchronized paint dots belonging to the target", ButtonType.Togglable,
+[hamburburmod(                "Clear Paint Gun",    "Clears synchronized paint dots belonging to the target", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaClearPaintGun : MecchaTargetGun
 {
@@ -34,7 +34,7 @@ public class MecchaClearPaintGun : MecchaTargetGun
             MecchaNetwork.Send(MecchaEvents.ClearDots, (double)rig.Creator.ActorNumber);
 }
 
-[hamburburmod(                "Clear All Paint", "Clears every player's synchronized mini paint dots", ButtonType.Fixed,
+[hamburburmod(                "Clear All Paint",    "Clears every player's synchronized mini paint dots", ButtonType.Fixed,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaClearAllPaint : hamburburmod
 {
@@ -47,7 +47,7 @@ public class MecchaClearAllPaint : hamburburmod
     }
 }
 
-[hamburburmod("Rainbow Mini", "Continuously changes your painter mini's bucket color", ButtonType.Togglable,
+[hamburburmod(                "Rainbow Mini",       "Continuously changes your painter mini's bucket color", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaRainbowMini : hamburburmod
 {
@@ -61,7 +61,7 @@ public class MecchaRainbowMini : hamburburmod
     }
 }
 
-[hamburburmod("Rainbow Mini Parts", "Cycles rainbow paint across individual mini body parts", ButtonType.Togglable,
+[hamburburmod(                "Rainbow Mini Parts", "Cycles rainbow paint across individual mini body parts", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaRainbowParts : hamburburmod
 {
@@ -77,7 +77,7 @@ public class MecchaRainbowParts : hamburburmod
     }
 }
 
-[hamburburmod("Rainbow Shotgun", "Continuously changes the networked shotgun color code", ButtonType.Togglable,
+[hamburburmod(                "Rainbow Shotgun",    "Continuously changes the networked shotgun color code", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaRainbowShotgun : hamburburmod
 {
@@ -110,28 +110,28 @@ public abstract class MecchaToolPose : hamburburmod
     }
 }
 
-[hamburburmod("Network Paint Brush", "Shows a synchronized paint brush on your right hand", ButtonType.Togglable,
-        AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Network Paint Brush", "Shows a synchronized paint brush on your right hand", ButtonType.Togglable,
+        AccessSetting.Public, EnabledType.Disabled,  0)]
 public class MecchaBrushPose : MecchaToolPose
 {
     protected override int ToolType => 1;
 }
 
-[hamburburmod(                "Network Eraser", "Shows a synchronized eraser on your right hand", ButtonType.Togglable,
+[hamburburmod(                "Network Eraser",     "Shows a synchronized eraser on your right hand", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaEraserPose : MecchaToolPose
 {
     protected override int ToolType => 2;
 }
 
-[hamburburmod("Network Paint Bucket", "Shows a synchronized paint bucket on your right hand", ButtonType.Togglable,
-        AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Network Paint Bucket", "Shows a synchronized paint bucket on your right hand", ButtonType.Togglable,
+        AccessSetting.Public, EnabledType.Disabled,   0)]
 public class MecchaBucketPose : MecchaToolPose
 {
     protected override int ToolType => 3;
 }
 
-[hamburburmod("Mini Hand Puppet", "Moves your networked painter mini with your right hand", ButtonType.Togglable,
+[hamburburmod(                "Mini Hand Puppet",   "Moves your networked painter mini with your right hand", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaMiniPuppet : hamburburmod
 {

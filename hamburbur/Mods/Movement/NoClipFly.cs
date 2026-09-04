@@ -37,7 +37,7 @@ public class NoClipFly : hamburburmod
 
             wasFlying = false;
         }
-        
+
         if (InputManager.Instance.LeftPrimary.WasPressed)
             foreach (MeshCollider meshCollider in Resources.FindObjectsOfTypeAll<MeshCollider>())
                 meshCollider.enabled = false;
@@ -46,11 +46,10 @@ public class NoClipFly : hamburburmod
             foreach (MeshCollider meshCollider in Resources.FindObjectsOfTypeAll<MeshCollider>())
                 meshCollider.enabled = true;
     }
-    
+
     protected override void OnDisable()
     {
         foreach (MeshCollider meshCollider in Resources.FindObjectsOfTypeAll<MeshCollider>())
             meshCollider.enabled = true;
     }
-    
 }

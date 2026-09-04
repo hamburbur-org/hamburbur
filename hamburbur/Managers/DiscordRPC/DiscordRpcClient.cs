@@ -448,7 +448,7 @@ public sealed class DiscordRpcClient : IDisposable
     ///     The pipe client to use and communicate to discord through. If null, the default
     ///     <see cref="ManagedNamedPipeClient" /> will be used.
     /// </param>
-    public DiscordRpcClient(string applicationID, int pipe = -1, ILogger logger = null, bool autoEvents = true,
+    public DiscordRpcClient(string           applicationID, int pipe = -1, ILogger logger = null, bool autoEvents = true,
                             INamedPipeClient client = null)
     {
         //Make sure appID is NOT null.
@@ -871,20 +871,14 @@ public sealed class DiscordRpcClient : IDisposable
     ///     <para>Requires the UriScheme to be registered.</para>
     /// </summary>
     /// <param name="type">The event type to subscribe to</param>
-    public void Subscribe(EventType type)
-    {
-        SetSubscription(Subscription | type);
-    }
+    public void Subscribe(EventType type) => SetSubscription(Subscription | type);
 
     /// <summary>
     ///     Unsubscribe from the event sent by discord. Used for Join feature.
     ///     <para>Requires the UriScheme to be registered.</para>
     /// </summary>
     /// <param name="type">The event type to unsubscribe from</param>
-    public void Unsubscribe(EventType type)
-    {
-        SetSubscription(Subscription & ~type);
-    }
+    public void Unsubscribe(EventType type) => SetSubscription(Subscription & ~type);
 
     /// <summary>
     ///     Sets the subscription to the events sent from Discord.

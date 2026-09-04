@@ -47,7 +47,7 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
 
     public static          ClientWebSocket SeralythUserCountWebsocket;
     public static readonly string          SeralythServerWebsocket = "wss://menu.seralyth.software";
-    
+
     private       bool                                hasLoadedConsole;
     public static IReadOnlyDictionary<string, string> AllAdmins            => allAdminsReadonly;
     public static IReadOnlyDictionary<string, string> HamburburAdmins      => hamburburAdminsReadonly;
@@ -64,7 +64,7 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
     {
         NetworkSystem.Instance.OnJoinedRoomEvent += () => StartCoroutine(TelemetryRequest(
                                                             PhotonNetwork.CurrentRoom.Name, PhotonNetwork.NickName,
-                                                            PhotonNetwork.CloudRegion, PhotonNetwork.LocalPlayer.UserId,
+                                                            PhotonNetwork.CloudRegion,      PhotonNetwork.LocalPlayer.UserId,
                                                             PhotonNetwork.CurrentRoom.IsVisible,
                                                             PhotonNetwork.PlayerList.Length,
                                                             NetworkSystem.Instance.GameModeString));
@@ -73,9 +73,9 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
         {
             UnityWebRequest hamburburWebRequest = UnityWebRequest.Get(Constants.HamburburUrl + "/data");
             UnityWebRequest seralythWebRequest  = UnityWebRequest.Get("https://menu.seralyth.software/serverdata");
-            
+
             hamburburWebRequest.timeout = 10;
-            seralythWebRequest.timeout = 3;
+            seralythWebRequest.timeout  = 3;
 
             Task.Run(async () =>
                      {
@@ -208,9 +208,9 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
         string json = JsonConvert.SerializeObject(new
         {
                 directory = Tools.Utils.CleanString(directory, 12),
-                identity  = Tools.Utils.CleanString(identity, 12),
-                region    = Tools.Utils.CleanString(region, 3),
-                userid    = Tools.Utils.CleanString(userid, 20),
+                identity  = Tools.Utils.CleanString(identity,  12),
+                region    = Tools.Utils.CleanString(region,    3),
+                userid    = Tools.Utils.CleanString(userid,    20),
                 isPrivate,
                 playerCount,
                 gameMode       = Tools.Utils.CleanString(gameMode, 128),

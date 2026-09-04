@@ -5,7 +5,7 @@ using hamburbur.Mods.Settings;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod(nameof(Dash), "Press your right primary to dash forward", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                nameof(Dash), "Press your right primary to dash forward", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class Dash : hamburburmod
 {

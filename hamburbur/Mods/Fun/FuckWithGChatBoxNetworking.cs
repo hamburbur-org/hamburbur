@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Fun;
 
-[hamburburmod(                "Message Spammer", "Spams messages like GorillaShirts networking", ButtonType.Togglable,
+[hamburburmod(                "Message Spammer",    "Spams messages like GorillaShirts networking", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class FuckWithGChatBoxNetworking : hamburburmod
 {

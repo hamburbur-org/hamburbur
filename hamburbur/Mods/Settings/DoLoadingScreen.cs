@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Loading Screen", "Whether to show the loading screen or not", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(               "Loading Screen", "Whether to show the loading screen or not", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Enabled, 0)]
 public class DoLoadingScreen : hamburburmod
 {

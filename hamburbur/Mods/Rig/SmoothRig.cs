@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Rig;
 
-[hamburburmod("Smooth Rig", "Makes you own rig have some lerp shi", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Smooth Rig", "Makes you own rig have some lerp shi", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class SmoothRig : hamburburmod
 {

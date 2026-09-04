@@ -18,7 +18,7 @@ public class NoRain : hamburburmod
         for (int i = 0; i < manager.weatherCycle.Length; i++)
             manager.weatherCycle[i] = BetterDayNightManager.WeatherType.None;
     }
-    
+
     protected override void OnDisable()
     {
         BetterDayNightManager manager = BetterDayNightManager.instance;

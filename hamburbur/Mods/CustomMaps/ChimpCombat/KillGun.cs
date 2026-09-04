@@ -16,10 +16,7 @@ public class KillGun : hamburburmod
 
     private bool wasShooting;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

@@ -56,7 +56,9 @@ public class Plugin : MonoBehaviour
     private bool                        customBoardTextEnabled = true;
     private string                      fpsText;
 
-    private float gtPlayerControllerToRealRatio;
+    private float        gtPlayerControllerToRealRatio;
+    private TextSnapshot headOutsideSnapshot;
+    private TextMeshPro  headOutsideText;
 
     private float lastFpsUpdate;
 
@@ -68,6 +70,8 @@ public class Plugin : MonoBehaviour
     private       PlayFabTitleDataTextDisplay motdTitleDataDisplay;
     private       bool                        motdTitleDataDisplayEnabled;
     private       bool                        versionOkay;
+    private       TextMeshPro                 welcomeToGorillaTagHeadingText;
+    private       TextSnapshot                welcomeToGorillaTagSnapshot;
     public static Plugin                      Instance { get; private set; }
 
     public AssetBundle HamburburBundle { get; private set; }
@@ -317,17 +321,32 @@ public class Plugin : MonoBehaviour
                                                         .Find(
                                                                  "Environment Objects/LocalObjects_Prefab/TreeRoom/COCBodyText_TitleData")
                                                         .GetComponent<TextMeshPro>();
-                                               
-                                               cocHeadingText.transform.localPosition = new Vector3(4.3226f,      -1.2771f, 6.3961f);
-                                               cocText.transform.localPosition        = new Vector3(4.7613f, -1.3168f, 5.8447f);
 
-                                               motdHeadingText.transform.localPosition = new Vector3(2.6652f,      -4.5832f, 8.2396f);
-                                               motdBodyText.transform.localPosition    = new Vector3(1.8459f, -3.9933f, 7.9184f);
+                                               welcomeToGorillaTagHeadingText = GameObject
+                                                                               .Find(
+                                                                                        "Environment Objects/LocalObjects_Prefab/TreeRoom/WelcomeToGorilllaTagHeadingText")
+                                                                               .GetComponent<TextMeshPro>();
 
-                                               motdBodySnapshot    = new TextSnapshot(motdBodyText);
-                                               motdHeadingSnapshot = new TextSnapshot(motdHeadingText);
-                                               cocHeadingSnapshot  = new TextSnapshot(cocHeadingText);
-                                               cocTextSnapshot     = new TextSnapshot(cocText);
+                                               headOutsideText = GameObject
+                                                                .Find(
+                                                                         "Environment Objects/LocalObjects_Prefab/TreeRoom/HeadOutside")
+                                                                .GetComponent<TextMeshPro>();
+
+                                               cocHeadingText.transform.localPosition = new Vector3(4.3226f, -1.3008f, 6.1609f);
+                                               cocText.transform.localPosition        = new Vector3(4.7613f, -1.3388f, 5.6057f);
+
+                                               welcomeToGorillaTagHeadingText.transform.localPosition = new Vector3(4.3087f, -1.273f,  6.4186f);
+                                               headOutsideText.transform.localPosition                = new Vector3(4.7578f, -1.3088f, 5.8682f);
+
+                                               motdHeadingText.transform.localPosition = new Vector3(5.4754f, -1.2232f, 6.6766f);
+                                               motdBodyText.transform.localPosition    = new Vector3(5.9346f, -1.4856f, 6.4715f);
+
+                                               welcomeToGorillaTagSnapshot = new TextSnapshot(welcomeToGorillaTagHeadingText);
+                                               headOutsideSnapshot         = new TextSnapshot(headOutsideText);
+                                               motdBodySnapshot            = new TextSnapshot(motdBodyText);
+                                               motdHeadingSnapshot         = new TextSnapshot(motdHeadingText);
+                                               cocHeadingSnapshot          = new TextSnapshot(cocHeadingText);
+                                               cocTextSnapshot             = new TextSnapshot(cocText);
 
                                                motdTitleDataDisplay =
                                                        motdBodyText.GetComponent<PlayFabTitleDataTextDisplay>();
@@ -453,6 +472,8 @@ public class Plugin : MonoBehaviour
         cocHeadingText.richText  = true;
         cocText.richText         = true;
 
+        ApplyCustomBoardTextStyle(welcomeToGorillaTagHeadingText);
+        ApplyCustomBoardTextStyle(headOutsideText);
         ApplyCustomBoardTextStyle(motdBodyText);
         ApplyCustomBoardTextStyle(motdHeadingText);
         ApplyCustomBoardTextStyle(cocHeadingText);
@@ -461,6 +482,8 @@ public class Plugin : MonoBehaviour
 
     private void RestoreDefaultBoardText()
     {
+        welcomeToGorillaTagSnapshot?.Restore(welcomeToGorillaTagHeadingText);
+        headOutsideSnapshot?.Restore(headOutsideText);
         motdBodySnapshot?.Restore(motdBodyText);
         motdHeadingSnapshot?.Restore(motdHeadingText);
         cocHeadingSnapshot?.Restore(cocHeadingText);
@@ -475,6 +498,8 @@ public class Plugin : MonoBehaviour
         if (cocHeadingText != null && cocHeadingText.text != "<size=175%><b>hamburbur</b></size>")
             cocHeadingText.text = "<size=175%><b>hamburbur</b></size>";
 
+        ApplyCustomBoardTextStyle(welcomeToGorillaTagHeadingText);
+        ApplyCustomBoardTextStyle(headOutsideText);
         ApplyCustomBoardTextStyle(motdBodyText);
         ApplyCustomBoardTextStyle(motdHeadingText);
         ApplyCustomBoardTextStyle(cocHeadingText);

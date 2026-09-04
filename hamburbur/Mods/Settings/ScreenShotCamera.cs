@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Screenshot Camera: ", "Change the camera that you take a screenshot with", ButtonType.Incremental,
-        AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Screenshot Camera: ", "Change the camera that you take a screenshot with", ButtonType.Incremental,
+        AccessSetting.Public, EnabledType.Disabled,  0)]
 public class ScreenShotCamera : hamburburmod
 {
     private Camera[] allCameras;

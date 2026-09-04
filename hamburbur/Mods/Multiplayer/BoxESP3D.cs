@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Multiplayer;
 
-[hamburburmod("3D Box ESP", "Puts a 3D box over players that you can see through walls", ButtonType.Togglable,
+[hamburburmod(                "3D Box ESP",         "Puts a 3D box over players that you can see through walls", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class BoxESP3D : hamburburmod
 {

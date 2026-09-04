@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Multiplayer;
 
-[hamburburmod("Hand Tracers", "Shows tracers to every single player from your hand", ButtonType.Togglable,
+[hamburburmod(                "Hand Tracers",       "Shows tracers to every single player from your hand", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class HandTracers : hamburburmod
 {

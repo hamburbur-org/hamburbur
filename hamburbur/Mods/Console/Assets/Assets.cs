@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Spawn iPhone Asset", "Spawns a iPhone in your left hand", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      "Spawn iPhone Asset", "Spawns a iPhone in your left hand", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class SpawnPhoneAsset : hamburburmod
 {
@@ -43,7 +43,7 @@ public class SpawnPhoneAsset : hamburburmod
             Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
 }
 
-[hamburburmod("Spawn Travis Asset", "Spawns Travis Event", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      "Spawn Travis Asset", "Spawns Travis Event", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class SpawnTravisAsset : hamburburmod
 {
@@ -66,7 +66,7 @@ public class SpawnTravisAsset : hamburburmod
             Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
 }
 
-[hamburburmod("Spawn Mini Travis Asset", "Spawns Mini Travis Event in your left hand", ButtonType.Togglable,
+[hamburburmod(                   "Spawn Mini Travis Asset",  "Spawns Mini Travis Event in your left hand", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class SpawnMiniTravisAsset : hamburburmod
 {
@@ -92,7 +92,7 @@ public class SpawnMiniTravisAsset : hamburburmod
             Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
 }
 
-[hamburburmod("Flash Trail: ", "Change the flash effect", ButtonType.Incremental, AccessSetting.AdminOnly,
+[hamburburmod(                      "Flash Trail: ", "Change the flash effect", ButtonType.Incremental, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class FlashTrailType : hamburburmod
 {
@@ -142,7 +142,7 @@ public class SpawnFlashEffectsAsset : hamburburmod
             Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
 }
 
-[hamburburmod("Concert Type: ", "Change the concert type", ButtonType.Incremental, AccessSetting.AdminOnly,
+[hamburburmod(                      "Concert Type: ", "Change the concert type", ButtonType.Incremental, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class ConcertVideoType : hamburburmod
 {
@@ -195,7 +195,7 @@ public class ConcertVideoType : hamburburmod
     }
 }
 
-[hamburburmod("Spawn Concert Asset", "Spawn in a concert stage and plays carti.", ButtonType.Togglable,
+[hamburburmod(                   "Spawn Concert Asset",      "Spawn in a concert stage and plays carti.", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class SpawnConcertAsset : hamburburmod
 {
@@ -232,13 +232,10 @@ public class SpawnConcertAsset : hamburburmod
                 ConcertVideoType.ConcertVideoNames[ConcertVideoType.Instance.IncrementalValue]);
     }
 
-    protected override void OnDisable()
-    {
-        Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
-    }
+    protected override void OnDisable() => Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
 }
 
-[hamburburmod("Jail Cell Asset Gun", "Traps people inside of the jail", ButtonType.Togglable, AccessSetting.AdminOnly,
+[hamburburmod(                      "Jail Cell Asset Gun", "Traps people inside of the jail", ButtonType.Togglable, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class JailCellAssetGun : hamburburmod
 {
@@ -246,10 +243,7 @@ public class JailCellAssetGun : hamburburmod
     private          int    assetId;
     private          bool   wasShooting;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {
@@ -304,13 +298,10 @@ public class SpawnDonationNukeAsset : hamburburmod
         Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, assetId, "nuke", "nukesound");
     }
 
-    protected override void OnDisable()
-    {
-        Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
-    }
+    protected override void OnDisable() => Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
 }
 
-[hamburburmod(                   "Spawn Hamburbur Asset", "Spawns a hamburbur in your right hand", ButtonType.Togglable,
+[hamburburmod(                   "Spawn Hamburbur Asset",    "Spawns a hamburbur in your right hand", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class SpawnHamburburAsset : hamburburmod
 {
@@ -325,7 +316,7 @@ public class SpawnHamburburAsset : hamburburmod
         foreach (VRRig rig in VRRigCache.m_activeRigs.Where(rig => Vector3.Distance(
                                                                            rig.headMesh.transform.position,
                                                                            GorillaTagger.Instance.offlineVRRig
-                                                                                  .rightHandTransform.position) <=
+                                                                                        .rightHandTransform.position) <=
                                                                    0.4f))
             Components.Console.ExecuteCommand("asset-playsound", ReceiverGroup.All, assetId, "Sound",
                     "mmmchezburger");
@@ -345,13 +336,10 @@ public class SpawnHamburburAsset : hamburburmod
                 "canihaveachezburger");
     }
 
-    protected override void OnDisable()
-    {
-        Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
-    }
+    protected override void OnDisable() => Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
 }
 
-[hamburburmod("Spawn Pistol Asset", "Spawns a shootable pistol in your right hand", ButtonType.Togglable,
+[hamburburmod(                   "Spawn Pistol Asset",       "Spawns a shootable pistol in your right hand", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class SpawnPistolAsset : hamburburmod
 {
@@ -369,10 +357,7 @@ public class SpawnPistolAsset : hamburburmod
         Components.Console.ExecuteCommand("asset-setanchor", ReceiverGroup.All, assetId, 2);
     }
 
-    protected override void OnDisable()
-    {
-        Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
-    }
+    protected override void OnDisable() => Components.Console.ExecuteCommand("asset-destroy", ReceiverGroup.All, assetId);
 
     protected override void LateUpdate()
     {

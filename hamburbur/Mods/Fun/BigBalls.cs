@@ -3,7 +3,7 @@ using HarmonyLib;
 
 namespace hamburbur.Mods.Fun;
 
-[hamburburmod("Big Snowballs", "Makes it so the snowballs are always big", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Big Snowballs", "Makes it so the snowballs are always big", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class BigBalls : hamburburmod
 {

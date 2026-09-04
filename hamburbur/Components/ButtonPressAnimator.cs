@@ -61,25 +61,29 @@ public class ButtonPressAnimator : MonoBehaviour, IPointerDownHandler
         {
             case 1:
                 yield return ScaleTo(baseScale * 0.92f, growDuration);
-                yield return ScaleTo(baseScale, shrinkDuration);
+                yield return ScaleTo(baseScale,         shrinkDuration);
+
                 break;
 
             case 2:
-                yield return ScaleTo(baseScale * 1.1f, growDuration);
+                yield return ScaleTo(baseScale * 1.1f,  growDuration);
                 yield return ScaleTo(baseScale * 0.96f, shrinkDuration * 0.55f);
-                yield return ScaleTo(baseScale, shrinkDuration * 0.45f);
+                yield return ScaleTo(baseScale,         shrinkDuration * 0.45f);
+
                 break;
 
             case 3:
-                yield return ScaleTo(baseScale * 1.06f, growDuration * 0.65f);
-                yield return ScaleTo(baseScale * 0.96f, growDuration * 0.65f);
+                yield return ScaleTo(baseScale * 1.06f,  growDuration   * 0.65f);
+                yield return ScaleTo(baseScale * 0.96f,  growDuration   * 0.65f);
                 yield return ScaleTo(baseScale * 1.025f, shrinkDuration * 0.45f);
-                yield return ScaleTo(baseScale, shrinkDuration * 0.55f);
+                yield return ScaleTo(baseScale,          shrinkDuration * 0.55f);
+
                 break;
 
             default:
                 yield return ScaleTo(baseScale * 1.08f, growDuration);
-                yield return ScaleTo(baseScale, shrinkDuration);
+                yield return ScaleTo(baseScale,         shrinkDuration);
+
                 break;
         }
 

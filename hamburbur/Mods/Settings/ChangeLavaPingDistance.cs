@@ -2,8 +2,8 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Lava Ping Distance: ", "Changes the distance at which lava pings are sent", ButtonType.Incremental,
-        AccessSetting.Public, EnabledType.Disabled, 10)]
+[hamburburmod(                "Lava Ping Distance: ", "Changes the distance at which lava pings are sent", ButtonType.Incremental,
+        AccessSetting.Public, EnabledType.Disabled,   10)]
 public class ChangeLavaPingDistance : hamburburmod
 {
     private const int MinRange = 1;

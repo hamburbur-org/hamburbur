@@ -136,7 +136,7 @@ public class Themes : hamburburmod
                 -0.29f,
                 false
             ),
-            
+
             (
                 "untitled",
                 "Untitled Menu",
@@ -147,7 +147,7 @@ public class Themes : hamburburmod
                 -0.31f,
                 false
             ),
-            
+
             (
                 "untitledui",
                 "Untitled UI",
@@ -374,11 +374,11 @@ public class Themes : hamburburmod
                 new Vector3(0f, 0f, 0f),
                 Quaternion.Euler(0f, 90f, 90f),
                 new Color(0.1773585f, 0.1773585f, 0.1773585f, 1f),
-                new Color(0.2905661f, 0.2905661f, 0.2905661f,         1f),
+                new Color(0.2905661f, 0.2905661f, 0.2905661f, 1f),
                 -0.29f,
                 true
             ),
-            
+
             (
                 "hamburburcanvas",
                 "hamburbur UI",
@@ -389,62 +389,62 @@ public class Themes : hamburburmod
                 -0.29f,
                 true
             ),
-            
+
             (
                 "Sweet",
                 "Magma",
                 new Vector3(0f, 0f, 0f),
                 Quaternion.Euler(0f, 90f, 90f),
-                new Color(0.1509434f,  0.1509434f,  0.1509434f, 1f),
+                new Color(0.1509434f,  0.1509434f,  0.1509434f,  1f),
                 new Color(0.09433959f, 0.09433959f, 0.09433959f, 1f),
                 -0.29f,
                 true
             ),
-            
+
             (
                 "spectral",
                 "Spectral Menu",
                 new Vector3(0f, 0f, 0f),
                 Quaternion.Euler(90f, 0f, 0f),
-                new Color(0.098039194f, 0.01960784f, 0.2f,        1f),
+                new Color(0.098039194f, 0.01960784f, 0.2f,       1f),
                 new Color(0.545098f,    0.2352941f,  0.8156863f, 1f),
                 -0.29f,
                 false
             ),
-            
+
             (
                 "Vivid",
                 "Vivid",
                 new Vector3(0f, 0f, 0f),
                 Quaternion.Euler(90f, 0f, 0f),
                 Color.black,
-                new Color(1f,    0.6542654f,  0.7911164f, 1f),
+                new Color(1f, 0.6542654f, 0.7911164f, 1f),
                 -0.29f,
                 false
             ),
-            
+
             (
                 "VividV2",
                 "Vivid V2",
                 new Vector3(0f, 0f, 0f),
                 Quaternion.Euler(90f, 0f, 0f),
                 Color.black,
-                new Color(0.2f,    0.2f,  0.2f, 1f),
+                new Color(0.2f, 0.2f, 0.2f, 1f),
                 -0.29f,
                 false
             ),
-            
+
             (
                 "morphine",
                 "Morphine",
                 new Vector3(0f, 0f, 0f),
                 Quaternion.Euler(0f, 90f, 90f),
                 Color.black,
-                new Color(0.1169811f,    0.1169811f,  0.1169811f, 0.5019608f),
+                new Color(0.1169811f, 0.1169811f, 0.1169811f, 0.5019608f),
                 -0.29f,
                 true
             ),
-            
+
             (
                 "juul",
                 "Juul",
@@ -455,7 +455,7 @@ public class Themes : hamburburmod
                 -0.29f,
                 false
             ),
-            
+
             (
                 "elixir",
                 "Elixir",
@@ -466,7 +466,7 @@ public class Themes : hamburburmod
                 -0.29f,
                 true
             ),
-            
+
             (
                 "silliness",
                 "Silliness",
@@ -479,8 +479,8 @@ public class Themes : hamburburmod
             ),
     ];
 
-    public static Themes Instance { get; private set; }
-    internal static bool IsSynchronizingButtons { get; private set; }
+    public static   Themes Instance               { get; private set; }
+    internal static bool   IsSynchronizingButtons { get; private set; }
 
     public static int CurrentIndex => NormalizeIndex(Instance?.IncrementalValue ?? 0);
 
@@ -513,6 +513,7 @@ public class Themes : hamburburmod
         if (Instance.IncrementalValue == themeIndex)
         {
             SynchronizeThemeButtons();
+
             return;
         }
 
@@ -530,8 +531,8 @@ public class Themes : hamburburmod
     {
         IncrementalValue = NormalizeIndex(IncrementalValue);
 
-        bool keepSelectedThemeVisible = preserveSelectedThemePage &&
-                                        MenuHandler.Instance != null &&
+        bool keepSelectedThemeVisible = preserveSelectedThemePage             &&
+                                        MenuHandler.Instance          != null &&
                                         MenuHandler.Instance.Category == nameof(Themes);
 
         (
@@ -610,7 +611,7 @@ public class Themes : hamburburmod
     }
 }
 
-[hamburburmod("Theme", "Switch to this menu theme", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                      "Theme", "Switch to this menu theme", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.AlwaysDisabled, 0)]
 public sealed class ThemeButton(int themeIndex) : hamburburmod
 {

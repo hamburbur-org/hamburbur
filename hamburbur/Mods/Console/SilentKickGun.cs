@@ -4,7 +4,7 @@ using Photon.Realtime;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod(                   "Silent Kick Gun", "A gun that lets you kick anyone who has console without the lightning", ButtonType.Togglable,
+[hamburburmod(                   "Silent Kick Gun",    "A gun that lets you kick anyone who has console without the lightning", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class SilentKickGun : hamburburmod
 {
@@ -13,10 +13,7 @@ public class SilentKickGun : hamburburmod
             ShouldFollow = true,
     };
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

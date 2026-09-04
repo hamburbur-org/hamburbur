@@ -41,10 +41,10 @@ public class RareCosmeticEsp : hamburburmod
 
         foreach (GameObject cosmeticObject in rig.cosmetics.Where(cosmeticObject =>
                                                                           Plugin.Instance.SpecialCosmetics.Keys
-                                                                                 .Any(cosmeticKey =>
-                                                                                          cosmeticObject.name
-                                                                                                 .Contains(
-                                                                                                          cosmeticKey))))
+                                                                                .Any(cosmeticKey =>
+                                                                                             cosmeticObject.name
+                                                                                                           .Contains(
+                                                                                                                    cosmeticKey))))
         {
             if (!cosmeticObject.TryGetComponent(out MeshRenderer meshRenderer))
                 continue;
@@ -58,10 +58,10 @@ public class RareCosmeticEsp : hamburburmod
     {
         foreach (GameObject cosmeticObject in rig.cosmetics.Where(cosmeticObject =>
                                                                           Plugin.Instance.SpecialCosmetics.Keys
-                                                                                 .Any(cosmeticKey =>
-                                                                                          cosmeticObject.name
-                                                                                                 .Contains(
-                                                                                                          cosmeticKey))))
+                                                                                .Any(cosmeticKey =>
+                                                                                             cosmeticObject.name
+                                                                                                           .Contains(
+                                                                                                                    cosmeticKey))))
         {
             if (!cosmeticObject.TryGetComponent(out MeshRenderer meshRenderer))
                 continue;

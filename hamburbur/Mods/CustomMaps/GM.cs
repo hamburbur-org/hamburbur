@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.CustomMaps;
 
-[hamburburmod("Gorilla Mystery", "Go to the Gorilla Mystery map mods category", ButtonType.Fixed, AccessSetting.Public,
+[hamburburmod(                "Gorilla Mystery", "Go to the Gorilla Mystery map mods category", ButtonType.Fixed, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class GM : hamburburmod
 {

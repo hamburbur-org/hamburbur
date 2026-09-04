@@ -223,6 +223,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         if (hamburburmodComp.AssociatedAttribute == null)
         {
             Debug.LogError($"[hamburbur] {modType.FullName} is missing hamburburmodAttribute");
+
             return null;
         }
 
@@ -231,6 +232,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
         if (register)
             ModRegistry.Register(modType, hamburburmodComp);
+
         hamburburmodComp.InvokeStart();
 
         GUIHandler guiHandler = GUIHandler.Instance;
@@ -463,7 +465,6 @@ public class ButtonHandler : Singleton<ButtonHandler>
                         ModButtons[slot].NormalTMP.text      = mod.ModName;
                         ModButtons[slot].IncrementalTMP.text = mod.ModName;
 
-
                         switch (mod.AssociatedAttribute.ButtonType)
                         {
                             case ButtonType.Togglable:
@@ -584,7 +585,6 @@ public class ButtonHandler : Singleton<ButtonHandler>
                         ModButtons[slot].NormalTMP.text      = mod.ModName;
                         ModButtons[slot].IncrementalTMP.text = mod.ModName;
 
-
                         switch (mod.AssociatedAttribute.ButtonType)
                         {
                             case ButtonType.Togglable:
@@ -637,6 +637,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         if (waitForNextFrame)
         {
             transitionCoroutine = StartCoroutine(BeginTransitionAfterFrame());
+
             return;
         }
 
@@ -709,6 +710,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         float delay    = ButtonTransitionSpeed.StaggerDelay;
         float totalDuration = delay * Mathf.Max(0, buttons.Count - 1) +
                               (animationIndex == 0 ? 0.01f : duration);
+
         float elapsed = 0f;
 
         while (elapsed < totalDuration)
@@ -738,6 +740,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
                 {
                     transformToAnimate.localPosition = state.LocalPosition;
                     transformToAnimate.localScale    = state.LocalScale;
+
                     continue;
                 }
 

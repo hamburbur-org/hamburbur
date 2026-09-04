@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Fun;
 
-[hamburburmod("Snowballs Everywhere", "Grab snowballs everywhere", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Snowballs Everywhere", "Grab snowballs everywhere", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class BallsEverywhere : hamburburmod
 {
@@ -24,7 +24,7 @@ public static class BallsEverywherePatch
         if (!BallsEverywhere.IsEnabled)
             return true;
 
-        if (__instance.snowballs == null || __instance.snowballs.Length == 0 || !EquipmentInteractor.hasInstance ||
+        if (__instance.snowballs == null || __instance.snowballs.Length          == 0 || !EquipmentInteractor.hasInstance ||
             !GorillaTagger.hasInstance   || GorillaTagger.Instance?.offlineVRRig == null)
             return false;
 
@@ -32,9 +32,9 @@ public static class BallsEverywherePatch
 
         if (player == null) return false;
 
-        EquipmentInteractor eq = EquipmentInteractor.instance;
-        bool isGrabbing = __instance.isLeftHand ? eq.isLeftGrabbing : eq.isRightGrabbing;
-        bool holding = __instance.isLeftHand ? eq.leftHandHeldEquipment != null : eq.rightHandHeldEquipment != null;
+        EquipmentInteractor eq         = EquipmentInteractor.instance;
+        bool                isGrabbing = __instance.isLeftHand ? eq.isLeftGrabbing : eq.isRightGrabbing;
+        bool                holding    = __instance.isLeftHand ? eq.leftHandHeldEquipment != null : eq.rightHandHeldEquipment != null;
 
         if (!isGrabbing || holding) return false;
 
@@ -49,7 +49,7 @@ public static class BallsEverywherePatch
         {
             grow.IncreaseSize(1);
             GorillaTagger.Instance.StartVibration(__instance.isLeftHand, GorillaTagger.Instance.tapHapticStrength / 8f,
-                    GorillaTagger.Instance.tapHapticDuration * 0.5f);
+                    GorillaTagger.Instance.tapHapticDuration                                                      * 0.5f);
 
             __instance.requiresFreshMaterialContact = true;
 

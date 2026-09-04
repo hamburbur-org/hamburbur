@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Burger Gun", "A gun that lets you spawn in burgers if they have console", ButtonType.Togglable,
+[hamburburmod(                   "Burger Gun",               "A gun that lets you spawn in burgers if they have console", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class BurgerGun : hamburburmod
 {
@@ -27,8 +27,8 @@ public class BurgerGun : hamburburmod
 
         spawnDelay = Time.time + 0.1f;
         int newId = Components.Console.GetFreeAssetID();
-        Components.Console.ExecuteCommand("asset-spawn",    ReceiverGroup.All, "consolehamburburassets", "burger", newId);
-        
+        Components.Console.ExecuteCommand("asset-spawn", ReceiverGroup.All, "consolehamburburassets", "burger", newId);
+
         Components.Console.ExecuteCommand("asset-setposition", ReceiverGroup.All, newId,
                 gunLib.Hit.point + new Vector3(0f, 1f, 0f));
 

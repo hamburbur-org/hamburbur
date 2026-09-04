@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.OP;
 
-[hamburburmod("Tick Does Something", "Does something in tick!", ButtonType.Togglable, AccessSetting.BetaBuildOnly,
+[hamburburmod(                "Tick Does Something", "Does something in tick!", ButtonType.Togglable, AccessSetting.BetaBuildOnly,
         EnabledType.Disabled, 0)]
 public class TickDoesSomething : hamburburmod
 {

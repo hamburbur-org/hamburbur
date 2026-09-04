@@ -28,21 +28,21 @@ public class MenuHandler : Singleton<MenuHandler>
     public        bool       MenuOpen;
 
     public bool IsCanvasMenu;
-    public bool HasDedicatedSearchButton { get; private set; }
-    public bool HasDedicatedCategoryButtons { get; private set; }
 
     public Color currentMainColour, currentSecondaryColour;
 
-    public  bool      IsWaiting;
-    public  TMP_Text  MenuName;
-    private Coroutine typingCoroutine;
-
-    public GameObject Menu { get; private set; }
+    public bool     IsWaiting;
+    public TMP_Text MenuName;
 
     private readonly List<CategoryButton> categoryButtonSlots = [];
-    private Transform categoryLastPage;
-    private Transform categoryNextPage;
-    private int categoryPageIndex;
+    private          Transform            categoryLastPage;
+    private          Transform            categoryNextPage;
+    private          int                  categoryPageIndex;
+    private          Coroutine            typingCoroutine;
+    public           bool                 HasDedicatedSearchButton    { get; private set; }
+    public           bool                 HasDedicatedCategoryButtons { get; private set; }
+
+    public GameObject Menu { get; private set; }
 
     private void Start()
     {
@@ -73,7 +73,7 @@ public class MenuHandler : Singleton<MenuHandler>
         foreach (KeyValuePair<string, ValueTuple<Type, hamburburmod>[]> category in Buttons.Categories)
             for (int button = 0; button < category.Value.Length; button++)
             {
-                Type modType = category.Value[button].Item1;
+                Type         modType      = category.Value[button].Item1;
                 hamburburmod hamburburMod = category.Value[button].Item2;
 
                 if (hamburburMod == null)
@@ -134,20 +134,6 @@ public class MenuHandler : Singleton<MenuHandler>
         StartCoroutine(OnStart());
     }
 
-    private static void AssignDuplicateConfigKeys()
-    {
-        IEnumerable<IGrouping<string, (Type, hamburburmod)>> duplicateNames =
-                Buttons.Categories
-                       .SelectMany(category => category.Value)
-                       .Where(button => button.Item2?.AssociatedAttribute != null)
-                       .GroupBy(button => button.Item2.PreferencesKey)
-                       .Where(group => group.Count() > 1);
-
-        foreach (IGrouping<string, (Type, hamburburmod)> duplicateName in duplicateNames)
-            foreach ((Type type, hamburburmod mod) in duplicateName)
-                mod.ConfigKey = $"{duplicateName.Key}_{type.FullName ?? type.Name}";
-    }
-
     private void Update()
     {
         if (Menu == null || InputManager.Instance == null)
@@ -188,8 +174,22 @@ public class MenuHandler : Singleton<MenuHandler>
 
     private void OnDisable() => CoroutineManager.Instance.StartCoroutine(CloseMenu());
 
-    public void SetUpMenu(GameObject menuPrefab, Transform menuParent,      Vector3 position, Quaternion rotation,
-                          Color      mainColour, Color     secondaryColour, float keyboardHeight, bool isCanvasMenu, bool    active)
+    private static void AssignDuplicateConfigKeys()
+    {
+        IEnumerable<IGrouping<string, (Type, hamburburmod)>> duplicateNames =
+                Buttons.Categories
+                       .SelectMany(category => category.Value)
+                       .Where(button => button.Item2?.AssociatedAttribute != null)
+                       .GroupBy(button => button.Item2.PreferencesKey)
+                       .Where(group => group.Count() > 1);
+
+        foreach (IGrouping<string, (Type, hamburburmod)> duplicateName in duplicateNames)
+            foreach ((Type type, hamburburmod mod) in duplicateName)
+                mod.ConfigKey = $"{duplicateName.Key}_{type.FullName ?? type.Name}";
+    }
+
+    public void SetUpMenu(GameObject menuPrefab, Transform menuParent,      Vector3 position,       Quaternion rotation,
+                          Color      mainColour, Color     secondaryColour, float   keyboardHeight, bool       isCanvasMenu, bool active)
     {
         if (menuPrefab == null || menuParent == null)
         {
@@ -211,10 +211,10 @@ public class MenuHandler : Singleton<MenuHandler>
         menu.transform.localPosition = position;
         menu.transform.localRotation = rotation;
 
-        Transform version     = menu.transform.Find(nameof(Version));
-        Transform title       = menu.transform.Find("Title");
-        Transform miscButtons = menu.transform.Find("MiscButtons");
-        Transform modButtons  = menu.transform.Find("ModButtons");
+        Transform version         = menu.transform.Find(nameof(Version));
+        Transform title           = menu.transform.Find("Title");
+        Transform miscButtons     = menu.transform.Find("MiscButtons");
+        Transform modButtons      = menu.transform.Find("ModButtons");
         Transform categoryButtons = menu.transform.Find("CategoryButtons");
 
         if (version == null || title == null || miscButtons == null || modButtons == null)
@@ -263,13 +263,13 @@ public class MenuHandler : Singleton<MenuHandler>
 
         HasDedicatedSearchButton = searchButton != null;
         if (HasDedicatedSearchButton)
-            searchButton.AddComponent<ButtonCollider>().OnPress = Mods.Categories.Search.OpenSearch;
+            searchButton.AddComponent<ButtonCollider>().OnPress = Search.OpenSearch;
 
         InitializeCategoryButtons(categoryButtons);
 
         if (HasDedicatedCategoryButtons && Category == nameof(Main))
         {
-            Category = DedicatedCategoryDefault;
+            Category  = DedicatedCategoryDefault;
             PageIndex = 0;
             LastCategories.Clear();
         }
@@ -313,9 +313,9 @@ public class MenuHandler : Singleton<MenuHandler>
     private void InitializeCategoryButtons(Transform categoryButtons)
     {
         categoryButtonSlots.Clear();
-        categoryLastPage = null;
-        categoryNextPage = null;
-        categoryPageIndex = 0;
+        categoryLastPage            = null;
+        categoryNextPage            = null;
+        categoryPageIndex           = 0;
         HasDedicatedCategoryButtons = categoryButtons != null;
 
         if (!HasDedicatedCategoryButtons)
@@ -334,6 +334,7 @@ public class MenuHandler : Singleton<MenuHandler>
             {
                 Debug.LogWarning($"[hamburbur] CategoryButtons/Button{index} is missing its TMP text object.");
                 button.gameObject.SetActive(false);
+
                 continue;
             }
 
@@ -361,7 +362,7 @@ public class MenuHandler : Singleton<MenuHandler>
             return;
 
         (Type, hamburburmod)[] mainButtons = Buttons.GetVisibleCategory(nameof(Main));
-        int pageCount = Mathf.Max(1, Mathf.CeilToInt((float)mainButtons.Length / categoryButtonSlots.Count));
+        int                    pageCount   = Mathf.Max(1, Mathf.CeilToInt((float)mainButtons.Length / categoryButtonSlots.Count));
         categoryPageIndex = Mathf.Clamp(categoryPageIndex, 0, pageCount - 1);
 
         foreach (CategoryButton slot in categoryButtonSlots)
@@ -382,7 +383,7 @@ public class MenuHandler : Singleton<MenuHandler>
                 continue;
 
             CategoryButton slot = categoryButtonSlots[slotIndex];
-            slot.Text.text = mod.ModName;
+            slot.Text.text        = mod.ModName;
             slot.Collider.OnPress = () => mod.Toggle(ButtonState.Normal);
             slot.GameObject.SetActive(true);
         }
@@ -562,8 +563,9 @@ public class MenuHandler : Singleton<MenuHandler>
         int        animationIndex   = MenuOpenCloseAnimation.CurrentIndex;
         Vector3    targetLocalScale = animatedMenu.transform.localScale;
         Vector3    targetMenuScale  = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f);
-        Vector3    targetPointerScale =
+        Vector3 targetPointerScale =
                 Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f);
+
         float duration = GetMenuAnimationDuration(animationIndex);
         float elapsed  = 0f;
 
@@ -598,7 +600,7 @@ public class MenuHandler : Singleton<MenuHandler>
         }
         else
         {
-            Menu.transform.parent.localScale   = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f);
+            Menu.transform.parent.localScale = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f);
             ButtonPresser.transform.localScale =
                     Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f);
         }
@@ -620,12 +622,13 @@ public class MenuHandler : Singleton<MenuHandler>
         if (playSound)
             MenuSoundsHandler.Instance?.PlayMenuCloseSound();
 
-        GameObject animatedMenu       = Menu;
-        int        animationIndex     = animate ? MenuOpenCloseAnimation.CurrentIndex : 5;
-        Vector3    targetLocalScale   = animatedMenu.transform.localScale;
-        Vector3    targetMenuScale    = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f);
-        Vector3    targetPointerScale =
+        GameObject animatedMenu     = Menu;
+        int        animationIndex   = animate ? MenuOpenCloseAnimation.CurrentIndex : 5;
+        Vector3    targetLocalScale = animatedMenu.transform.localScale;
+        Vector3    targetMenuScale  = Vector3.one * (ChangeMenuSize.Instance.IncrementalValue * 0.1f);
+        Vector3 targetPointerScale =
                 Vector3.one * (ChangePointerSize.Instance.IncrementalValue * 0.002f);
+
         float duration = GetMenuAnimationDuration(animationIndex);
         float elapsed  = 0f;
 
@@ -672,45 +675,51 @@ public class MenuHandler : Singleton<MenuHandler>
         if (animatedMenu == null)
             return;
 
-        float      eased          = Mathf.SmoothStep(0f, 1f, progress);
-        float      visibility     = opening ? eased : 1f - eased;
-        Vector3    menuScale      = targetMenuScale;
-        Vector3    menuLocalScale = targetLocalScale;
+        float   eased          = Mathf.SmoothStep(0f, 1f, progress);
+        float   visibility     = opening ? eased : 1f - eased;
+        Vector3 menuScale      = targetMenuScale;
+        Vector3 menuLocalScale = targetLocalScale;
 
         switch (animationIndex)
         {
             case 0:
                 menuScale = targetMenuScale * visibility;
+
                 break;
 
             case 1:
                 menuScale = targetMenuScale * GetPopScale(progress, opening);
+
                 break;
 
             case 5:
                 menuScale  = opening ? targetMenuScale : Vector3.zero;
                 visibility = opening ? 1f : 0f;
+
                 break;
 
             case 6:
                 menuLocalScale = Vector3.Scale(
                         targetLocalScale,
                         new Vector3(Mathf.Lerp(0.025f, 1f, visibility), 1f, 1f));
+
                 break;
 
             case 7:
                 menuLocalScale = Vector3.Scale(
                         targetLocalScale,
                         new Vector3(1f, Mathf.Lerp(0.025f, 1f, visibility), 1f));
+
                 break;
 
             case 8:
                 menuLocalScale = Vector3.Scale(
                         targetLocalScale,
                         new Vector3(
-                                Mathf.Lerp(1.3f, 1f, visibility),
+                                Mathf.Lerp(1.3f,  1f, visibility),
                                 Mathf.Lerp(0.04f, 1f, visibility),
                                 1f));
+
                 break;
 
             case 9:
@@ -718,8 +727,9 @@ public class MenuHandler : Singleton<MenuHandler>
                         targetLocalScale,
                         new Vector3(
                                 Mathf.Lerp(0.04f, 1f, visibility),
-                                Mathf.Lerp(1.3f, 1f, visibility),
+                                Mathf.Lerp(1.3f,  1f, visibility),
                                 1f));
+
                 break;
 
         }
@@ -747,10 +757,10 @@ public class MenuHandler : Singleton<MenuHandler>
 
     private static float GetMenuAnimationDuration(int animationIndex) => animationIndex switch
                                                                          {
-                                                                                 1     => 0.16f,
+                                                                                 1                => 0.16f,
                                                                                  6 or 7 or 8 or 9 => 0.18f,
-                                                                                 5     => 0f,
-                                                                                 var _ => 0.1f,
+                                                                                 5                => 0f,
+                                                                                 var _            => 0.1f,
                                                                          };
 
     private IEnumerator AnimateMenuTitle()
@@ -767,22 +777,27 @@ public class MenuHandler : Singleton<MenuHandler>
         {
             case "None":
                 title.text = GetMenuTitle();
+
                 break;
 
             case "Fade":
                 yield return FadeMenuTitle(title, menu);
+
                 break;
 
             case "Reveal":
                 yield return RevealMenuTitle(title, menu);
+
                 break;
 
             case "Pulse":
                 yield return PulseMenuTitle(title, menu);
+
                 break;
 
             default:
                 yield return TypewriterMenuTitle(title, menu);
+
                 break;
         }
     }
@@ -796,6 +811,7 @@ public class MenuHandler : Singleton<MenuHandler>
             for (int i = 0; i <= text.Length && IsTitleAnimationActive(title, menu); i++)
             {
                 title.text = text[..i];
+
                 yield return WaitForTitleDelay(title, menu, 0.2f);
             }
 
@@ -804,6 +820,7 @@ public class MenuHandler : Singleton<MenuHandler>
             for (int i = text.Length; i >= 0 && IsTitleAnimationActive(title, menu); i--)
             {
                 title.text = text[..i];
+
                 yield return WaitForTitleDelay(title, menu, 0.1f);
             }
 
@@ -816,6 +833,7 @@ public class MenuHandler : Singleton<MenuHandler>
         while (IsTitleAnimationActive(title, menu))
         {
             title.text = GetMenuTitle();
+
             yield return FadeTitle(title, menu, 0f, 1f, 0.45f);
             yield return WaitForTitleDelay(title, menu, 2f);
             yield return FadeTitle(title, menu, 1f, 0f, 0.35f);
@@ -834,6 +852,7 @@ public class MenuHandler : Singleton<MenuHandler>
             for (int visible = 0; visible <= text.Length && IsTitleAnimationActive(title, menu); visible++)
             {
                 title.maxVisibleCharacters = visible;
+
                 yield return WaitForTitleDelay(title, menu, 0.075f);
             }
 
@@ -842,6 +861,7 @@ public class MenuHandler : Singleton<MenuHandler>
             for (int visible = text.Length; visible >= 0 && IsTitleAnimationActive(title, menu); visible--)
             {
                 title.maxVisibleCharacters = visible;
+
                 yield return WaitForTitleDelay(title, menu, 0.05f);
             }
 
@@ -856,26 +876,26 @@ public class MenuHandler : Singleton<MenuHandler>
 
         while (IsTitleAnimationActive(title, menu))
         {
-            elapsed += Time.unscaledDeltaTime;
-            title.alpha = Mathf.Lerp(0.45f, 1f, (Mathf.Sin(elapsed * 3f) + 1f) * 0.5f);
+            elapsed     += Time.unscaledDeltaTime;
+            title.alpha =  Mathf.Lerp(0.45f, 1f, (Mathf.Sin(elapsed * 3f) + 1f) * 0.5f);
 
             yield return null;
         }
     }
 
     private IEnumerator FadeTitle(
-            TMP_Text title,
+            TMP_Text   title,
             GameObject menu,
-            float from,
-            float to,
-            float duration)
+            float      from,
+            float      to,
+            float      duration)
     {
         float elapsed = 0f;
 
         while (elapsed < duration && IsTitleAnimationActive(title, menu))
         {
-            elapsed += Time.unscaledDeltaTime;
-            title.alpha = Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, elapsed / duration));
+            elapsed     += Time.unscaledDeltaTime;
+            title.alpha =  Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, elapsed / duration));
 
             yield return null;
         }
@@ -891,6 +911,7 @@ public class MenuHandler : Singleton<MenuHandler>
         while (elapsed < duration && IsTitleAnimationActive(title, menu))
         {
             elapsed += Time.unscaledDeltaTime;
+
             yield return null;
         }
     }
@@ -936,10 +957,10 @@ public class MenuHandler : Singleton<MenuHandler>
     }
 
     private static bool IsTitleAnimationActive(TMP_Text title, GameObject menu) =>
-            title != null &&
-            menu != null &&
-            Instance != null &&
-            Instance.Menu == menu &&
+            title             != null  &&
+            menu              != null  &&
+            Instance          != null  &&
+            Instance.Menu     == menu  &&
             Instance.MenuName == title &&
             menu.activeSelf;
 
@@ -955,8 +976,8 @@ public class MenuHandler : Singleton<MenuHandler>
 
     private readonly struct CategoryButton(GameObject gameObject, ButtonCollider collider, TMP_Text text)
     {
-        public readonly GameObject GameObject = gameObject;
-        public readonly ButtonCollider Collider = collider;
-        public readonly TMP_Text Text = text;
+        public readonly GameObject     GameObject = gameObject;
+        public readonly ButtonCollider Collider   = collider;
+        public readonly TMP_Text       Text       = text;
     }
 }

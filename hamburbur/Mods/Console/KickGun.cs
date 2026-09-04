@@ -4,7 +4,7 @@ using Photon.Realtime;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod(                   "Kick Gun", "A gun that lets you kick anyone who has console", ButtonType.Togglable,
+[hamburburmod(                   "Kick Gun",           "A gun that lets you kick anyone who has console", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class KickGun : hamburburmod
 {
@@ -13,10 +13,7 @@ public class KickGun : hamburburmod
             ShouldFollow = true,
     };
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

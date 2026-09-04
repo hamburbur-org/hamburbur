@@ -7,6 +7,6 @@ public class LeftHandedGun : hamburburmod
 {
     public static bool IsEnabled;
 
-    protected override void OnEnable() => IsEnabled = true;
+    protected override void OnEnable()  => IsEnabled = true;
     protected override void OnDisable() => IsEnabled = false;
 }

@@ -2,8 +2,8 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Button Press Animation: ", "Changes how buttons animate when pressed.", ButtonType.Incremental,
-        AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Button Press Animation: ", "Changes how buttons animate when pressed.", ButtonType.Incremental,
+        AccessSetting.Public, EnabledType.Disabled,       0)]
 public class ButtonPressAnimation : hamburburmod
 {
     public static readonly string[] Animations =

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using hamburbur.Misc;
 using hamburbur.Mod_Backend;
-using hamburbur.Plugins;
-using hamburbur.Mods.Categories;
 using hamburbur.Mods.Blocks;
+using hamburbur.Mods.Categories;
 using hamburbur.Mods.Console;
 using hamburbur.Mods.Console.Assets;
 using hamburbur.Mods.Console.Fun;
@@ -30,6 +29,7 @@ using hamburbur.Mods.Scoreboard;
 using hamburbur.Mods.Settings;
 using hamburbur.Mods.SoundBoard;
 using hamburbur.Mods.Visual;
+using hamburbur.Plugins;
 using Console = hamburbur.Mods.Categories.Console;
 
 namespace hamburbur.GUI;
@@ -643,19 +643,19 @@ public static class Buttons
             Categories.TryGetValue(category, out (Type, hamburburmod)[] mods)
                     ? mods.Where(mod =>
                                          (mod.Item2 == null || PluginManager.IsModVisible(mod.Item2)) &&
-                                         !(category == nameof(Main) &&
-                                           MenuHandler.Instance?.HasDedicatedSearchButton == true &&
-                                           mod.Item1 == typeof(Search)))
+                                         !(category                                       == nameof(Main) &&
+                                           MenuHandler.Instance?.HasDedicatedSearchButton == true         &&
+                                           mod.Item1                                      == typeof(Search)))
                           .ToArray()
                     : [];
 
     public static ValueTuple<Type, hamburburmod>[] GetEnabledMods() => Categories
                                                                       .SelectMany(kvp => kvp.Value)
-                                                                      .Where(mod => mod.Item2 != null &&
-                                                                                 PluginManager.IsModVisible(mod.Item2) &&
-                                                                                 mod.Item2.Enabled &&
-                                                                                 mod.Item2.AssociatedAttribute
-                                                                                        .ButtonType ==
-                                                                                 ButtonType.Togglable)
+                                                                      .Where(mod => mod.Item2 != null                     &&
+                                                                                    PluginManager.IsModVisible(mod.Item2) &&
+                                                                                    mod.Item2.Enabled                     &&
+                                                                                    mod.Item2.AssociatedAttribute
+                                                                                       .ButtonType ==
+                                                                                    ButtonType.Togglable)
                                                                       .ToArray();
 }

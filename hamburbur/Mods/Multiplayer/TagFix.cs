@@ -8,13 +8,13 @@ public class TagFix : hamburburmod
     public static bool IsEnabled;
     protected override void OnEnable()
     {
-        IsEnabled = true;
+        IsEnabled                             = true;
         GorillaTagger.Instance.maxTagDistance = float.MaxValue;
     }
 
     protected override void OnDisable()
     {
-        IsEnabled = false;
+        IsEnabled                             = false;
         GorillaTagger.Instance.maxTagDistance = 1.2f;
     }
 }

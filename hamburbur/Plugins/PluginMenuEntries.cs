@@ -10,7 +10,7 @@ internal sealed class PluginListEntry : hamburburmod
     internal PluginListEntry(PluginRecord record)
     {
         this.record = record;
-        ConfigKey = $"{record.Name}_Plugin_{record.Id}";
+        ConfigKey   = $"{record.Name}_Plugin_{record.Id}";
         string status = record.IsLegacy ? "Legacy" : record.IsEnabled ? "Enabled" : "Disabled";
         AssociatedAttribute = new hamburburmodAttribute(
                 $"{record.Name} [{status}]",
@@ -43,13 +43,13 @@ internal sealed class PluginActionEntry : hamburburmod
 
 internal sealed class PluginModVisibilityEntry : hamburburmod
 {
-    private readonly string pluginId;
     private readonly string modTypeName;
+    private readonly string pluginId;
 
     internal PluginModVisibilityEntry(string pluginId, PluginModDescriptor mod, bool visible)
     {
-        this.pluginId   = pluginId;
-        modTypeName     = mod.TypeName;
+        this.pluginId = pluginId;
+        modTypeName   = mod.TypeName;
         AssociatedAttribute = new hamburburmodAttribute(
                 mod.Name,
                 $"Show this button in {mod.Category}. This does not enable or disable the mod.",
@@ -59,6 +59,6 @@ internal sealed class PluginModVisibilityEntry : hamburburmod
 
     public override string ModName => AssociatedAttribute.Name;
 
-    protected override void OnEnable() => PluginManager.Instance.SetModVisible(pluginId, modTypeName, true);
+    protected override void OnEnable()  => PluginManager.Instance.SetModVisible(pluginId, modTypeName, true);
     protected override void OnDisable() => PluginManager.Instance.SetModVisible(pluginId, modTypeName, false);
 }

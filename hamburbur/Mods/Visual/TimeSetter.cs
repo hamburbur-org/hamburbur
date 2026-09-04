@@ -13,14 +13,12 @@ public class TimeSetter : hamburburmod
                                                ? "Normal"
                                                : IncrementalValue.ToString("N0"));
 
-    protected override void Start()
-    {
-        Tools.Utils.OnFixedUpdate += () =>
-                                     {
-                                         if (!NormalTime)
-                                             BetterDayNightManager.instance.SetTimeOfDay(IncrementalValue);
-                                     };
-    }
+    protected override void Start() =>
+            Tools.Utils.OnFixedUpdate += () =>
+                                         {
+                                             if (!NormalTime)
+                                                 BetterDayNightManager.instance.SetTimeOfDay(IncrementalValue);
+                                         };
 
     protected override void Increment()
     {

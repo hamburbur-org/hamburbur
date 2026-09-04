@@ -2,7 +2,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Tag Aura RG", "Makes it so you have to hold down right grip to use tag aura.", ButtonType.Togglable,
+[hamburburmod(                "Tag Aura RG",        "Makes it so you have to hold down right grip to use tag aura.", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class TagAuraRG : hamburburmod
 {

@@ -11,29 +11,29 @@ public abstract class Shaders
         {
             if (field == null)
                 field = Shader.Find("GorillaTag/UberShader");
-                
+
             return field;
         }
     }
-    
+
     public static Shader TextShader
     {
         get
         {
             if (field == null)
                 field = Shader.Find("GUI/Text Shader");
-                
+
             return field;
         }
     }
-    
+
     public static Shader UniversalUnlitShader
     {
         get
         {
             if (field == null)
                 field = Shader.Find("Universal Render Pipeline/Unlit");
-                
+
             return field;
         }
     }

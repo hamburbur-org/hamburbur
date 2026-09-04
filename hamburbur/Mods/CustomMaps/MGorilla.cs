@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.CustomMaps;
 
-[hamburburmod("Meccha Gorilla", "Open the Meccha Gorilla custom map mods", ButtonType.Fixed, AccessSetting.Public,
+[hamburburmod(                "Meccha Gorilla", "Open the Meccha Gorilla custom map mods", ButtonType.Fixed, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class MGorilla : hamburburmod
 {

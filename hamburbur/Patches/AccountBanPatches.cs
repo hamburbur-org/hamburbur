@@ -1,4 +1,3 @@
-using hamburbur.Managers;
 using HarmonyLib;
 using UnityEngine;
 
@@ -51,7 +50,7 @@ public static class AccountBanPatches
     [HarmonyPatch(typeof(GorillaGameManager), nameof(GorillaGameManager.ForceStopGame_DisconnectAndDestroy))]
     public class NoQuitOnBan
     {
-        private static bool Prefix() => 
+        private static bool Prefix() =>
                 false;
     }
 

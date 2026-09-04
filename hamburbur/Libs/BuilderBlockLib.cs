@@ -32,7 +32,7 @@ public static class BuilderBlockLib
             return false;
 
         return BuilderTable.TryGetBuilderTableForZone(localRig.zoneEntity.currentZone, out table) &&
-               table != null && table.isTableMutable && table.GetTableState() == BuilderTable.TableState.Ready;
+               table != null                                                                      && table.isTableMutable && table.GetTableState() == BuilderTable.TableState.Ready;
     }
 
     public static bool TrySelectPiece(BuilderPiece piece)
@@ -76,9 +76,9 @@ public static class BuilderBlockLib
         if (!TryGetShelf(table, out BuilderPiece.State shelfState, out int shelfId))
             return false;
 
-        int                    pieceId     = table.CreatePieceId();
-        int                    commandId   = nextCommandId++;
-        BuilderTableNetworking networking  = table.builderNetworking;
+        int                    pieceId    = table.CreatePieceId();
+        int                    commandId  = nextCommandId++;
+        BuilderTableNetworking networking = table.builderNetworking;
 
         networking.photonView.RPC(
                 "PieceCreatedByShelfRPC",
@@ -171,12 +171,12 @@ public static class BuilderBlockLib
         {
             Vector3 handPosition = GetServerLeftHandPosition();
             BuilderDropZone dropZone = table.dropZones?
-                                                  .Where(zone => zone != null && (int)zone.dropType >= 1)
-                                                  .Where(zone => Vector3.Distance(zone.transform.position,
-                                                          handPosition) < BuilderTable.MAX_DISTANCE_FROM_HAND)
-                                                  .OrderBy(zone => Vector3.Distance(zone.transform.position,
-                                                          handPosition))
-                                                  .FirstOrDefault();
+                                            .Where(zone => zone != null && (int)zone.dropType >= 1)
+                                            .Where(zone => Vector3.Distance(zone.transform.position,
+                                                                   handPosition) < BuilderTable.MAX_DISTANCE_FROM_HAND)
+                                            .OrderBy(zone => Vector3.Distance(zone.transform.position,
+                                                             handPosition))
+                                            .FirstOrDefault();
 
             Vector3 dropPosition = dropZone != null
                                            ? dropZone.transform.position
@@ -272,11 +272,11 @@ public static class BuilderBlockLib
 
     private static bool TryReuseNearbyPiece(
             BuilderTable table,
-            int pieceType,
-            Vector3 position,
-            Quaternion rotation,
-            Vector3 velocity,
-            Vector3 angularVelocity)
+            int          pieceType,
+            Vector3      position,
+            Quaternion   rotation,
+            Vector3      velocity,
+            Vector3      angularVelocity)
     {
         Vector3 handPosition = GetServerLeftHandPosition();
 
@@ -287,17 +287,17 @@ public static class BuilderBlockLib
                                                     .Where(piece => piece.heldByPlayerActorNumber !=
                                                                     PhotonNetwork.LocalPlayer.ActorNumber)
                                                     .Where(piece => piece.CanPlayerGrabPiece(
-                                                            PhotonNetwork.LocalPlayer.ActorNumber,
-                                                            piece.transform.position))
+                                                                   PhotonNetwork.LocalPlayer.ActorNumber,
+                                                                   piece.transform.position))
                                                     .Where(piece => Vector3.Distance(piece.transform.position,
-                                                            handPosition) < BuilderTable.MAX_DISTANCE_FROM_HAND);
+                                                                            handPosition) < BuilderTable.MAX_DISTANCE_FROM_HAND);
 
         BuilderPiece reusablePiece = candidates
-                                     .Where(piece => piece.pieceType == pieceType)
-                                     .OrderBy(piece => Vector3.Distance(piece.transform.position, handPosition))
-                                     .FirstOrDefault() ?? candidates
-                                     .OrderBy(piece => Vector3.Distance(piece.transform.position, handPosition))
-                                     .FirstOrDefault();
+                                    .Where(piece => piece.pieceType == pieceType)
+                                    .OrderBy(piece => Vector3.Distance(piece.transform.position, handPosition))
+                                    .FirstOrDefault() ?? candidates
+                                                        .OrderBy(piece => Vector3.Distance(piece.transform.position, handPosition))
+                                                        .FirstOrDefault();
 
         if (reusablePiece == null)
             return false;
@@ -323,6 +323,7 @@ public static class BuilderBlockLib
     private static Vector3 GetServerLeftHandPosition()
     {
         VRRig localRig = VRRig.LocalRig;
+
         return localRig?.leftHand?.rigTarget != null
                        ? localRig.leftHand.rigTarget.position
                        : GorillaTagger.Instance.leftHandTransform.position;

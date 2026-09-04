@@ -5,7 +5,7 @@ using Photon.Realtime;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Cleanup Assets", "Destroys all current console assets", ButtonType.Fixed, AccessSetting.AdminOnly,
+[hamburburmod(                      "Cleanup Assets", "Destroys all current console assets", ButtonType.Fixed, AccessSetting.AdminOnly,
         EnabledType.AlwaysDisabled, 0)]
 public class CleanupAssets : hamburburmod
 {

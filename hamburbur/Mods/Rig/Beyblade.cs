@@ -1,9 +1,9 @@
-using hamburbur.Mod_Backend;
-using HarmonyLib;
 using GorillaLocomotion;
 using hamburbur.Managers;
+using hamburbur.Mod_Backend;
 using hamburbur.Mods.Settings;
 using hamburbur.Tools;
+using HarmonyLib;
 using UnityEngine;
 
 namespace hamburbur.Mods.Rig;
@@ -12,10 +12,10 @@ namespace hamburbur.Mods.Rig;
 public class Beyblade : hamburburmod
 {
     public static bool IsEnabled;
-    
+
     private static Vector2 lerpDirection = Vector2.zero;
 
-    protected override void OnEnable()  => IsEnabled = true;
+    protected override void OnEnable() => IsEnabled = true;
 
     protected override void Update()
     {
@@ -26,17 +26,17 @@ public class Beyblade : hamburburmod
                            GorillaTagger.Instance.bodyCollider.transform.right   * lerpDirection.x;
 
         Physics.Raycast(GorillaTagger.Instance.bodyCollider.transform.position - new Vector3(0f, 0.2f, 0f),
-            Vector3.down, out RaycastHit Ray, 512f, GTPlayer.Instance.locomotionEnabledLayers);
+                Vector3.down, out RaycastHit Ray, 512f, GTPlayer.Instance.locomotionEnabledLayers);
 
         Vector3 targetVelocity = addition * ChangeFlySpeed.Instance.IncrementalValue;
 
         if (Ray.distance < 0.2f && (Mathf.Abs(lerpDirection.x) > 0.05f || Mathf.Abs(lerpDirection.y) > 0.05f))
             GorillaTagger.Instance.rigidbody.linearVelocity = new Vector3(targetVelocity.x,
-                GorillaTagger.Instance.rigidbody.linearVelocity.y, targetVelocity.z);
-        
-            if (InputManager.Instance.RightPrimary.WasPressed)
+                    GorillaTagger.Instance.rigidbody.linearVelocity.y, targetVelocity.z);
+
+        if (InputManager.Instance.RightPrimary.WasPressed)
             GorillaTagger.Instance.rigidbody.linearVelocity = new Vector3(GorillaTagger.Instance.rigidbody.linearVelocity.x,
-                5f, GorillaTagger.Instance.rigidbody.linearVelocity.z);
+                    5f, GorillaTagger.Instance.rigidbody.linearVelocity.z);
     }
 
     protected override void OnDisable() => IsEnabled = false;

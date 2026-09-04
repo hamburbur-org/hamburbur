@@ -79,10 +79,10 @@ public class PUNErrors : MonoBehaviourPunCallbacks
 
                 string warnReasonString = string.Join(", ", warnReasons.Select(reason =>
                                                                                        CultureInfo.InvariantCulture
-                                                                                              .TextInfo.ToTitleCase(
-                                                                                                       reason.Replace(
-                                                                                                               '_',
-                                                                                                               ' '))));
+                                                                                                  .TextInfo.ToTitleCase(
+                                                                                                           reason.Replace(
+                                                                                                                   '_',
+                                                                                                                   ' '))));
 
                 NotificationManager.SendNotification(
                         "<color=red>Warning</color>",

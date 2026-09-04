@@ -23,7 +23,7 @@ public class GuardianSpam : hamburburmod
                     5f,
                     false,
                     false);
-            
+
             Toggle(ButtonState.Normal, false, false);
         }
 
@@ -45,6 +45,7 @@ public class GuardianSpam : hamburburmod
             if (zones.Length == 0 || players.Length == 0)
             {
                 yield return new WaitForSeconds(0.5f);
+
                 continue;
             }
 
@@ -52,13 +53,13 @@ public class GuardianSpam : hamburburmod
             Player                     player = players[Random.Range(0, players.Length)];
 
             zone.SetGuardian(player);
-            
+
             yield return new WaitForSeconds(0.5f);
 
             if (zone != null && Equals(zone.CurrentGuardian.GetPlayerRef(), player))
                 zone.SetGuardian(null);
         }
-        
+
         Toggle(ButtonState.Normal, false, false);
     }
 

@@ -1,4 +1,3 @@
-using hamburbur.Libs;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Tools;
@@ -9,8 +8,8 @@ namespace hamburbur.Mods.MasterClient;
 [hamburburmod("Spam Tag All", "Spam tags everyone", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class SpamTagAll : hamburburmod
 {
-    private          float  spamNotifDelay;
-    private          float  spamTagDelay;
+    private float spamNotifDelay;
+    private float spamTagDelay;
 
     protected override void LateUpdate()
     {
@@ -28,10 +27,10 @@ public class SpamTagAll : hamburburmod
 
             return;
         }
-        
+
         if (!(Time.time > spamTagDelay))
             return;
-        
+
         spamTagDelay = Time.time + 0.035f;
 
         foreach (VRRig rig in VRRigCache.m_activeRigs)

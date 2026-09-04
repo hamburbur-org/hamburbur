@@ -134,8 +134,8 @@ public class ForceInnocentsWin : hamburburmod
     }
 }
 
-[hamburburmod("[Master] Spam Rounds", "Alternates starting and ending Gorilla Mystery rounds every 0.5 seconds",
-        ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "[Master] Spam Rounds", "Alternates starting and ending Gorilla Mystery rounds every 0.5 seconds",
+        ButtonType.Togglable, AccessSetting.Public,   EnabledType.Disabled, 0)]
 public class SpamMysteryRounds : hamburburmod
 {
     private const float EventDelay = 0.3f;

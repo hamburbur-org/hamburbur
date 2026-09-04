@@ -37,7 +37,7 @@ public class HandAnimator : MonoBehaviour
 
         Ray ray = new(Body.position + Body.right * FootSpacing, Vector3.down);
         if (Physics.Raycast(ray, out RaycastHit hit, 10f, TerrainLayer.value) &&
-            Vector3.Distance(newPosition, hit.point) > StepDistance && !OtherHandAnimator.IsMoving() && lerp >= 1f)
+            Vector3.Distance(newPosition, hit.point) > StepDistance           && !OtherHandAnimator.IsMoving() && lerp >= 1f)
         {
             lerp = 0f;
             int direction = Body.InverseTransformPoint(hit.point).z > Body.InverseTransformPoint(newPosition).z

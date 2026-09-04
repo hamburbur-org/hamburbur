@@ -110,7 +110,7 @@ public abstract class MysteryRoleEsp : hamburburmod
     }
 }
 
-[hamburburmod("Murderer ESP", "Shows the murderer with a red box", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Murderer ESP", "Shows the murderer with a red box", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class MurdererEsp : MysteryRoleEsp
 {
@@ -119,7 +119,7 @@ public class MurdererEsp : MysteryRoleEsp
     protected override string         BoxName    => "HamburburMysteryMurdererESP";
 }
 
-[hamburburmod("Sheriff ESP", "Shows the sheriff with a blue box", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Sheriff ESP", "Shows the sheriff with a blue box", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class SheriffEsp : MysteryRoleEsp
 {

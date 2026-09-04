@@ -23,9 +23,9 @@ public class MenuWebsocket : Singleton<MenuWebsocket>
     private readonly Queue<string> receivedMessagesQueue = new();
     private readonly Queue<string> statusQueue           = new();
     private          bool          isClosing;
+    private          WebSocket?    MainWebSocket;
 
     private Coroutine? socketCoroutine;
-    private WebSocket? MainWebSocket;
 
     private IEnumerator Start()
     {

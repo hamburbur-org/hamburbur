@@ -10,7 +10,7 @@ namespace hamburbur.Mods.Console;
 [hamburburmod(                                                                                 "Networked CosmetX",
         "Forcefully networks your worn cosmetics even if you don't own them to console users", ButtonType.Togglable,
         AccessSetting.AdminOnly,                                                               EnabledType.Disabled, 0)]
-public class 
+public class
         NetworkedCosmetX : hamburburmod
 {
     private bool Enabled;
@@ -18,10 +18,7 @@ public class
     private int[] oldCosmetics;
     private int[] oldTryOn;
 
-    protected override void Start()
-    {
-        NetworkSystem.Instance.OnPlayerJoined += (Action<NetPlayer>)OnPlayerJoinSpoof;
-    }
+    protected override void Start() => NetworkSystem.Instance.OnPlayerJoined += (Action<NetPlayer>)OnPlayerJoinSpoof;
 
     protected override void Update()
     {

@@ -63,10 +63,7 @@ public struct PipeFrame : IEquatable<PipeFrame>
 	///     Sets the data based of a string
 	/// </summary>
 	/// <param name="str"></param>
-	private void SetMessage(string str)
-    {
-        Data = MessageEncoding.GetBytes(str);
-    }
+	private void SetMessage(string str) => Data = MessageEncoding.GetBytes(str);
 
 	/// <summary>
 	///     Gets a string based of the data

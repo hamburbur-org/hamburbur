@@ -19,8 +19,6 @@ public class KeyboardManager : Singleton<KeyboardManager>
     public bool KeyboardOpen;
 
     public GameObject Keyboard;
-    
-    private float keyboardHeight = -0.29f;
 
     public GameObject NonDominantButtonPresser;
     public Renderer   NonDominantButtonPresserRenderer;
@@ -73,6 +71,8 @@ public class KeyboardManager : Singleton<KeyboardManager>
 
     private bool isLower      = true;
     private bool isShiftLower = true;
+
+    private float keyboardHeight = -0.29f;
 
     private Material keyboardMainMaterial, keyboardSecondaryMaterial;
     private float    lastTimePositionSerialized;
@@ -150,7 +150,7 @@ public class KeyboardManager : Singleton<KeyboardManager>
 
                 if (keyText == null)
                     continue;
-                
+
                 keyText.text = keyText.text.Trim();
 
                 if (keyText.text.Length == 1 && char.IsLetter(keyText.text[0]))
@@ -230,7 +230,7 @@ public class KeyboardManager : Singleton<KeyboardManager>
     public void UpdateColoursAndHeight(Color mainColour, Color secondaryColour, float height)
     {
         keyboardHeight = height;
-        
+
         if (NonDominantButtonPresserRenderer != null)
             NonDominantButtonPresserRenderer.material.color = mainColour;
 
@@ -325,8 +325,8 @@ public class KeyboardManager : Singleton<KeyboardManager>
             return;
 
         foreach (KeyValuePair<Key, string> pair in physicalKeyMap.Where(pair => UnityEngine.InputSystem.Keyboard
-                                                                               .current[pair.Key]
-                                                                               .wasPressedThisFrame))
+                                                                                           .current[pair.Key]
+                                                                                           .wasPressedThisFrame))
             HandleKeyboardButtonPress(pair.Value);
     }
 
@@ -374,7 +374,7 @@ public class KeyboardManager : Singleton<KeyboardManager>
                GTPlayer.Instance              == null ||
                GTPlayer.Instance.bodyCollider == null)
             yield return null;
-        
+
         Keyboard.transform.localPosition = new Vector3(-0.12f, 0f, keyboardHeight);
 
         KeyboardOpen = true;

@@ -13,15 +13,9 @@ public class SpamTagGun : hamburburmod
     private          float  spamNotifDelay;
     private          float  spamTagDelay;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
-    protected override void OnDisable()
-    {
-        gunLib.OnDisable();
-    }
+    protected override void OnDisable() => gunLib.OnDisable();
 
     protected override void LateUpdate()
     {

@@ -15,10 +15,7 @@ public class HamburburSpam : hamburburmod
     private          GameObject       HamburburPrefab;
     private          float            lastTime;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

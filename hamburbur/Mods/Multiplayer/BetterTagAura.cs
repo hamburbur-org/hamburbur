@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Multiplayer;
 
-[hamburburmod("Better Tag Aura", "Reports a tag when someone is near", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Better Tag Aura", "Reports a tag when someone is near", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class BetterTagAura : hamburburmod
 {
@@ -34,7 +34,7 @@ public class BetterTagAura : hamburburmod
 
             if (vrrig.IsTagged())
                 continue;
-            
+
             if (!GTPlayer.Instance.mainCamera.PointInCameraView(vrrig.transform.position))
                 continue;
 

@@ -2,8 +2,8 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Button Transition Speed: ", "Changes the speed of menu button transition animations.",
-        ButtonType.Incremental, AccessSetting.Public, EnabledType.Disabled, 1)]
+[hamburburmod(                  "Button Transition Speed: ", "Changes the speed of menu button transition animations.",
+        ButtonType.Incremental, AccessSetting.Public,        EnabledType.Disabled, 1)]
 public class ButtonTransitionSpeed : hamburburmod
 {
     public static readonly string[] Speeds =

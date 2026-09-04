@@ -9,8 +9,8 @@ namespace hamburbur.Mods.CustomMaps.MecchaGorilla;
 public abstract class MecchaTargetGun : hamburburmod
 {
     protected readonly GunLib Gun = new() { ShouldFollow = true, };
-    private float nextUse;
-    protected virtual float Delay => 0.3f;
+    private            float  nextUse;
+    protected virtual  float  Delay => 0.3f;
 
     protected override void Start()
     {
@@ -21,6 +21,7 @@ public abstract class MecchaTargetGun : hamburburmod
     protected override void LateUpdate()
     {
         Gun.LateUpdate();
+
         if (!Gun.IsShooting || Gun.ChosenRig?.Creator == null || Time.time < nextUse)
             return;
 
@@ -37,41 +38,42 @@ public abstract class MecchaTargetGun : hamburburmod
     }
 }
 
-[hamburburmod("Kill Gun", "Repeatedly finds a targeted painter with a short delay", ButtonType.Togglable,
+[hamburburmod(                "Kill Gun",           "Repeatedly finds a targeted painter with a short delay", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaKillGun : MecchaTargetGun
 {
     protected override void Use(VRRig rig) => MecchaNetwork.Kill(rig.Creator.ActorNumber);
 }
 
-[hamburburmod("Kill Shot Gun", "Kills the target and broadcasts a coloured shotgun explosion", ButtonType.Togglable,
+[hamburburmod(                "Kill Shot Gun",      "Kills the target and broadcasts a coloured shotgun explosion", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaKillShotGun : MecchaTargetGun
 {
     protected override void Use(VRRig rig)
     {
         Vector3 from = GorillaTagger.Instance?.bodyCollider != null
-                ? GorillaTagger.Instance.bodyCollider.transform.position : rig.transform.position + Vector3.up;
+                               ? GorillaTagger.Instance.bodyCollider.transform.position : rig.transform.position + Vector3.up;
+
         MecchaNetwork.Shot(from, rig.transform.position, true, MecchaNetwork.Rainbow());
         MecchaNetwork.Kill(rig.Creator.ActorNumber);
     }
 }
 
-[hamburburmod("Respawn Gun", "Repeatedly respawns the targeted painter", ButtonType.Togglable,
+[hamburburmod(                "Respawn Gun",        "Repeatedly respawns the targeted painter", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaRespawnGun : MecchaTargetGun
 {
     protected override void Use(VRRig rig) => MecchaNetwork.Respawn(rig.Creator.ActorNumber);
 }
 
-[hamburburmod("Whistle Gun", "Makes the targeted painter whistle", ButtonType.Togglable,
+[hamburburmod(                "Whistle Gun",        "Makes the targeted painter whistle", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaWhistleGun : MecchaTargetGun
 {
     protected override void Use(VRRig rig) => MecchaNetwork.Whistle(rig.Creator.ActorNumber);
 }
 
-[hamburburmod("Splatter Gun", "Creates rainbow shotgun beams and splatters at the target", ButtonType.Togglable,
+[hamburburmod(                "Splatter Gun",       "Creates rainbow shotgun beams and splatters at the target", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaSplatterGun : MecchaTargetGun
 {
@@ -79,12 +81,13 @@ public class MecchaSplatterGun : MecchaTargetGun
     protected override void Use(VRRig rig)
     {
         Vector3 from = GunLib.GetGunHand() != null
-                ? GunLib.GetGunHand().position : rig.transform.position + Vector3.up;
+                               ? GunLib.GetGunHand().position : rig.transform.position + Vector3.up;
+
         MecchaNetwork.Shot(from, rig.transform.position, false, MecchaNetwork.Rainbow(0.35f));
     }
 }
 
-[hamburburmod("Explosion Gun", "Creates a coloured painter explosion at the target without killing", ButtonType.Togglable,
+[hamburburmod(                "Explosion Gun",      "Creates a coloured painter explosion at the target without killing", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaExplosionGun : MecchaTargetGun
 {
@@ -92,6 +95,7 @@ public class MecchaExplosionGun : MecchaTargetGun
     {
         Vector3 from = GunLib.GetGunHand() != null
                                ? GunLib.GetGunHand().position : rig.transform.position + Vector3.up;
+
         MecchaNetwork.Shot(from, rig.transform.position, true, MecchaNetwork.Rainbow(0.35f));
     }
 }
@@ -102,11 +106,12 @@ public class MecchaKillAll : hamburburmod
     protected override void Pressed()
     {
         foreach (VRRig rig in NetworkSystem.Instance.Rigs().ToArray())
-            if (rig?.Creator != null) MecchaNetwork.Kill(rig.Creator.ActorNumber);
+            if (rig?.Creator != null)
+                MecchaNetwork.Kill(rig.Creator.ActorNumber);
     }
 }
 
-[hamburburmod("Kill All Hiders", "Finds every player currently marked as a hider", ButtonType.Fixed,
+[hamburburmod(                "Kill All Hiders",    "Finds every player currently marked as a hider", ButtonType.Fixed,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaKillHiders : hamburburmod
 {
@@ -119,7 +124,7 @@ public class MecchaKillHiders : hamburburmod
     }
 }
 
-[hamburburmod("Kill All Seekers", "Finds every player currently marked as a seeker", ButtonType.Fixed,
+[hamburburmod(                "Kill All Seekers",   "Finds every player currently marked as a seeker", ButtonType.Fixed,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaKillSeekers : hamburburmod
 {
@@ -132,7 +137,7 @@ public class MecchaKillSeekers : hamburburmod
     }
 }
 
-[hamburburmod("Respawn All", "Respawns every painter", ButtonType.Fixed, AccessSetting.Public,
+[hamburburmod(                "Respawn All", "Respawns every painter", ButtonType.Fixed, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class MecchaRespawnAll : hamburburmod
 {
@@ -140,11 +145,12 @@ public class MecchaRespawnAll : hamburburmod
     {
         MecchaNetwork.Respawn(MecchaNetwork.LocalId);
         foreach (VRRig rig in NetworkSystem.Instance.Rigs().ToArray())
-            if (rig?.Creator != null) MecchaNetwork.Respawn(rig.Creator.ActorNumber);
+            if (rig?.Creator != null)
+                MecchaNetwork.Respawn(rig.Creator.ActorNumber);
     }
 }
 
-[hamburburmod("Always Alive", "Keeps respawning your painter every half second", ButtonType.Togglable,
+[hamburburmod(                "Always Alive",       "Keeps respawning your painter every half second", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MecchaAlwaysAlive : hamburburmod
 {
@@ -157,7 +163,7 @@ public class MecchaAlwaysAlive : hamburburmod
     }
 }
 
-[hamburburmod("Whistle All", "Makes every painter whistle once", ButtonType.Fixed, AccessSetting.Public,
+[hamburburmod(                "Whistle All", "Makes every painter whistle once", ButtonType.Fixed, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class MecchaWhistleAll : hamburburmod
 {
@@ -165,11 +171,12 @@ public class MecchaWhistleAll : hamburburmod
     {
         MecchaNetwork.Whistle(MecchaNetwork.LocalId);
         foreach (VRRig rig in NetworkSystem.Instance.Rigs().ToArray())
-            if (rig?.Creator != null) MecchaNetwork.Whistle(rig.Creator.ActorNumber);
+            if (rig?.Creator != null)
+                MecchaNetwork.Whistle(rig.Creator.ActorNumber);
     }
 }
 
-[hamburburmod("Whistle Spam", "Rapidly whistles from your painter", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Whistle Spam", "Rapidly whistles from your painter", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class MecchaWhistleSpam : hamburburmod
 {

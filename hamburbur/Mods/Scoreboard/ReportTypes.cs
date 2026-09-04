@@ -4,7 +4,7 @@ using hamburbur.Mods.Scoreboard;
 namespace hamburbur.Mods.Settings;
 
 [hamburburmod("Change Report Type: ", "Change the report type", ButtonType.Incremental, AccessSetting.Public, EnabledType.Disabled,
-    0)]
+        0)]
 public class ChangeReportType : hamburburmod
 {
     private const int MinRange = 0;

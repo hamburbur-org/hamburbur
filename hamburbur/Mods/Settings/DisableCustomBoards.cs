@@ -2,8 +2,8 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Settings;
 
-[hamburburmod("Disable Custom Boards", "Restores the COC and MOTD text to its original state",
-        ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "Disable Custom Boards", "Restores the COC and MOTD text to its original state",
+        ButtonType.Togglable, AccessSetting.Public,    EnabledType.Disabled, 0)]
 public class DisableCustomBoards : hamburburmod
 {
     public static bool IsEnabled;

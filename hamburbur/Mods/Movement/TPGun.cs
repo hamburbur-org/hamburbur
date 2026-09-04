@@ -3,7 +3,7 @@ using hamburbur.Mod_Backend;
 
 namespace hamburbur.Mods.Movement;
 
-[hamburburmod("Teleport Gun", "Teleport to the gun position", ButtonType.Togglable, AccessSetting.Public,
+[hamburburmod(                "Teleport Gun", "Teleport to the gun position", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class TPGun : hamburburmod
 {
@@ -11,10 +11,7 @@ public class TPGun : hamburburmod
 
     private bool wasShooting;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

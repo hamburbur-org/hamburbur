@@ -6,8 +6,8 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod("Using <color=orange>ii Stupid</color> gun", "Tortures people with ii Stupid Menu", ButtonType.Togglable,
-        AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
+[hamburburmod(                   "Using <color=orange>ii Stupid</color> gun", "Tortures people with ii Stupid Menu", ButtonType.Togglable,
+        AccessSetting.AdminOnly, EnabledType.Disabled,                        0)]
 public class TortureStupidPeople : hamburburmod
 {
     private const    float  TortureInterval = 5f;
@@ -18,10 +18,7 @@ public class TortureStupidPeople : hamburburmod
     private readonly List<VRRig> torturingRigs = [];
     private          bool        wasShooting;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Macros;
 
-[hamburburmod("Macro Gun", "Record other peoples movement into a macro with a gun", ButtonType.Togglable,
+[hamburburmod(                "Macro Gun",          "Record other peoples movement into a macro with a gun", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]
 public class MacroGun : hamburburmod
 {
@@ -17,10 +17,7 @@ public class MacroGun : hamburburmod
     private          FakeRig            fakeRig;
     private          float              lastTimePositionUpdated;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void Update()
     {

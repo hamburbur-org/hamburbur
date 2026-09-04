@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod(                   "Lag Gun", "A gun that lets you lag anyone who has console", ButtonType.Togglable,
+[hamburburmod(                   "Lag Gun",            "A gun that lets you lag anyone who has console", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.Disabled, 0)]
 public class ConsoleLagGun : hamburburmod
 {
@@ -15,10 +15,7 @@ public class ConsoleLagGun : hamburburmod
 
     private float lastLagTime;
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

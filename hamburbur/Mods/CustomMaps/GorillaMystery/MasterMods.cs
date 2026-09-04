@@ -66,8 +66,8 @@ public class MakeMurdererGun : MysteryRoleGun
     }
 }
 
-[hamburburmod("[Master] Make Sheriff Gun", "Drops the current pistol and assigns it to the selected player",
-        ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod(                "[Master] Make Sheriff Gun", "Drops the current pistol and assigns it to the selected player",
+        ButtonType.Togglable, AccessSetting.Public,        EnabledType.Disabled, 0)]
 public class MakeSheriffGun : MysteryRoleGun
 {
     protected override void ApplyRole(VRRig rig)

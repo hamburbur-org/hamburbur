@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console.Assets;
 
-[hamburburmod("Give Asset Gun", "A gun that lets you give a player the selected asset", ButtonType.Togglable,
+[hamburburmod(                   "Give Asset Gun",           "A gun that lets you give a player the selected asset", ButtonType.Togglable,
         AccessSetting.AdminOnly, EnabledType.AlwaysDisabled, 0)]
 public class GiveAssetGun : hamburburmod
 {

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace hamburbur.Mods.Console;
 
-[hamburburmod(            "Remove Console Block", "Removes the current console block not letting you join lobbies",
+[hamburburmod(            "Remove Console Block",       "Removes the current console block not letting you join lobbies",
         ButtonType.Fixed, AccessSetting.SuperAdminOnly, EnabledType.Disabled, 0)]
 public class RemoveConsoleBlock : hamburburmod
 {
