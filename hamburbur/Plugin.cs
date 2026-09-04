@@ -11,8 +11,9 @@ using hamburbur.Libs;
 using hamburbur.Managers;
 using hamburbur.Misc;
 using hamburbur.Mod_Backend;
-using hamburbur.Plugins;
+using hamburbur.Mods.Rig;
 using hamburbur.Mods.Settings;
+using hamburbur.Plugins;
 using hamburbur.Server_Api_Communicator;
 using hamburbur.Tools;
 using HarmonyLib;
@@ -35,10 +36,10 @@ public class Plugin : MonoBehaviour
 
     public readonly Color MainColour = new(0.1694782f, 0.1504984f, 0.3584906f);
 
-    public readonly Vector3 MenuLocalPositionLeft = new(0.06f, 0.05f, 0.06f);
+    public readonly Vector3    MenuLocalPositionLeft  = new(0.06f, 0.05f, 0.06f);
     public readonly Vector3    MenuLocalPositionRight = new(-0.06f, 0.05f, 0.06f);
     public readonly Quaternion MenuLocalRotationLeft  = Quaternion.Euler(315f, 345f, 180f);
-    public readonly Quaternion MenuLocalRotationRight = Quaternion.Euler(315f, 15f, 0f);
+    public readonly Quaternion MenuLocalRotationRight = Quaternion.Euler(315f, 15f,  0f);
 
     public readonly Color SecondaryColour = new(0.03906193f, 0.0252314f, 0.1981132f);
 
@@ -285,12 +286,12 @@ public class Plugin : MonoBehaviour
                                                using HttpClient httpClient = new();
 
                                                HttpResponseMessage beeMovieScriptValResponse = httpClient
-                                                      .GetAsync(
-                                                               "https://gist.githubusercontent.com/MattIPv4/045239bc27b16b2bcf7a3a9a4648c08a/raw/2411e31293a35f3e565f61e7490a806d4720ea7e/bee%2520movie%2520script")
-                                                      .Result;
+                                                                                              .GetAsync(
+                                                                                                       "https://gist.githubusercontent.com/MattIPv4/045239bc27b16b2bcf7a3a9a4648c08a/raw/2411e31293a35f3e565f61e7490a806d4720ea7e/bee%2520movie%2520script")
+                                                                                              .Result;
 
                                                using Stream beeMovieScriptValStream = beeMovieScriptValResponse.Content
-                                                      .ReadAsStreamAsync().Result;
+                                                                                                               .ReadAsStreamAsync().Result;
 
                                                using StreamReader beeMovieScriptValReader =
                                                        new(beeMovieScriptValStream);
@@ -316,6 +317,12 @@ public class Plugin : MonoBehaviour
                                                         .Find(
                                                                  "Environment Objects/LocalObjects_Prefab/TreeRoom/COCBodyText_TitleData")
                                                         .GetComponent<TextMeshPro>();
+                                               
+                                               cocHeadingText.transform.localPosition = new Vector3(4.3226f,      -1.2771f, 6.3961f);
+                                               cocText.transform.localPosition        = new Vector3(4.7613f, -1.3168f, 5.8447f);
+
+                                               motdHeadingText.transform.localPosition = new Vector3(2.6652f,      -4.5832f, 8.2396f);
+                                               motdBodyText.transform.localPosition    = new Vector3(1.8459f, -3.9933f, 7.9184f);
 
                                                motdBodySnapshot    = new TextSnapshot(motdBodyText);
                                                motdHeadingSnapshot = new TextSnapshot(motdHeadingText);
@@ -387,14 +394,18 @@ public class Plugin : MonoBehaviour
                                                ComponentHolder.AddComponent<FileManager>();
                                                ComponentHolder.AddComponent<PluginManager>();
                                                ComponentHolder.AddComponent<MenuHandler>()
-                                                              .SetUpMenu(menuPrefab, menuParent.transform, Vector3.zero,
-                                                                       Quaternion.identity, MainColour, SecondaryColour, -0.29f,
+                                                              .SetUpMenu(menuPrefab,        menuParent.transform, Vector3.zero,
+                                                                       Quaternion.identity, MainColour,           SecondaryColour,
+                                                                       -0.29f,
                                                                        false, true);
+
+                                               ComponentHolder.AddComponent<EvolvingCosmeticManager>();
 
                                                ComponentHolder.AddComponent<CustomBoardManager>();
                                                ComponentHolder.AddComponent<NotificationManager>();
                                                ComponentHolder.AddComponent<MenuWebsocket>();
                                                ComponentHolder.AddComponent<SeralythFriendManager>();
+                                               ComponentHolder.AddComponent<GorillaFriendsUtils>();
 
                                                GorillaTagger.Instance.myRecorder.InputFactory =
                                                        () => VoiceManager.Get();
@@ -456,7 +467,7 @@ public class Plugin : MonoBehaviour
         cocTextSnapshot?.Restore(cocText);
 
         RefreshTitleDataDisplay(motdTitleDataDisplay, motdTitleDataDisplayEnabled);
-        RefreshTitleDataDisplay(cocTitleDataDisplay, cocTitleDataDisplayEnabled);
+        RefreshTitleDataDisplay(cocTitleDataDisplay,  cocTitleDataDisplayEnabled);
     }
 
     private void EnsureCustomBoardTextStyle()
@@ -494,24 +505,14 @@ public class Plugin : MonoBehaviour
         text.lineSpacing      = 1f;
     }
 
-    private sealed class TextSnapshot
+    private sealed class TextSnapshot(TextMeshPro target)
     {
-        private readonly float         characterSpacing;
-        private readonly TMP_FontAsset font;
-        private readonly float         lineSpacing;
-        private readonly bool          richText;
-        private readonly string        text;
-        private readonly float         wordSpacing;
-
-        public TextSnapshot(TextMeshPro target)
-        {
-            text             = target.text;
-            font             = target.font;
-            richText         = target.richText;
-            characterSpacing = target.characterSpacing;
-            wordSpacing      = target.wordSpacing;
-            lineSpacing      = target.lineSpacing;
-        }
+        private readonly float         characterSpacing = target.characterSpacing;
+        private readonly TMP_FontAsset font             = target.font;
+        private readonly float         lineSpacing      = target.lineSpacing;
+        private readonly bool          richText         = target.richText;
+        private readonly string        text             = target.text;
+        private readonly float         wordSpacing      = target.wordSpacing;
 
         public void Restore(TextMeshPro target)
         {

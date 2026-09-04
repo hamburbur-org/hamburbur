@@ -18,6 +18,11 @@ public class SpamTagGun : hamburburmod
         gunLib.Start();
     }
 
+    protected override void OnDisable()
+    {
+        gunLib.OnDisable();
+    }
+
     protected override void LateUpdate()
     {
         gunLib.LateUpdate();

@@ -11,8 +11,6 @@ namespace hamburbur.Managers;
 
 public class CustomBoardManager : Singleton<CustomBoardManager>
 {
-    private const int StumpLeaderboardIndex = 5;
-
     private static readonly Dictionary<string, BoardInformation> BoardInformations =
             new()
             {
@@ -86,6 +84,7 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
 
     private readonly Dictionary<string, GameObject> objectBoards = new();
     private          GameObject                     board;
+    private          GameObject                     coc, motd;
 
     private Renderer computerMonitor;
 
@@ -107,6 +106,28 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
             board.transform.localScale    = new Vector3(21.2f, 2f, 21.6f);
 
             Destroy(board.GetComponent<Collider>());
+        }
+        
+        if (coc == null)
+        {
+            coc                      = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            coc.name                 = "Hamburbur Custom COC";
+            coc.transform.position   = new Vector3(-67.96f, 11.95f, -80.7f);
+            coc.transform.rotation   = Quaternion.Euler(276.3606f, 332.0349f, 0.1003f);
+            coc.transform.localScale = new Vector3(0.106f, 0.1f, 0.106f);
+            
+            Destroy(coc.GetComponent<Collider>());
+        }
+            
+        if (motd == null)
+        {
+            motd                      = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            motd.name                 = "Hamburbur Custom MOTD";
+            motd.transform.position   = new Vector3(-64.8004f, 13.8196f, -82.6573f);
+            motd.transform.rotation   = Quaternion.Euler(53.2205f, 100.0001f, 180.7898f);
+            motd.transform.localScale = new Vector3(0.2193f, 4.1847f, 0.1084f);
+            
+            Destroy(motd.GetComponent<Collider>());
         }
 
         ReloadAllBoards();
@@ -136,21 +157,10 @@ public class CustomBoardManager : Singleton<CustomBoardManager>
 
                 ApplyMaterial(objectBoard.GetComponent<Renderer>());
             }
-
-            Transform treeRoom = GameObject.Find("Environment Objects/LocalObjects_Prefab/TreeRoom")?.transform;
-
-            if (treeRoom != null)
-            {
-                Transform[] stumpChildren = treeRoom.GetComponentsInChildren<Transform>(true)
-                                                    .Where(transform => transform.name.Contains("UnityTempFile"))
-                                                    .ToArray();
-
-                if (StumpLeaderboardIndex >= 0 && StumpLeaderboardIndex < stumpChildren.Length)
-                {
-                    Renderer stumpRenderer = stumpChildren[StumpLeaderboardIndex].GetComponent<Renderer>();
-                    ApplyMaterial(stumpRenderer);
-                }
-            }
+            
+            ApplyMaterial(coc.GetComponent<Renderer>());
+            ApplyMaterial(motd.GetComponent<Renderer>());
+            
 
             if (PhotonNetworkController.Instance != null)
             {

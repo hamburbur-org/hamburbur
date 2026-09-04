@@ -23,6 +23,7 @@ public class ButtonPressSound : hamburburmod
             "Destiny",
             "Watch",
             "Creamy",
+            "Minimal",
             "Glass",
             "Krisp Wood",
             "Rustic Click",

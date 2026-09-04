@@ -73,6 +73,9 @@ public class HamburburOrgData : Singleton<HamburburOrgData>
         {
             UnityWebRequest hamburburWebRequest = UnityWebRequest.Get(Constants.HamburburUrl + "/data");
             UnityWebRequest seralythWebRequest  = UnityWebRequest.Get("https://menu.seralyth.software/serverdata");
+            
+            hamburburWebRequest.timeout = 10;
+            seralythWebRequest.timeout = 3;
 
             Task.Run(async () =>
                      {

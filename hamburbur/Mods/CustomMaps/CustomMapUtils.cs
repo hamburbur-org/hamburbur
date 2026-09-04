@@ -6,6 +6,8 @@ namespace hamburbur.Mods.CustomMaps;
 
 public static class CustomMapUtils
 {
+    public const byte EventCode = 180;
+    
     public static void ModifyCustomScript(Dictionary<int, string> replacements)
     {
         string   input = CustomGameMode.LuaScript;

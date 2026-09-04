@@ -21,7 +21,7 @@ public static class MysteryTagNetwork
         Array.Copy(data, 0, content, 1, data.Length);
 
         PhotonNetwork.RaiseEvent(
-                MysteryTagEvents.EventCode,
+                CustomMapUtils.EventCode,
                 content,
                 new RaiseEventOptions { Receivers = ReceiverGroup.All, },
                 SendOptions.SendReliable);

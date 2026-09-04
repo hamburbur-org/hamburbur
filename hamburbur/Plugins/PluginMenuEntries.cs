@@ -10,6 +10,7 @@ internal sealed class PluginListEntry : hamburburmod
     internal PluginListEntry(PluginRecord record)
     {
         this.record = record;
+        ConfigKey = $"{record.Name}_Plugin_{record.Id}";
         string status = record.IsLegacy ? "Legacy" : record.IsEnabled ? "Enabled" : "Disabled";
         AssociatedAttribute = new hamburburmodAttribute(
                 $"{record.Name} [{status}]",

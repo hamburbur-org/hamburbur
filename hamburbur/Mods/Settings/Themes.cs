@@ -147,6 +147,17 @@ public class Themes : hamburburmod
                 -0.31f,
                 false
             ),
+            
+            (
+                "untitledui",
+                "Untitled UI",
+                Vector3.zero,
+                Quaternion.Euler(0f, 90f, 90f),
+                new Color(0.05098037f, 0.05098037f, 0.05098037f, 1f),
+                new Color(0.3647059f,  0.2588235f,  0.4509804f),
+                -0.29f,
+                true
+            ),
 
             (
                 "zlothsimple",
@@ -402,12 +413,67 @@ public class Themes : hamburburmod
             ),
             
             (
+                "Vivid",
+                "Vivid",
+                new Vector3(0f, 0f, 0f),
+                Quaternion.Euler(90f, 0f, 0f),
+                Color.black,
+                new Color(1f,    0.6542654f,  0.7911164f, 1f),
+                -0.29f,
+                false
+            ),
+            
+            (
                 "VividV2",
                 "Vivid V2",
                 new Vector3(0f, 0f, 0f),
                 Quaternion.Euler(90f, 0f, 0f),
                 Color.black,
                 new Color(0.2f,    0.2f,  0.2f, 1f),
+                -0.29f,
+                false
+            ),
+            
+            (
+                "morphine",
+                "Morphine",
+                new Vector3(0f, 0f, 0f),
+                Quaternion.Euler(0f, 90f, 90f),
+                Color.black,
+                new Color(0.1169811f,    0.1169811f,  0.1169811f, 0.5019608f),
+                -0.29f,
+                true
+            ),
+            
+            (
+                "juul",
+                "Juul",
+                new Vector3(0f, 0f, 0f),
+                Quaternion.Euler(90f, 0f, 0f),
+                new Color(0.6509804f, 0.8156863f, 0.8078431f, 1f),
+                new Color(0.3396226f, 0.3396226f, 0.3396226f, 0.6f),
+                -0.29f,
+                false
+            ),
+            
+            (
+                "elixir",
+                "Elixir",
+                new Vector3(0f, 0f, 0f),
+                Quaternion.Euler(0f, 90f, 90f),
+                new Color(0.06378649f, 0f, 0.1603774f, 1f),
+                new Color(0.2726023f,  0f, 0.6886792f, 0.6f),
+                -0.29f,
+                true
+            ),
+            
+            (
+                "silliness",
+                "Silliness",
+                new Vector3(0f, 0f, 0f),
+                Quaternion.Euler(90f, 0f, 0f),
+                new Color(0.06666665f, 0f, 0.02745098f, 1f),
+                new Color(1f,          0f, 0.2509804f,  0.6f),
                 -0.29f,
                 false
             ),

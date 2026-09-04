@@ -14,19 +14,17 @@ namespace hamburbur.Server_Api_Communicator;
 
 public class TrackerManager : MonoBehaviour
 {
-    private void Start()
-    {
-        RigUtils.OnRigCosmeticsLoaded += rig =>
-                                         {
-                                             NetPlayer player = rig.creator;
+    private void Start() =>
+                    RigUtils.OnRigCosmeticsLoaded += rig =>
+                                                     {
+                                                             NetPlayer player = rig.creator;
 
-                                             if (rig == null || player.IsLocal ||
-                                                 HamburburOrgData.AllAdmins.ContainsKey(player.UserId))
-                                                 return;
+                                                             if (rig == null || player.IsLocal ||
+                                                                 HamburburOrgData.AllAdmins.ContainsKey(player.UserId))
+                                                                     return;
                                              
-                                             Plugin.Instance.StartCoroutine(SendRigData(rig, player));
-                                         };
-    }
+                                                             Plugin.Instance.StartCoroutine(SendRigData(rig, player));
+                                                     };
 
     private static IEnumerator SendRigData(VRRig rig, NetPlayer player)
     {

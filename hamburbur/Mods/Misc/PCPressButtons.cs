@@ -28,10 +28,14 @@ public class PCPressButtons : hamburburmod
             return;
 
         Camera cameraToUse = Tools.Utils.GetActiveCamera();
-
-        if (!Physics.Raycast(cameraToUse.ScreenPointToRay(Mouse.current.position.ReadValue()), out RaycastHit hit,
-                    20f, acceptedLayers))
-            return;
+        
+        // ReSharper disable once Unity.PreferNonAllocApi
+        RaycastHit[] hits        = Physics.RaycastAll(cameraToUse.ScreenPointToRay(Mouse.current.position.ReadValue()), 30f);
+        RaycastHit hit = default;
+        
+        foreach (RaycastHit candidate in hits)
+            if ((1 << candidate.collider.gameObject.layer & GTPlayer.Instance.locomotionEnabledLayers) != 0)
+                hit         = candidate;
 
         handIndicator.transform.position = hit.point;
 

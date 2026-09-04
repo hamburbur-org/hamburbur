@@ -9,13 +9,15 @@ namespace hamburbur.Components;
 public class ButtonCollider : MonoBehaviour
 {
     private const float InitialHoldDelay = 0.7f;
-    private const float HoldRepeatDelay  = 0.04f;
+    private const float HoldRepeatDelay  = 0.1f;
+    private const float ContactGracePeriod = 0.1f;
 
     private static float lastTime;
 
     private ButtonPressAnimator buttonPressAnimator;
     private ButtonPresser       heldPresser;
     private float               lastTimeLocal;
+    private float               lastContactTime;
     private float               nextHoldTime;
 
     public Action OnPress;
@@ -29,14 +31,26 @@ public class ButtonCollider : MonoBehaviour
 
     private void Update()
     {
-        if (heldPresser == null || OnHold == null || !HoldIncrementalButtons.IsEnabled)
+        if (!HoldIncrementalButtons.IsEnabled)
+        {
+            heldPresser = null;
             return;
+        }
+
+        if (heldPresser == null || OnHold == null)
+            return;
+        
+        if (Time.unscaledTime - lastContactTime > ContactGracePeriod)
+        {
+            heldPresser = null;
+            return;
+        }
 
         if (Time.unscaledTime < nextHoldTime)
             return;
 
         ButtonPresser presser = heldPresser;
-        nextHoldTime = Time.unscaledTime + HoldRepeatDelay;
+        nextHoldTime += HoldRepeatDelay;
 
         OnHold.Invoke();
 
@@ -47,20 +61,22 @@ public class ButtonCollider : MonoBehaviour
         buttonPressAnimator.PlayHold();
     }
 
-    private void OnDisable()
-    {
-        heldPresser = null;
-    }
+    private void OnDisable() => heldPresser = null;
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.TryGetComponent(out ButtonPresser presser))
             return;
 
+        lastContactTime = Time.unscaledTime;
+
+        if (HoldIncrementalButtons.IsEnabled && presser == heldPresser)
+            return;
+
         if (!TryPress(presser))
             return;
 
-        if (OnHold == null)
+        if (OnHold == null || !HoldIncrementalButtons.IsEnabled)
             return;
 
         heldPresser  = presser;
@@ -69,10 +85,18 @@ public class ButtonCollider : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (OnHold == null || heldPresser != null)
+        if (OnHold == null || !HoldIncrementalButtons.IsEnabled)
             return;
 
         if (!other.TryGetComponent(out ButtonPresser presser))
+            return;
+
+        lastContactTime = Time.unscaledTime;
+
+        if (presser == heldPresser)
+            return;
+
+        if (heldPresser != null)
             return;
 
         heldPresser  = presser;
@@ -81,16 +105,17 @@ public class ButtonCollider : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (heldPresser == null)
-            return;
-
         if (!other.TryGetComponent(out ButtonPresser presser))
             return;
 
-        if (presser != heldPresser)
+        if (!HoldIncrementalButtons.IsEnabled && presser == heldPresser)
+        {
+            heldPresser = null;
             return;
+        }
 
-        heldPresser = null;
+        if (presser == heldPresser)
+            lastContactTime = Time.unscaledTime;
     }
 
     public bool Press() => TryPress(null);

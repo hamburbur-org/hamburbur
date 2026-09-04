@@ -2,7 +2,7 @@ using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Tools;
 
-namespace hamburbur.Mods.Room;
+namespace hamburbur.Mods.Settings;
 
 [hamburburmod("Anti Moderator", "Automatically removes you if a moderator joins your code", ButtonType.Togglable,
         AccessSetting.Public, EnabledType.Disabled, 0)]

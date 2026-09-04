@@ -132,6 +132,10 @@ public class GunLib
     public static Transform GetGunHand() => LeftHandedGun.IsEnabled
                                                     ? Tools.Utils.RealLeftController
                                                     : Tools.Utils.RealRightController;
+    
+    public static Transform GetAlternateHand() => LeftHandedGun.IsEnabled
+                                                    ? Tools.Utils.RealRightController
+                                                    : Tools.Utils.RealLeftController;
 
     public void LateUpdate()
     {
@@ -816,19 +820,17 @@ public class GunLib
         }
     }
 
-    private static float GetHeartbeatValue(float phase)
-    {
-        return phase switch
-               {
-                       < 0.3f  => 0f,
-                       < 0.38f => Mathf.Lerp(0f,     -0.25f, Mathf.InverseLerp(0.3f,  0.38f, phase)),
-                       < 0.46f => Mathf.Lerp(-0.25f, 1f,     Mathf.InverseLerp(0.38f, 0.46f, phase)),
-                       < 0.54f => Mathf.Lerp(1f,     -0.65f, Mathf.InverseLerp(0.46f, 0.54f, phase)),
-                       < 0.64f => Mathf.Lerp(-0.65f, 0.2f,   Mathf.InverseLerp(0.54f, 0.64f, phase)),
-                       < 0.74f => Mathf.Lerp(0.2f,   0f,     Mathf.InverseLerp(0.64f, 0.74f, phase)),
-                       var _   => 0f,
-               };
-    }
+    private static float GetHeartbeatValue(float phase) =>
+            phase switch
+            {
+                    < 0.3f  => 0f,
+                    < 0.38f => Mathf.Lerp(0f,     -0.25f, Mathf.InverseLerp(0.3f,  0.38f, phase)),
+                    < 0.46f => Mathf.Lerp(-0.25f, 1f,     Mathf.InverseLerp(0.38f, 0.46f, phase)),
+                    < 0.54f => Mathf.Lerp(1f,     -0.65f, Mathf.InverseLerp(0.46f, 0.54f, phase)),
+                    < 0.64f => Mathf.Lerp(-0.65f, 0.2f,   Mathf.InverseLerp(0.54f, 0.64f, phase)),
+                    < 0.74f => Mathf.Lerp(0.2f,   0f,     Mathf.InverseLerp(0.64f, 0.74f, phase)),
+                    var _   => 0f,
+            };
 
     private static void GetPerpendicularBasis(Vector3 origin, Vector3 end, out Vector3 right, out Vector3 up)
     {

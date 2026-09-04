@@ -2,8 +2,6 @@ namespace hamburbur.Mods.CustomMaps.MecchaGorilla;
 
 public static class MecchaEvents
 {
-    public const byte Code = 180;
-
     public const string Claim = "pgClaim";
     public const string Unclaim = "pgUnclaim";
     public const string SelectMap = "pgSelectMap";

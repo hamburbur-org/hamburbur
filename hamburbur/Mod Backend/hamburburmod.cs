@@ -20,7 +20,11 @@ public class hamburburmod
     public int IncrementalValue;
     public bool LoadSavedDataWhenStartCalled;
 
-    public            string PreferencesKey   => AssociatedAttribute?.Name ?? GetType().Name;
+    public string ConfigKey { get; set; }
+
+    public            string PreferencesKey   => string.IsNullOrEmpty(ConfigKey)
+                                                        ? AssociatedAttribute?.Name ?? GetType().Name
+                                                        : ConfigKey;
     public virtual    string ModName          => AssociatedAttribute.Name;
     protected bool    IsUserInitiatedToggle { get; private set; }
     protected virtual Type[] Dependencies     => [];

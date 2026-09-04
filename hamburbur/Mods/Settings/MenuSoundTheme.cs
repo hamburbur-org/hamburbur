@@ -15,6 +15,7 @@ public class MenuSoundTheme : hamburburmod
             "ZlothY",
             "Untitled",
             "Seralyth",
+            "Minimal",
             "UI",
     ];
 

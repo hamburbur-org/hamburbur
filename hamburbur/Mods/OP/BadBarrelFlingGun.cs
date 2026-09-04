@@ -9,6 +9,8 @@ using UnityEngine;
 
 namespace hamburbur.Mods.OP;
 
+// R.I.P Barrel Mods 21/08/2026 - They removed the tiny collider :sob:
+
 [hamburburmod("Barrel Fling Gun", "Fling people with the barrel cosmetic", ButtonType.Togglable, AccessSetting.Public,
         EnabledType.Disabled, 0)]
 public class BadBarrelFlingGun : hamburburmod

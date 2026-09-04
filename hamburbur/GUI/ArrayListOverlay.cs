@@ -20,33 +20,33 @@ public class ArrayListOverlay : MonoBehaviour
     private const float RightMargin  = 18f;
     private const float BottomMargin = 18f;
 
-    private const    int             MaxColumns   = 3;
-    private readonly HashSet<string> enabledNames = new();
+    private const    int             MaxColumns       = 3;
     private readonly float[]         columnRightEdges = new float[MaxColumns];
     private readonly float[]         columnWidths     = new float[MaxColumns];
+    private readonly HashSet<string> enabledNames     = new();
 
     private readonly Dictionary<string, ArrayListEntry> entries      = new();
     private readonly List<string>                       removalCache = new();
 
     private readonly List<string> sortedNames = new();
-    private          GUIContent   countContent;
-    private          GUIStyle     countStyle;
-    private          GUIStyle     modStyle;
+
+    private float badgeWidth;
+
+    private int           cachedButtonRevision  = -1;
+    private int           cachedEnabledRevision = -1;
+    private bool          cachedEnabledState;
+    private LayoutMetrics cachedLayout;
+    private GUIContent    countContent;
+    private GUIStyle      countStyle;
+    private bool          entriesDirty            = true;
+    private bool          headerMeasurementsDirty = true;
+    private float         headerWidth;
+    private int           lastScreenHeight;
+    private int           lastScreenWidth;
+    private GUIStyle      modStyle;
 
     private GUIContent titleContent;
-    private GUIStyle titleStyle;
-
-    private int cachedButtonRevision = -1;
-    private int cachedEnabledRevision = -1;
-    private bool cachedEnabledState;
-    private bool entriesDirty = true;
-    private bool headerMeasurementsDirty = true;
-    private int lastScreenHeight;
-    private int lastScreenWidth;
-
-    private float         badgeWidth;
-    private LayoutMetrics cachedLayout;
-    private float         headerWidth;
+    private GUIStyle   titleStyle;
 
     private float visibility;
     private float visibilityVelocity;
@@ -54,16 +54,6 @@ public class ArrayListOverlay : MonoBehaviour
     private Texture2D whiteTexture;
 
     public static ArrayListOverlay Instance { get; private set; }
-
-    public static void Show()
-    {
-        if (Instance == null)
-            return;
-
-        Instance.enabled      = true;
-        Instance.entriesDirty = true;
-        Instance.visibilityVelocity = 0f;
-    }
 
     private void Awake()
     {
@@ -121,16 +111,16 @@ public class ArrayListOverlay : MonoBehaviour
                 Mathf.Infinity,
                 Time.unscaledDeltaTime);
 
-        bool needsEntryRefresh = arrayListEnabled != cachedEnabledState ||
+        bool needsEntryRefresh = arrayListEnabled                  != cachedEnabledState    ||
                                  hamburburmod.EnabledStateRevision != cachedEnabledRevision ||
-                                 ButtonHandler.UpdateRevision != cachedButtonRevision;
+                                 ButtonHandler.UpdateRevision      != cachedButtonRevision;
 
         if (needsEntryRefresh)
         {
             UpdateEntries(arrayListEnabled);
-            cachedEnabledState   = arrayListEnabled;
+            cachedEnabledState    = arrayListEnabled;
             cachedEnabledRevision = hamburburmod.EnabledStateRevision;
-            cachedButtonRevision = ButtonHandler.UpdateRevision;
+            cachedButtonRevision  = ButtonHandler.UpdateRevision;
         }
 
         if (!arrayListEnabled && visibility < 0.005f)
@@ -138,9 +128,9 @@ public class ArrayListOverlay : MonoBehaviour
             entries.Clear();
             sortedNames.Clear();
             enabledNames.Clear();
-            entriesDirty = true;
+            entriesDirty       = true;
             visibilityVelocity = 0f;
-            this.enabled = false;
+            enabled            = false;
         }
     }
 
@@ -164,6 +154,16 @@ public class ArrayListOverlay : MonoBehaviour
         DrawArrayList();
     }
 
+    public static void Show()
+    {
+        if (Instance == null)
+            return;
+
+        Instance.enabled            = true;
+        Instance.entriesDirty       = true;
+        Instance.visibilityVelocity = 0f;
+    }
+
     private void UpdateEntries(bool arrayListEnabled)
     {
         bool membershipChanged = false;
@@ -175,7 +175,7 @@ public class ArrayListOverlay : MonoBehaviour
             {
                 foreach ((Type _, hamburburmod mod) in category.Value)
                 {
-                    if (mod == null ||
+                    if (mod == null  ||
                         !mod.Enabled ||
                         mod.AssociatedAttribute.ButtonType != ButtonType.Togglable)
                         continue;
@@ -213,7 +213,7 @@ public class ArrayListOverlay : MonoBehaviour
         if (membershipChanged)
             entriesDirty = true;
 
-        countContent.text = $"{enabledNames.Count} ACTIVE";
+        countContent.text       = $"{enabledNames.Count} ACTIVE";
         headerMeasurementsDirty = true;
     }
 
@@ -544,8 +544,8 @@ public class ArrayListOverlay : MonoBehaviour
                 6f * layout.Scale);
 
         float pulse = Mathf.PingPong(
-                Time.time         * 0.7f +
-                entry.SortIndex   * 0.12f,
+                Time.time       * 0.7f +
+                entry.SortIndex * 0.12f,
                 1f);
 
         Color accentColor = Color.Lerp(
@@ -612,18 +612,16 @@ public class ArrayListOverlay : MonoBehaviour
     private void DrawRoundedRect(
             Rect  rect,
             Color color,
-            float radius)
-    {
-        UnityEngine.GUI.DrawTexture(
-                rect,
-                whiteTexture,
-                ScaleMode.StretchToFill,
-                true,
-                0f,
-                color,
-                0f,
-                radius);
-    }
+            float radius) =>
+            UnityEngine.GUI.DrawTexture(
+                    rect,
+                    whiteTexture,
+                    ScaleMode.StretchToFill,
+                    true,
+                    0f,
+                    color,
+                    0f,
+                    radius);
 
     private static Color WithAlpha(
             Color color,
@@ -636,15 +634,15 @@ public class ArrayListOverlay : MonoBehaviour
 
     private class ArrayListEntry
     {
-        public bool  Active;
+        public bool       Active;
         public GUIContent Content;
-        public float Height;
-        public bool  Initialized;
-        public int   SortIndex;
-        public float TextWidth;
+        public float      Height;
+        public bool       Initialized;
+        public int        SortIndex;
 
         public float TargetX;
         public float TargetY;
+        public float TextWidth;
 
         public float Width;
 

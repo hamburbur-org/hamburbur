@@ -6,8 +6,9 @@ using System.Reflection;
 using hamburbur.Components;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
-using hamburbur.Plugins;
+using hamburbur.Mods.Categories;
 using hamburbur.Mods.Settings;
+using hamburbur.Plugins;
 using hamburbur.Tools;
 using TMPro;
 using UnityEngine;
@@ -112,17 +113,19 @@ public class ButtonHandler : Singleton<ButtonHandler>
     public static Dictionary<string, ModSaveInfo> SavedModInfo = new();
 
     public static int ButtonsPerPage = 1; // DO NOT MODIFY IT GETS AUTO SET AT RUNTIME
-    public static int UpdateRevision { get; private set; }
 
-    public static readonly Dictionary<AccessSetting, List<(string, Type)>> InaccessibleButtons = new();
+    public static readonly Dictionary<AccessSetting, List<(string, Type)>> InaccessibleButtons  = new();
+    private readonly       Dictionary<Transform, ButtonTransformState>     animatedButtonStates = new();
 
-    private readonly List<PromptData> currentPrompts = [];
-    private readonly Dictionary<Transform, ButtonTransformState> animatedButtonStates = new();
+    private readonly List<PromptData> currentPrompts           = [];
     private readonly List<GameObject> visibleTransitionButtons = [];
 
-    private Coroutine transitionCoroutine;
-
     public ModButton[] ModButtons;
+
+    private       Coroutine transitionCoroutine;
+    public static int       UpdateRevision { get; private set; }
+
+    private void OnDisable() => StopTransitionAnimation();
 
     public void Initialize()
     {
@@ -152,6 +155,11 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
     public void SetCategory(string category, bool cacheLastCategory = true, bool animateTransition = true)
     {
+        bool returningHome = category == nameof(Main);
+
+        if (returningHome && MenuHandler.Instance.HasDedicatedCategoryButtons)
+            category = nameof(Movement);
+
         MenuHandler.CategoryPageMemory[MenuHandler.Instance.Category] = MenuHandler.Instance.PageIndex;
 
         if (cacheLastCategory)
@@ -164,7 +172,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         else
             MenuHandler.Instance.PageIndex = 0;
 
-        if (category == nameof(Main))
+        if (returningHome)
             MenuHandler.LastCategories.Clear();
 
         UpdateButtons(animateTransition);
@@ -196,8 +204,8 @@ public class ButtonHandler : Singleton<ButtonHandler>
         return AddButton(category, hamburburmodComp, true, mod);
     }
 
-    public static hamburburmod AddButton(string category, hamburburmod hamburburmodComp, bool register = true,
-                                         Type modType = null, bool loadSavedData = true)
+    public static hamburburmod AddButton(string category,       hamburburmod hamburburmodComp, bool register = true,
+                                         Type   modType = null, bool         loadSavedData = true)
     {
         if (hamburburmodComp == null)
             return null;
@@ -209,8 +217,8 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
         List<ValueTuple<Type, hamburburmod>> mods = Buttons.Categories[category].ToList();
 
-        hamburburmodComp.LoadSavedDataWhenStartCalled = loadSavedData;
-        hamburburmodComp.AssociatedAttribute ??= modType.GetCustomAttribute<hamburburmodAttribute>();
+        hamburburmodComp.LoadSavedDataWhenStartCalled =   loadSavedData;
+        hamburburmodComp.AssociatedAttribute          ??= modType.GetCustomAttribute<hamburburmodAttribute>();
 
         if (hamburburmodComp.AssociatedAttribute == null)
         {
@@ -315,6 +323,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
         UpdateRevision++;
         StopTransitionAnimation();
         GUIHandler.Instance?.UpdateButtons();
+        MenuHandler.Instance?.UpdateCategoryButtons();
 
         for (int i = 0; i < ModButtons.Length; i++)
         {
@@ -331,12 +340,12 @@ public class ButtonHandler : Singleton<ButtonHandler>
                 case PromptType.AcceptAndDeny:
                     ModButtons[0].NormalButtonObject.SetActive(true);
                     ModButtons[0].NormalButtonObject.SetButtonRendererActive(false);
-                    ModButtons[0].NormalButton.OnPress                                = null;
-                    ModButtons[0].NormalTMP.text                                      = prompt.Title;
+                    ModButtons[0].NormalButton.OnPress = null;
+                    ModButtons[0].NormalTMP.text       = prompt.Title;
 
                     ModButtons[1].NormalButtonObject.SetActive(true);
                     ModButtons[1].NormalButtonObject.SetButtonRendererActive(true);
-                    ModButtons[1].NormalTMP.text                                      = prompt.TopButtonText;
+                    ModButtons[1].NormalTMP.text = prompt.TopButtonText;
                     ModButtons[1].NormalButton.OnPress = () =>
                                                          {
                                                              prompt.OnTopButtonPress?.Invoke();
@@ -346,7 +355,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
                     ModButtons[2].NormalButtonObject.SetActive(true);
                     ModButtons[2].NormalButtonObject.SetButtonRendererActive(true);
-                    ModButtons[2].NormalTMP.text                                      = prompt.BottomButtonText;
+                    ModButtons[2].NormalTMP.text = prompt.BottomButtonText;
                     ModButtons[2].NormalButton.OnPress = () =>
                                                          {
                                                              prompt.OnBottomButtonPress?.Invoke();
@@ -359,12 +368,12 @@ public class ButtonHandler : Singleton<ButtonHandler>
                 case PromptType.Continue:
                     ModButtons[0].NormalButtonObject.SetActive(true);
                     ModButtons[0].NormalButtonObject.SetButtonRendererActive(false);
-                    ModButtons[0].NormalButton.OnPress                                = null;
-                    ModButtons[0].NormalTMP.text                                      = prompt.Title;
+                    ModButtons[0].NormalButton.OnPress = null;
+                    ModButtons[0].NormalTMP.text       = prompt.Title;
 
                     ModButtons[1].NormalButtonObject.SetActive(true);
                     ModButtons[1].NormalButtonObject.SetButtonRendererActive(true);
-                    ModButtons[1].NormalTMP.text                                      = prompt.TopButtonText;
+                    ModButtons[1].NormalTMP.text = prompt.TopButtonText;
                     ModButtons[1].NormalButton.OnPress = () =>
                                                          {
                                                              prompt.OnTopButtonPress?.Invoke();
@@ -377,8 +386,8 @@ public class ButtonHandler : Singleton<ButtonHandler>
                 case PromptType.Keyboard:
                     ModButtons[0].NormalButtonObject.SetActive(true);
                     ModButtons[0].NormalButtonObject.SetButtonRendererActive(false);
-                    ModButtons[0].NormalButton.OnPress                                = null;
-                    ModButtons[0].NormalTMP.text                                      = prompt.Title;
+                    ModButtons[0].NormalButton.OnPress = null;
+                    ModButtons[0].NormalTMP.text       = prompt.Title;
 
                     if (KeyboardManager.Instance != null && !KeyboardManager.Instance.KeyboardOpen)
                     {
@@ -453,6 +462,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
                         ModButtons[slot].NormalTMP.text      = mod.ModName;
                         ModButtons[slot].IncrementalTMP.text = mod.ModName;
+
 
                         switch (mod.AssociatedAttribute.ButtonType)
                         {
@@ -574,6 +584,7 @@ public class ButtonHandler : Singleton<ButtonHandler>
                         ModButtons[slot].NormalTMP.text      = mod.ModName;
                         ModButtons[slot].IncrementalTMP.text = mod.ModName;
 
+
                         switch (mod.AssociatedAttribute.ButtonType)
                         {
                             case ButtonType.Togglable:
@@ -643,10 +654,10 @@ public class ButtonHandler : Singleton<ButtonHandler>
     private void BeginTransition()
     {
 
-        if (!AnimateButtons.IsEnabled ||
-            ButtonTransitionAnimation.CurrentIndex == 4 ||
-            MenuHandler.Instance?.MenuOpen != true ||
-            ModButtons == null ||
+        if (!AnimateButtons.IsEnabled                      ||
+            ButtonTransitionAnimation.CurrentIndex == 4    ||
+            MenuHandler.Instance?.MenuOpen         != true ||
+            ModButtons                             == null ||
             !gameObject.activeInHierarchy)
             return;
 
@@ -777,8 +788,6 @@ public class ButtonHandler : Singleton<ButtonHandler>
         animatedButtonStates.Clear();
     }
 
-    private void OnDisable() => StopTransitionAnimation();
-
     public void RefreshButtonText(hamburburmod mod)
     {
         int firstIndex = MenuHandler.Instance.PageIndex * ButtonsPerPage;
@@ -817,18 +826,16 @@ public class ButtonHandler : Singleton<ButtonHandler>
                 IncrementalTMP          = incrementalButton.transform.Find("TMP").GetComponent<TMP_Text>(),
 
                 NormalButton       = normalButton.AddComponent<ButtonCollider>(),
-                NormalTMP          = normalButton.GetComponentInChildren<TMP_Text>(),
+                NormalTMP          = normalButton.transform.Find("TMP").GetComponent<TMP_Text>(),
                 NormalButtonObject = normalButton.gameObject,
         };
     }
 
-    public static (Type, hamburburmod)[] GetAllMods()
-    {
-        return Buttons.Categories
-                      .SelectMany(x => x.Value)
-                      .Where(x => x.Item2 != null && PluginManager.IsModVisible(x.Item2))
-                      .ToArray();
-    }
+    public static (Type, hamburburmod)[] GetAllMods() =>
+            Buttons.Categories
+                   .SelectMany(x => x.Value)
+                   .Where(x => x.Item2 != null && PluginManager.IsModVisible(x.Item2))
+                   .ToArray();
 
     public static class SearchState
     {

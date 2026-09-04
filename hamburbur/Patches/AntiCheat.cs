@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GorillaTagScripts;
 using hamburbur.Managers;
 using hamburbur.Mods.Settings;
 using HarmonyLib;

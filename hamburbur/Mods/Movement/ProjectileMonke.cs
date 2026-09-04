@@ -54,7 +54,7 @@ public class LaunchPatch
 {
     public static void Prefix(Vector3 velocity, NetPlayer player)
     {
-        if (!player.IsLocal)
+        if (!player.IsLocal || !ProjectileMonke.IsEnabled)
             return;
 
         ProjectileMonke.Launch(velocity);

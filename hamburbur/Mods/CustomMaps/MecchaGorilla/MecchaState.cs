@@ -63,8 +63,8 @@ public static class MecchaState
 
     private static void OnEvent(EventData eventData)
     {
-        if (eventData.Code != MecchaEvents.Code || eventData.CustomData is not object[] content ||
-            content.Length == 0 || content[0] is not string name)
+        if (eventData.Code != CustomMapUtils.EventCode || eventData.CustomData is not object[] content ||
+            content.Length == 0                   || content[0] is not string name)
             return;
 
         PrepareRoom();

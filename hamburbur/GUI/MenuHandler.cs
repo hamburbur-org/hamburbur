@@ -6,6 +6,7 @@ using System.Reflection;
 using hamburbur.Components;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Mods.Categories;
 using hamburbur.Mods.Settings;
 using hamburbur.Tools;
 using TMPro;
@@ -15,6 +16,8 @@ namespace hamburbur.GUI;
 
 public class MenuHandler : Singleton<MenuHandler>
 {
+    private const string DedicatedCategoryDefault = nameof(Movement);
+
     public static List<(string, int)>     LastCategories     = [];
     public static Dictionary<string, int> CategoryPageMemory = new();
 
@@ -26,6 +29,7 @@ public class MenuHandler : Singleton<MenuHandler>
 
     public bool IsCanvasMenu;
     public bool HasDedicatedSearchButton { get; private set; }
+    public bool HasDedicatedCategoryButtons { get; private set; }
 
     public Color currentMainColour, currentSecondaryColour;
 
@@ -34,6 +38,11 @@ public class MenuHandler : Singleton<MenuHandler>
     private Coroutine typingCoroutine;
 
     public GameObject Menu { get; private set; }
+
+    private readonly List<CategoryButton> categoryButtonSlots = [];
+    private Transform categoryLastPage;
+    private Transform categoryNextPage;
+    private int categoryPageIndex;
 
     private void Start()
     {
@@ -93,6 +102,8 @@ public class MenuHandler : Singleton<MenuHandler>
                 ModRegistry.Register(modType, hamburburMod);
             }
 
+        AssignDuplicateConfigKeys();
+
         foreach (KeyValuePair<string, ValueTuple<Type, hamburburmod>[]> category in Buttons.Categories)
         {
             foreach ((Type modType, hamburburmod modComp) in category.Value)
@@ -121,6 +132,20 @@ public class MenuHandler : Singleton<MenuHandler>
         Plugin.Instance.ComponentHolder.AddComponent<GUIHandler>();
 
         StartCoroutine(OnStart());
+    }
+
+    private static void AssignDuplicateConfigKeys()
+    {
+        IEnumerable<IGrouping<string, (Type, hamburburmod)>> duplicateNames =
+                Buttons.Categories
+                       .SelectMany(category => category.Value)
+                       .Where(button => button.Item2?.AssociatedAttribute != null)
+                       .GroupBy(button => button.Item2.PreferencesKey)
+                       .Where(group => group.Count() > 1);
+
+        foreach (IGrouping<string, (Type, hamburburmod)> duplicateName in duplicateNames)
+            foreach ((Type type, hamburburmod mod) in duplicateName)
+                mod.ConfigKey = $"{duplicateName.Key}_{type.FullName ?? type.Name}";
     }
 
     private void Update()
@@ -190,6 +215,7 @@ public class MenuHandler : Singleton<MenuHandler>
         Transform title       = menu.transform.Find("Title");
         Transform miscButtons = menu.transform.Find("MiscButtons");
         Transform modButtons  = menu.transform.Find("ModButtons");
+        Transform categoryButtons = menu.transform.Find("CategoryButtons");
 
         if (version == null || title == null || miscButtons == null || modButtons == null)
         {
@@ -239,6 +265,15 @@ public class MenuHandler : Singleton<MenuHandler>
         if (HasDedicatedSearchButton)
             searchButton.AddComponent<ButtonCollider>().OnPress = Mods.Categories.Search.OpenSearch;
 
+        InitializeCategoryButtons(categoryButtons);
+
+        if (HasDedicatedCategoryButtons && Category == nameof(Main))
+        {
+            Category = DedicatedCategoryDefault;
+            PageIndex = 0;
+            LastCategories.Clear();
+        }
+
         modButtons.gameObject.AddComponent<ButtonHandler>().Initialize();
 
         previousMenu?.Obliterate();
@@ -274,6 +309,108 @@ public class MenuHandler : Singleton<MenuHandler>
         Instance.PageIndex               = lastPageIndex;
         ButtonHandler.Instance.UpdateButtons(true);
     }
+
+    private void InitializeCategoryButtons(Transform categoryButtons)
+    {
+        categoryButtonSlots.Clear();
+        categoryLastPage = null;
+        categoryNextPage = null;
+        categoryPageIndex = 0;
+        HasDedicatedCategoryButtons = categoryButtons != null;
+
+        if (!HasDedicatedCategoryButtons)
+            return;
+
+        for (int index = 1;; index++)
+        {
+            Transform button = categoryButtons.Find($"Button{index}");
+
+            if (button == null)
+                break;
+
+            Transform text = button.Find("TMP");
+
+            if (text == null || !text.TryGetComponent(out TMP_Text tmp))
+            {
+                Debug.LogWarning($"[hamburbur] CategoryButtons/Button{index} is missing its TMP text object.");
+                button.gameObject.SetActive(false);
+                continue;
+            }
+
+            categoryButtonSlots.Add(new CategoryButton(
+                    button.gameObject,
+                    button.gameObject.AddComponent<ButtonCollider>(),
+                    tmp));
+        }
+
+        categoryLastPage = categoryButtons.Find("LastPage");
+        categoryNextPage = categoryButtons.Find("NextPage");
+
+        if (categoryLastPage != null)
+            categoryLastPage.gameObject.AddComponent<ButtonCollider>().OnPress = LastCategoryPage;
+
+        if (categoryNextPage != null)
+            categoryNextPage.gameObject.AddComponent<ButtonCollider>().OnPress = NextCategoryPage;
+
+        UpdateCategoryButtons();
+    }
+
+    public void UpdateCategoryButtons()
+    {
+        if (!HasDedicatedCategoryButtons || categoryButtonSlots.Count == 0)
+            return;
+
+        (Type, hamburburmod)[] mainButtons = Buttons.GetVisibleCategory(nameof(Main));
+        int pageCount = Mathf.Max(1, Mathf.CeilToInt((float)mainButtons.Length / categoryButtonSlots.Count));
+        categoryPageIndex = Mathf.Clamp(categoryPageIndex, 0, pageCount - 1);
+
+        foreach (CategoryButton slot in categoryButtonSlots)
+            slot.GameObject.SetActive(false);
+
+        int firstIndex = categoryPageIndex * categoryButtonSlots.Count;
+
+        for (int slotIndex = 0; slotIndex < categoryButtonSlots.Count; slotIndex++)
+        {
+            int buttonIndex = firstIndex + slotIndex;
+
+            if (buttonIndex >= mainButtons.Length)
+                break;
+
+            hamburburmod mod = mainButtons[buttonIndex].Item2;
+
+            if (mod == null)
+                continue;
+
+            CategoryButton slot = categoryButtonSlots[slotIndex];
+            slot.Text.text = mod.ModName;
+            slot.Collider.OnPress = () => mod.Toggle(ButtonState.Normal);
+            slot.GameObject.SetActive(true);
+        }
+
+        bool hasMultiplePages = pageCount > 1;
+        categoryLastPage?.gameObject.SetActive(hasMultiplePages);
+        categoryNextPage?.gameObject.SetActive(hasMultiplePages);
+    }
+
+    private void LastCategoryPage()
+    {
+        int pageCount = GetCategoryPageCount();
+        categoryPageIndex = (categoryPageIndex - 1 + pageCount) % pageCount;
+        UpdateCategoryButtons();
+    }
+
+    private void NextCategoryPage()
+    {
+        int pageCount = GetCategoryPageCount();
+        categoryPageIndex = (categoryPageIndex + 1) % pageCount;
+        UpdateCategoryButtons();
+    }
+
+    private int GetCategoryPageCount() => categoryButtonSlots.Count == 0
+                                                  ? 1
+                                                  : Mathf.Max(1, Mathf.CeilToInt(
+                                                          (float)Buttons.GetVisibleCategory(nameof(Main)).Length /
+                                                          categoryButtonSlots.Count));
 
     private IEnumerator SetActiveAfterAFrame(GameObject menu)
     {
@@ -814,5 +951,12 @@ public class MenuHandler : Singleton<MenuHandler>
         return MenuTitleThemeName.IsEnabled && Themes.Instance != null
                        ? Themes.AllThemes[Themes.Instance.IncrementalValue].Item2
                        : Constants.PluginName;
+    }
+
+    private readonly struct CategoryButton(GameObject gameObject, ButtonCollider collider, TMP_Text text)
+    {
+        public readonly GameObject GameObject = gameObject;
+        public readonly ButtonCollider Collider = collider;
+        public readonly TMP_Text Text = text;
     }
 }

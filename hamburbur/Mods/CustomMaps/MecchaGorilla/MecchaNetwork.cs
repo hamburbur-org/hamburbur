@@ -18,7 +18,7 @@ public static class MecchaNetwork
         object[] content = new object[data.Length + 1];
         content[0] = eventName;
         Array.Copy(data, 0, content, 1, data.Length);
-        PhotonNetwork.RaiseEvent(MecchaEvents.Code, content,
+        PhotonNetwork.RaiseEvent(CustomMapUtils.EventCode, content,
                 new RaiseEventOptions { Receivers = ReceiverGroup.All, }, SendOptions.SendReliable);
     }
 

@@ -81,7 +81,7 @@ public class WalkerMovement : hamburburmod
 
     protected override void OnEnable()
     {
-        if (!Tools.Utils.InVR)
+        if (Tools.Utils.InVR)
         {
             NotificationManager.SendNotification("<color=grey>Info</color>", "You cannot use PC Walking whilst in VR",
                     3f, true, true);

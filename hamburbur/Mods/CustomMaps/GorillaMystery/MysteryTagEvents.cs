@@ -2,8 +2,6 @@ namespace hamburbur.Mods.CustomMaps.GorillaMystery;
 
 public static class MysteryTagEvents
 {
-    public const byte EventCode = 180;
-
     public const string ChangeWeaponState = "changeWeaponState";
     public const string ChooseMurder      = "chooseMurder";
     public const string ChooseSheriff     = "chooseSheriff";

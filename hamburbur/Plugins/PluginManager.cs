@@ -206,7 +206,13 @@ public sealed class PluginManager : Singleton<PluginManager>
         if (existing != null)
             return existing.Instance;
 
-        hamburburmod instance = ButtonHandler.AddButton(category, modType);
+        if (Activator.CreateInstance(modType) is not hamburburmod instance)
+            return null;
+
+        hamburburmodAttribute attribute = modType.GetCustomAttribute<hamburburmodAttribute>();
+        string buttonName = attribute?.Name ?? modType.Name;
+        instance.ConfigKey = $"{record.Name}_{buttonName}_{record.Id}_{GetTypeName(modType)}";
+        instance = ButtonHandler.AddButton(category, instance, true, modType);
         if (instance == null)
             return null;
 
@@ -429,25 +435,40 @@ public sealed class PluginManager : Singleton<PluginManager>
         {
             ButtonHandler.AddButton(category,
                     new PluginActionEntry("Reload Plugin", "Unload and load this plugin again",
-                            () => ReloadPlugin(record.Id)), register: false, loadSavedData: false);
+                            () => ReloadPlugin(record.Id))
+                    {
+                            ConfigKey = $"{record.Name}_Reload Plugin_{record.Id}",
+                    }, register: false, loadSavedData: false);
             ButtonHandler.AddButton(category,
                     new PluginActionEntry("Disable Plugin", "Unload this plugin and hide all of its mod buttons",
-                            () => DisablePlugin(record.Id)), register: false, loadSavedData: false);
+                            () => DisablePlugin(record.Id))
+                    {
+                            ConfigKey = $"{record.Name}_Disable Plugin_{record.Id}",
+                    }, register: false, loadSavedData: false);
         }
         else
         {
             ButtonHandler.AddButton(category,
                     new PluginActionEntry("Enable Plugin", "Load this plugin and restore its visible mod buttons",
-                            () => EnablePlugin(record.Id)), register: false, loadSavedData: false);
+                            () => EnablePlugin(record.Id))
+                    {
+                            ConfigKey = $"{record.Name}_Enable Plugin_{record.Id}",
+                    }, register: false, loadSavedData: false);
             ButtonHandler.AddButton(category,
                     new PluginActionEntry("Reload Plugin", "Reload the plugin assembly from disk",
-                            () => ReloadPlugin(record.Id)), register: false, loadSavedData: false);
+                            () => ReloadPlugin(record.Id))
+                    {
+                            ConfigKey = $"{record.Name}_Reload Plugin_{record.Id}",
+                    }, register: false, loadSavedData: false);
         }
 
         foreach (PluginModDescriptor mod in record.ModDescriptors)
             ButtonHandler.AddButton(category,
                     new PluginModVisibilityEntry(record.Id, mod,
-                            IsModVisible(record.Id, mod.TypeName)), register: false, loadSavedData: false);
+                            IsModVisible(record.Id, mod.TypeName))
+                    {
+                            ConfigKey = $"{record.Name}_{mod.Name}_{record.Id}_{mod.TypeName}_Visibility",
+                    }, register: false, loadSavedData: false);
     }
 
     private static void ClearManagementCategory(string category)

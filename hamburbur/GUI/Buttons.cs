@@ -5,6 +5,7 @@ using hamburbur.Misc;
 using hamburbur.Mod_Backend;
 using hamburbur.Plugins;
 using hamburbur.Mods.Categories;
+using hamburbur.Mods.Blocks;
 using hamburbur.Mods.Console;
 using hamburbur.Mods.Console.Assets;
 using hamburbur.Mods.Console.Fun;
@@ -192,6 +193,7 @@ public static class Buttons
             ["Safety Settings"] =
             [
                     (typeof(AntiReportType), null),
+                    (typeof(AntiModerator), null),
                     (typeof(RapidMasterSwitchProtection), null),
             ],
 
@@ -244,7 +246,6 @@ public static class Buttons
                     (typeof(USRegion), null),
                     (typeof(USWRegion), null),
                     (typeof(EURegion), null),
-                    (typeof(AntiModerator), null),
             ],
 
             [nameof(Macros)] =
@@ -269,6 +270,7 @@ public static class Buttons
                     (typeof(BoxESP3D), null),
                     (typeof(BoxESP2D), null),
                     (typeof(BoxESP4D), null),
+                    (typeof(InfoNametags), null),
                     (typeof(Boners), null),
                     (typeof(CosmeticEsp), null),
                     (typeof(RareCosmeticEsp), null),
@@ -309,6 +311,7 @@ public static class Buttons
                     (typeof(LobbyHopper), null),
                     (typeof(ARS), null),
                     (typeof(CopyIdGun), null),
+                    (typeof(CopyMSIdGun), null),
                     (typeof(SpecialCosmeticsCapture), null),
                     (typeof(VIMSpoof), null),
                     (typeof(CompleteQuests), null),
@@ -319,6 +322,7 @@ public static class Buttons
 
             [nameof(Rig)] =
             [
+                    (typeof(EvolvingCosmeticMenu), null),
                     (typeof(PCRig), null),
                     (typeof(RigTweaks), null),
                     (typeof(RigTweaksV2), null),
@@ -338,8 +342,11 @@ public static class Buttons
                     (typeof(Beyblade), null),
             ],
 
+            [EvolvingCosmeticManager.CategoryName] = [],
+
             [nameof(Fun)] =
             [
+                    (typeof(BlockMods), null),
                     (typeof(HamburburSpam), null),
                     (typeof(AlwaysGrabOwnership), null),
                     (typeof(BigBalls), null),
@@ -351,6 +358,25 @@ public static class Buttons
                     (typeof(FuckWithGShirtsNetworking), null),
                     (typeof(ReportGun), null),
                     (typeof(SolidPlayers), null),
+            ],
+
+            [nameof(BlockMods)] =
+            [
+                    (typeof(SelectBuilderBlockGun), null),
+                    (typeof(PlaceBuilderBlockGun), null),
+                    (typeof(RandomBuilderBlockType), null),
+                    (typeof(BlockWallGun), null),
+                    (typeof(BlockBridgeGun), null),
+                    (typeof(BlockStairsGun), null),
+                    (typeof(BlockWaveGun), null),
+                    (typeof(BlockRain), null),
+                    (typeof(BlockFountain), null),
+                    (typeof(BlockAura), null),
+                    (typeof(BlockTrail), null),
+                    (typeof(BlockFirework), null),
+                    (typeof(BuildBlockRing), null),
+                    (typeof(BuildBlockSpiral), null),
+                    (typeof(CleanupNearbyBuilderBlocks), null),
             ],
 
             [nameof(SoundBoard)] =
@@ -367,7 +393,6 @@ public static class Buttons
                     (typeof(LagGun), null),
                     (typeof(VStumpCrashGun), null),
                     (typeof(VStumpCrashAll), null),
-                    (typeof(BadBarrelFlingGun), null),
                     (typeof(ElevatorKickAll), null),
                     (typeof(FuckOffGroupJoining), null),
                     (typeof(TickDoesSomething), null),

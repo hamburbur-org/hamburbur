@@ -42,10 +42,7 @@ public static class MysteryTagState
         if (MurdererActorNumber == actorNumber)
             return MysteryTagRole.Murderer;
 
-        if (SheriffActorNumber == actorNumber)
-            return MysteryTagRole.Sheriff;
-
-        return MysteryTagRole.Innocent;
+        return SheriffActorNumber == actorNumber ? MysteryTagRole.Sheriff : MysteryTagRole.Innocent;
     }
 
     public static bool IsAlive(int actorNumber)
@@ -84,8 +81,8 @@ public static class MysteryTagState
 
     private static void OnEventReceived(EventData eventData)
     {
-        if (eventData.Code != MysteryTagEvents.EventCode || eventData.CustomData is not object[] content ||
-            content.Length == 0                          || content[0] is not string eventName)
+        if (eventData.Code != CustomMapUtils.EventCode || eventData.CustomData is not object[] content ||
+            content.Length == 0                        || content[0] is not string eventName)
             return;
 
         PrepareForCurrentRoom();
@@ -138,8 +135,7 @@ public static class MysteryTagState
                 break;
 
             case MysteryTagEvents.SheriffShot:
-                if (SheriffActorNumber == null)
-                    SheriffActorNumber = eventData.Sender;
+                SheriffActorNumber ??= eventData.Sender;
 
                 break;
 
@@ -181,10 +177,18 @@ public static class MysteryTagState
         if (!GameActive)
             return;
 
-        if (weaponType == 1 && MurdererActorNumber == null)
-            MurdererActorNumber = sender;
-        else if (weaponType == 2 && SheriffActorNumber == null)
-            SheriffActorNumber = sender;
+        switch (weaponType)
+        {
+            case 1 when MurdererActorNumber == null:
+                MurdererActorNumber = sender;
+
+                break;
+
+            case 2 when SheriffActorNumber == null:
+                SheriffActorNumber = sender;
+
+                break;
+        }
     }
 
     private static bool TryGetInt(object[] content, int index, out int value)

@@ -1,14 +1,9 @@
 using System;
-using System.Linq;
 using BepInEx;
-using ExitGames.Client.Photon;
-using GorillaLocomotion;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
 using hamburbur.Tools;
 using HarmonyLib;
-using Photon.Pun;
-using Photon.Realtime;
 using UnityEngine;
 
 namespace hamburbur.Mods.Rig;
@@ -48,10 +43,7 @@ public class RigTweaks : hamburburmod
             RigRotation = Quaternion.identity;
     }
 
-    protected override void OnEnable()
-    {
-        IsEnabled = true;
-    }
+    protected override void OnEnable() => IsEnabled = true;
 
     protected override void OnDisable() => IsEnabled = false;
 }

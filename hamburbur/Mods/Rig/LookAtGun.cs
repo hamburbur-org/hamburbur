@@ -9,10 +9,7 @@ public class LookAtGun : hamburburmod
 {
     private readonly GunLib gunLib = new() { ShouldFollow = true, };
 
-    protected override void Start()
-    {
-        gunLib.Start();
-    }
+    protected override void Start() => gunLib.Start();
 
     protected override void LateUpdate()
     {

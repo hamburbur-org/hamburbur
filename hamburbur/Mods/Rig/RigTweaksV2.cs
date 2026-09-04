@@ -48,10 +48,7 @@ public class RigTweaksV2 : hamburburmod
             RigRotation = Quaternion.identity;
     }
 
-    protected override void OnEnable()
-    {
-        IsEnabled = true;
-    }
+    protected override void OnEnable() => IsEnabled = true;
 
     protected override void OnDisable() => IsEnabled = false;
 }
