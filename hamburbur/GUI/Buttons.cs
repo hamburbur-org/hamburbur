@@ -291,6 +291,7 @@ public static class Buttons
 
             [nameof(Visual)] =
             [
+                    (typeof(AntiLurker), null),
                     (typeof(GhostVision), null),
                     (typeof(DisableTerraformer), null),
                     (typeof(ResetTime), null),
@@ -313,7 +314,6 @@ public static class Buttons
                     (typeof(FPSSpooferWeighted), null),
                     (typeof(ElevatorProximitySensor), null),
                     (typeof(EventLogger), null),
-                    //(typeof(AntiLurker), null),
                     (typeof(AntiAFK), null),
                     (typeof(LavaDistanceNotification), null),
                     (typeof(TagLagDetector), null),
@@ -431,6 +431,8 @@ public static class Buttons
                     (typeof(LucyAttackGun), null),
                     (typeof(LucyAttackAll), null),
                     (typeof(SpamLucyGong), null),
+                    (typeof(LurkerMoveGun), null),
+                    (typeof(LurkerAttackGun), null),
                     //(typeof(FastBroomsticks), null),
                     //(typeof(SlowBroomsticks), null),
                     (typeof(SpamGrayZone), null),

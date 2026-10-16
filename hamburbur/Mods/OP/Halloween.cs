@@ -1,11 +1,14 @@
+using System;
 using System.Collections;
 using GorillaLocomotion.Gameplay;
 using GorillaTagScripts;
 using hamburbur.Libs;
 using hamburbur.Managers;
 using hamburbur.Mod_Backend;
+using hamburbur.Mods.Visual;
 using Photon.Pun;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace hamburbur.Mods.OP;
 
@@ -70,6 +73,27 @@ public static class HalloweenInteractables
             lucy.currentState = HalloweenGhostChaser.ChaseState.Grabbing;
             lucy.grabTime     = Time.time;
             lucy.targetPlayer = target;
+        }
+        else
+        {
+            NotificationManager.SendNotification("<color=red>Error</color>", "You are not master client", 3f, true, false);
+        }
+    }
+    
+    public static void LurkerAttack(NetPlayer target)
+    {
+        LurkerGhost lurker = Lurker;
+
+        if (Tools.Utils.IsMasterClient || lurker.IsMine)
+        {
+            if (lurker.targetPlayer != target)
+            {
+                lurker.ChangeState(LurkerGhost.ghostState.patrol);
+                Tools.Utils.SendSerialize(lurker.GetView);
+            }
+
+            lurker.currentState = LurkerGhost.ghostState.possess;
+            lurker.targetPlayer = target;
         }
         else
         {
@@ -195,7 +219,7 @@ public class LucyChaseGun : hamburburmod
     protected override void OnDisable() => gunLib.OnDisable();
 }
 
-[hamburburmod("Lucy Attack Gun [M]" ,"Makes lucy attack the targer", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod("Lucy Attack Gun [M]" ,"Makes lucy attack the target", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class LucyAttackGun : hamburburmod
 {
     private readonly GunLib gunLib = new() { ShouldFollow = true, };
@@ -208,7 +232,7 @@ public class LucyAttackGun : hamburburmod
     {
         gunLib.LateUpdate();
 
-        if (!gunLib.IsShooting || gunLib.ChosenRig == null || !(lastTime + 0.5f < Time.time))
+        if (!gunLib.IsShooting || !gunLib.ChosenRig || !(lastTime + 0.5f < Time.time))
             return;
 
         HalloweenInteractables.LucyAttack(gunLib.ChosenRig.creator);
@@ -219,7 +243,7 @@ public class LucyAttackGun : hamburburmod
     protected override void OnDisable() => gunLib.OnDisable();
 }
 
-[hamburburmod("Lucy Attack All [M]" ,"Makes lucy attack the targer", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+[hamburburmod("Lucy Attack All [M]" ,"Makes lucy attack the target", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
 public class LucyAttackAll : hamburburmod
 {
     private float lastTime;
@@ -272,6 +296,59 @@ public class SpamLucyGong : hamburburmod
         lucy.targetPlayer = PhotonNetwork.PlayerList[Random.Range(0, PhotonNetwork.PlayerList.Length)];
         lucy.followTarget = VRRig.LocalRig.head.rigTarget;
     }
+}
+
+[hamburburmod("Lurker Move Gun [M]", "Moves the lurker to wherever you want", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+public class LurkerMoveGun : hamburburmod
+{
+    protected override Type[] IncompatibleMods => [typeof(AntiLurker),];
+
+    private readonly GunLib gunLib = new() { ShouldFollow = true, };
+
+    protected override void Start() => gunLib.Start();
+
+    protected override void LateUpdate()
+    {
+        gunLib.LateUpdate();
+
+        if (!gunLib.IsShooting)
+            return;
+
+        LurkerGhost lurker = HalloweenInteractables.Lurker;
+
+        if (Tools.Utils.IsMasterClient || lurker.IsMine)
+            lurker.transform.position = gunLib.Hit.point;
+        else
+            NotificationManager.SendNotification("<color=red>Error</color>", "You are not master client", 3f, true, false);
+    }
+
+    protected override void OnDisable() => gunLib.OnDisable();
+}
+
+[hamburburmod("Lurker Attack Gun [M]" ,"Makes lurker attack the target", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
+public class LurkerAttackGun : hamburburmod
+{
+    protected override Type[] IncompatibleMods => [typeof(AntiLurker),];
+    
+    private readonly GunLib gunLib = new() { ShouldFollow = true, };
+
+    private float lastTime;
+
+    protected override void Start() => gunLib.Start();
+
+    protected override void LateUpdate()
+    {
+        gunLib.LateUpdate();
+
+        if (!gunLib.IsShooting || !gunLib.ChosenRig || !(lastTime + 0.5f < Time.time))
+            return;
+
+        HalloweenInteractables.LurkerAttack(gunLib.ChosenRig.creator);
+            
+        lastTime = Time.time;
+    }
+
+    protected override void OnDisable() => gunLib.OnDisable();
 }
 
 [hamburburmod("Fast Broomsticks [M]", "Makes the broomsticks fast", ButtonType.Togglable, AccessSetting.Public, EnabledType.Disabled, 0)]
