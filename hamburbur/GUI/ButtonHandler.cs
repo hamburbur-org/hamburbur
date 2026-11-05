@@ -119,6 +119,8 @@ public class ButtonHandler : Singleton<ButtonHandler>
 
     private readonly List<PromptData> currentPrompts           = [];
     private readonly List<GameObject> visibleTransitionButtons = [];
+    private (Type, hamburburmod)[] visibleMainButtons  = [];
+    private int                       visibleMainRevision = -1;
 
     public ModButton[] ModButtons;
 
@@ -866,27 +868,50 @@ public class ButtonHandler : Singleton<ButtonHandler>
         animatedButtonStates.Clear();
     }
 
-    public void RefreshButtonText(hamburburmod mod)
+    private int GetVisibleMainButtonSlot(hamburburmod mod)
     {
+        if (mod == null || MenuHandler.Instance?.Category != nameof(Main) || currentPrompts.Count > 0)
+            return -1;
+
+        if (visibleMainRevision != UpdateRevision)
+        {
+            visibleMainButtons = Buttons.GetVisibleCategory(nameof(Main));
+            visibleMainRevision = UpdateRevision;
+        }
+
         int firstIndex = MenuHandler.Instance.PageIndex * ButtonsPerPage;
 
-        for (int slot = 0; slot < ButtonsPerPage; slot++)
+        for (int slot = 0; slot < ModButtons.Length; slot++)
         {
             int index = firstIndex + slot;
 
-            (Type, hamburburmod)[] visibleMain = Buttons.GetVisibleCategory(nameof(Main));
+            if (index >= visibleMainButtons.Length)
+                return -1;
 
-            if (index >= visibleMain.Length)
-                return;
-
-            if (visibleMain[index].Item2 != mod)
+            if (visibleMainButtons[index].Item2 != mod || !ModButtons[slot].NormalButtonObject.activeInHierarchy)
                 continue;
 
-            ModButtons[slot].NormalTMP.text      = Buttons.GetDisplayName(mod);
-            ModButtons[slot].IncrementalTMP.text = Buttons.GetDisplayName(mod);
-
-            return;
+            return slot;
         }
+
+        return -1;
+    }
+
+    public TMP_Text GetVisibleMainButtonText(hamburburmod mod)
+    {
+        int slot = GetVisibleMainButtonSlot(mod);
+        return slot >= 0 ? ModButtons[slot].NormalTMP : null;
+    }
+
+    public void RefreshButtonText(hamburburmod mod)
+    {
+        int slot = GetVisibleMainButtonSlot(mod);
+        if (slot < 0)
+            return;
+
+        string displayName = Buttons.GetDisplayName(mod);
+        ModButtons[slot].NormalTMP.text      = displayName;
+        ModButtons[slot].IncrementalTMP.text = displayName;
     }
 
     private ModButton GetButton(int index)

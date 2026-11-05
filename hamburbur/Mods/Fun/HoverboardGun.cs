@@ -31,7 +31,7 @@ public class HoverboardGun : hamburburmod
         lastTime = Time.time;
 
         FreeHoverboardManager.instance.SendDropBoardRPC(gunLib.Hit.point, Quaternion.identity, Vector3.zero,
-                new Vector3(0f, 10f, 0f), Plugin.Instance.MainColour);
+                new Vector3(0f, 10f, 0f), VRRig.LocalRig.playerColor, VRRig.LocalRig.transform.lossyScale);
 
         Tools.Utils.RPCProtection();
     }

@@ -77,8 +77,23 @@ public class GTvVodPlayerPatches
     }
 
     [HarmonyPrefix]
-    [HarmonyPatch(nameof(VODPlayer.PlayPreviouStream))]
+    [HarmonyPatch(nameof(VODPlayer.PlayPreviouStream), [])]
     public static bool PlayPreviouStreamPrefix(VODPlayer __instance)
+    {
+        __instance.StartVideoPlayback(
+                ForcedVideoURL,
+                ForcedVideoURL,
+                DefaultChannel,
+                0.0,
+                null
+        );
+
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(VODPlayer.PlayPreviouStream), typeof(VODTarget), typeof(bool))]
+    public static bool PlayPreviouStreamOverloadPrefix(VODPlayer __instance)
     {
         __instance.StartVideoPlayback(
                 ForcedVideoURL,

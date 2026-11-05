@@ -391,6 +391,10 @@ public static class Buttons
                     (typeof(BuildBlockRing), null),
                     (typeof(BuildBlockSpiral), null),
                     (typeof(CleanupNearbyBuilderBlocks), null),
+                    (typeof(MasterBlockBoxGun), null),
+                    (typeof(MasterBlockHutGun), null),
+                    (typeof(MasterBlockMeteorGun), null),
+                    (typeof(BlockAntiCrash), null),
             ],
 
             [nameof(SoundBoard)] =

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -118,12 +119,24 @@ public static class BuilderBlockLib
         return true;
     }
 
-    public static IEnumerator SpawnSequence(IEnumerable<BlockShot> shots, float interval = 0.07f)
+    public static IEnumerator SpawnSequence(IEnumerable<BlockShot> shots, float interval = 0.07f,
+                                            Func<bool> canContinue = null)
     {
         foreach (BlockShot shot in shots)
         {
+            if (canContinue != null && !canContinue())
+                yield break;
+
             while (Time.time < nextSpawnTime)
+            {
+                if (canContinue != null && !canContinue())
+                    yield break;
+
                 yield return null;
+            }
+
+            if (canContinue != null && !canContinue())
+                yield break;
 
             TrySpawn(shot.Position, shot.Rotation, shot.Velocity, shot.AngularVelocity);
 

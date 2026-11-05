@@ -24,7 +24,7 @@ public class MacroGun : hamburburmod
         gunLib.LateUpdate();
         chosenRig = gunLib.ChosenRig;
 
-        if (gunLib.IsShooting && chosenRig != null)
+        if (gunLib.IsShooting && chosenRig)
         {
             if (!MacroRecorder.RecordingMacro)
             {
